@@ -1,0 +1,58 @@
+{
+  "approval_notice": "Manual approval required. No trades executed.",
+  "approval_status": "manual_skipped",
+  "as_of": "2026-06-04",
+  "blocked_actions": [
+    {
+      "amount": 103.85,
+      "asset": "growth_nasdaq_etf",
+      "reason": "growth_nasdaq_etf blocked: Lightyear platform is not ready."
+    }
+  ],
+  "executable_allocation": {
+    "btc": 41.54,
+    "tactical_reserve": 62.31
+  },
+  "fallback_actions": [
+    {
+      "amount": 41.54,
+      "asset": "btc",
+      "reason": "btc fallback selected: LHV Crypto is ready, BTC is underweight, and crypto risk limits allow it."
+    }
+  ],
+  "ideal_allocation": {
+    "growth_nasdaq_etf": 103.85
+  },
+  "manual_decision": {
+    "decision": "skipped",
+    "note": "Test-mode verification; no real approval.",
+    "safety_line": "Manual approval required. No trades executed.",
+    "timestamp": "2026-06-03T23:31:52+00:00",
+    "trades_executed": false
+  },
+  "portfolio_mode": "transition_mode",
+  "reserve_actions": [
+    {
+      "amount": 62.31,
+      "asset": "tactical_reserve",
+      "reason": "btc fallback capped: weekly crypto throttle limited BTC buy to \u20ac41.54. tactical_reserve used: remaining \u20ac62.31 held until ETF route is ready."
+    }
+  ],
+  "safety_checks": [
+    "Manual approval required. No trades executed.",
+    "No broker connection.",
+    "No API keys.",
+    "No orders created.",
+    "No automatic selling."
+  ],
+  "test_decision": true,
+  "ticket_id": "JARVIS-2026-06-04-transition_mode",
+  "timestamp": "2026-06-04",
+  "trades_executed": false,
+  "warnings": [
+    "growth_nasdaq_etf blocked: Lightyear platform is not ready.",
+    "btc fallback selected: LHV Crypto is ready, BTC is underweight, and crypto risk limits allow it.",
+    "btc fallback capped: weekly crypto throttle limited BTC buy to \u20ac41.54. tactical_reserve used: remaining \u20ac62.31 held until ETF route is ready."
+  ],
+  "weekly_budget": 103.85
+}

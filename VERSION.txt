@@ -1,0 +1,6 @@
+J.A.R.V.I.S. Portfolio OS v0.2
+ETF scoring engine
+Safe manual-control build
+No broker connections
+No API keys
+No trade execution
