@@ -1,0 +1,8 @@
+{
+  "description": "Example universe review output is generated from local fixtures.",
+  "read_only": true,
+  "no_registry_changes": true,
+  "no_approvals_created": true,
+  "no_buy_sell_requests": true,
+  "no_trades_executed": true
+}
