@@ -1,0 +1,80 @@
+{
+  "policy_id": "jarvis_aggressive_safe_v1",
+  "name": "J.A.R.V.I.S. Aggressive Safe Manual Policy",
+  "version": "1.4",
+  "base_currency": "EUR",
+  "total_investable_target": 1.0,
+  "manual_approval_required": true,
+  "sleeves": [
+    {
+      "sleeve_id": "global_core",
+      "name": "Global Core",
+      "target_weight": 0.45,
+      "min_weight": 0.35,
+      "max_weight": 0.60,
+      "allowed_asset_types": ["ETF"],
+      "required": true,
+      "max_assets": 1,
+      "notes": "Broad global equity core."
+    },
+    {
+      "sleeve_id": "growth_innovation",
+      "name": "Growth Innovation",
+      "target_weight": 0.15,
+      "min_weight": 0.00,
+      "max_weight": 0.25,
+      "allowed_asset_types": ["ETF"],
+      "required": false,
+      "max_assets": 1
+    },
+    {
+      "sleeve_id": "quality_factor",
+      "name": "Quality Factor",
+      "target_weight": 0.10,
+      "min_weight": 0.00,
+      "max_weight": 0.18,
+      "allowed_asset_types": ["ETF"],
+      "required": false,
+      "max_assets": 1
+    },
+    {
+      "sleeve_id": "crypto_core",
+      "name": "Crypto Core",
+      "target_weight": 0.10,
+      "min_weight": 0.00,
+      "max_weight": 0.15,
+      "allowed_asset_types": ["crypto"],
+      "required": false,
+      "max_assets": 1
+    },
+    {
+      "sleeve_id": "speculative_crypto",
+      "name": "Speculative Crypto",
+      "target_weight": 0.05,
+      "min_weight": 0.00,
+      "max_weight": 0.10,
+      "allowed_asset_types": ["crypto"],
+      "required": false,
+      "max_assets": 2
+    },
+    {
+      "sleeve_id": "tactical_cash",
+      "name": "Tactical Cash",
+      "target_weight": 0.15,
+      "min_weight": 0.05,
+      "max_weight": 0.25,
+      "allowed_asset_types": ["cash"],
+      "required": false,
+      "max_assets": 1
+    }
+  ],
+  "constraints": {
+    "max_total_crypto_weight": 0.25,
+    "max_single_asset_weight": 0.60,
+    "max_speculative_crypto_weight": 0.10,
+    "max_high_risk_weight": 0.20,
+    "min_emergency_cash_eur": 3000.0,
+    "no_leverage": true,
+    "no_auto_execution": true
+  }
+}
