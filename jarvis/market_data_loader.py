@@ -3,34 +3,25 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
+
+from .data_contracts import (
+    NormalizedMarketDataSnapshot,
+    NormalizedMarketSeries,
+    NormalizedPricePoint,
+    SourceMetadata,
+)
 
 
 class MarketDataError(ValueError):
     """Raised when local market data fixture input is malformed."""
 
 
-@dataclass(frozen=True)
-class PricePoint:
-    date: date
-    close: float
-
-
-@dataclass(frozen=True)
-class MarketSeries:
-    asset_id: str
-    currency: str
-    prices: tuple[PricePoint, ...]
-
-
-@dataclass(frozen=True)
-class MarketDataSnapshot:
-    as_of: date
-    base_currency: str
-    series: tuple[MarketSeries, ...]
+PricePoint = NormalizedPricePoint
+MarketSeries = NormalizedMarketSeries
+MarketDataSnapshot = NormalizedMarketDataSnapshot
 
 
 def _require_mapping(value: Any, label: str) -> dict[str, Any]:
@@ -73,6 +64,13 @@ def load_market_data(path: str | Path) -> MarketDataSnapshot:
     if not isinstance(raw_series, list):
         raise MarketDataError("series must be a list.")
 
+    source_metadata = SourceMetadata(
+        source_id=str(Path(path)),
+        source_name="Local JSON market fixture",
+        source_quality="fixture",
+        as_of=as_of,
+        read_only=True,
+    )
     parsed_series: list[MarketSeries] = []
     for series_index, raw_series_item in enumerate(raw_series):
         item = _require_mapping(raw_series_item, f"series[{series_index}]")
@@ -92,6 +90,23 @@ def load_market_data(path: str | Path) -> MarketDataSnapshot:
             seen_dates.add(price_date)
             prices.append(PricePoint(price_date, _parse_positive_close(price.get("close"))))
 
-        parsed_series.append(MarketSeries(asset_id, currency, tuple(sorted(prices, key=lambda point: point.date))))
+        sorted_prices = tuple(sorted(prices, key=lambda point: point.date))
+        latest_date = sorted_prices[-1].date
+        parsed_series.append(
+            MarketSeries(
+                asset_id,
+                currency,
+                sorted_prices,
+                SourceMetadata(
+                    source_id=str(Path(path)),
+                    source_name="Local JSON market fixture",
+                    source_quality="fixture",
+                    as_of=as_of,
+                    retrieved_at=latest_date,
+                    freshness_days=(as_of - latest_date).days,
+                    read_only=True,
+                ),
+            )
+        )
 
-    return MarketDataSnapshot(as_of, base_currency, tuple(parsed_series))
+    return MarketDataSnapshot(as_of, base_currency, tuple(parsed_series), source_metadata)

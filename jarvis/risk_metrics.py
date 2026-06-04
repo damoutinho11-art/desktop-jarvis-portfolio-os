@@ -6,7 +6,7 @@ import math
 from dataclasses import dataclass
 from datetime import timedelta
 
-from .market_data_loader import MarketDataSnapshot, MarketSeries, PricePoint
+from .data_contracts import NormalizedMarketDataSnapshot, NormalizedMarketSeries, NormalizedPricePoint
 
 
 WINDOW_DAYS = {
@@ -57,21 +57,28 @@ def _round_metric(value: float) -> float:
     return round(value, 6)
 
 
-def _price_on_or_before(prices: tuple[PricePoint, ...], target_date) -> PricePoint | None:
+def _price_on_or_before(
+    prices: tuple[NormalizedPricePoint, ...],
+    target_date,
+) -> NormalizedPricePoint | None:
     candidates = [point for point in prices if point.date <= target_date]
     if not candidates:
         return None
     return candidates[-1]
 
 
-def _window_return(prices: tuple[PricePoint, ...], latest: PricePoint, days: int) -> float | None:
+def _window_return(
+    prices: tuple[NormalizedPricePoint, ...],
+    latest: NormalizedPricePoint,
+    days: int,
+) -> float | None:
     start = _price_on_or_before(prices, latest.date - timedelta(days=days))
     if start is None:
         return None
     return _round_metric((latest.close / start.close) - 1.0)
 
 
-def _annualized_volatility(prices: tuple[PricePoint, ...]) -> float | None:
+def _annualized_volatility(prices: tuple[NormalizedPricePoint, ...]) -> float | None:
     returns = []
     for previous, current in zip(prices, prices[1:]):
         returns.append(math.log(current.close / previous.close))
@@ -82,7 +89,7 @@ def _annualized_volatility(prices: tuple[PricePoint, ...]) -> float | None:
     return _round_metric(math.sqrt(variance) * math.sqrt(252))
 
 
-def _max_drawdown(prices: tuple[PricePoint, ...]) -> float:
+def _max_drawdown(prices: tuple[NormalizedPricePoint, ...]) -> float:
     high = prices[0].close
     max_drawdown = 0.0
     for point in prices:
@@ -92,7 +99,7 @@ def _max_drawdown(prices: tuple[PricePoint, ...]) -> float:
     return _round_metric(max_drawdown)
 
 
-def compute_risk_metrics_for_series(series: MarketSeries, as_of) -> RiskMetricResult:
+def compute_risk_metrics_for_series(series: NormalizedMarketSeries, as_of) -> RiskMetricResult:
     prices = series.prices
     latest = prices[-1]
     high = max(point.close for point in prices)
@@ -105,7 +112,10 @@ def compute_risk_metrics_for_series(series: MarketSeries, as_of) -> RiskMetricRe
         if value is None:
             warnings.append(f"{series.asset_id}: insufficient data for {metric_name}.")
 
-    if (as_of - latest.date).days > 7:
+    freshness_days = (as_of - latest.date).days
+    if series.source_metadata and series.source_metadata.freshness_days is not None:
+        freshness_days = series.source_metadata.freshness_days
+    if freshness_days > 7:
         warnings.append(f"{series.asset_id}: latest price is older than 7 days from as_of.")
     if len(prices) < 10:
         warnings.append(f"{series.asset_id}: fewer than 10 price points available.")
@@ -134,5 +144,5 @@ def compute_risk_metrics_for_series(series: MarketSeries, as_of) -> RiskMetricRe
     )
 
 
-def compute_market_risk_metrics(snapshot: MarketDataSnapshot) -> list[RiskMetricResult]:
+def compute_market_risk_metrics(snapshot: NormalizedMarketDataSnapshot) -> list[RiskMetricResult]:
     return [compute_risk_metrics_for_series(series, snapshot.as_of) for series in snapshot.series]
