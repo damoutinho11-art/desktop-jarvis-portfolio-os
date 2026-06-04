@@ -1,0 +1,7 @@
+{
+  "description": "Example bridge output is generated from local contribution plan fixtures.",
+  "read_only_by_default": true,
+  "no_automatic_approvals": true,
+  "no_execution": true,
+  "no_trades_executed": true
+}
