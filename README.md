@@ -77,6 +77,12 @@ J.A.R.V.I.S. does not recommend new buys into legacy instruments and does not re
 python run_weekly_allocation.py
 ```
 
+Optional spoken weekly briefing:
+
+```bash
+python run_weekly_allocation.py --speak
+```
+
 On Windows, depending on your Python launcher:
 
 ```bash
@@ -121,6 +127,12 @@ Print read-only portfolio status:
 python status.py
 ```
 
+Optional spoken read-only status briefing:
+
+```bash
+python status.py --speak
+```
+
 ## Tests
 
 Run the v0.1 stability checkpoint:
@@ -146,6 +158,14 @@ Run the status command tests:
 ```bash
 python test_status.py
 ```
+
+Run the voice briefing tests:
+
+```bash
+python test_voice_briefing.py
+```
+
+Voice output is output-only. It cannot approve tickets, modify files, append logs by itself, or execute trades. If `pyttsx3` is unavailable, J.A.R.V.I.S. prints a voice fallback line instead of failing.
 
 ## ETF Scoring
 
