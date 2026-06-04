@@ -1,0 +1,43 @@
+{
+  "assets": [
+    {
+      "asset_id": "quality_etf_candidate",
+      "name": "Quality ETF manual candidate",
+      "asset_type": "ETF",
+      "sleeve": "quality_etf",
+      "ticker": "UNKNOWN",
+      "isin_or_symbol": "UNKNOWN",
+      "platforms": ["Lightyear"],
+      "currency": "EUR",
+      "domicile": "Ireland",
+      "distribution_policy": "accumulating",
+      "ter_or_fee": 0.0,
+      "data_source": "manual_placeholder",
+      "approval_status": "candidate_unreviewed",
+      "risk_level": "medium",
+      "provider": "unknown",
+      "index_tracked": "unknown",
+      "replication_method": "unknown"
+    },
+    {
+      "asset_id": "btc_test_position",
+      "name": "Bitcoin test position placeholder",
+      "asset_type": "crypto",
+      "sleeve": "btc",
+      "ticker": "BTC",
+      "isin_or_symbol": "BTC",
+      "platforms": ["LHV Crypto Investments"],
+      "currency": "EUR",
+      "domicile": "not_applicable",
+      "distribution_policy": "not_applicable",
+      "ter_or_fee": 0.0,
+      "data_source": "manual_placeholder",
+      "approval_status": "test_position",
+      "risk_level": "high",
+      "network_or_protocol": "Bitcoin",
+      "custody_platforms": ["LHV Crypto Investments"],
+      "transferable": false,
+      "mica_route_possible": true
+    }
+  ]
+}
