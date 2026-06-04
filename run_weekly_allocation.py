@@ -68,10 +68,21 @@ def blocked_platform_phrase(ticket: dict) -> str:
 
 def build_weekly_voice_briefing(result: dict) -> str:
     ticket = result["approval_ticket"]
+    blocked_actions = ticket.get("blocked_actions", [])
+    if blocked_actions:
+        ideal_sentence = (
+            f"The ideal allocation is {allocation_summary(ticket['ideal_allocation'])}, "
+            f"but {blocked_platform_phrase(ticket)}"
+        )
+    else:
+        ideal_sentence = (
+            f"The ideal allocation is {allocation_summary(ticket['ideal_allocation'])}. "
+            "The route is ready."
+        )
+
     return (
         f"Sir, portfolio mode is {mode_label(ticket['portfolio_mode'])}. "
-        f"The ideal allocation is {allocation_summary(ticket['ideal_allocation'])}, "
-        f"but {blocked_platform_phrase(ticket)} "
+        f"{ideal_sentence} "
         f"My executable recommendation is {allocation_summary(ticket['executable_allocation'])}. "
         "Manual approval required. No trades executed."
     )

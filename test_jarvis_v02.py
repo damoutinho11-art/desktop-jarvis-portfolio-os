@@ -43,8 +43,8 @@ class JarvisV02Tests(unittest.TestCase):
 
     def test_etf_scoring_does_not_affect_crypto_safety_rules(self) -> None:
         ticket = self.result["approval_ticket"]
-        self.assertEqual(ticket["executable_allocation"]["btc"], 41.54)
-        self.assertEqual(ticket["executable_allocation"]["tactical_reserve"], 62.31)
+        self.assertNotIn("btc", ticket["executable_allocation"])
+        self.assertEqual(ticket["fallback_actions"], [])
         self.assertLessEqual(
             self.result["crypto_risk_status"]["btc_weight"],
             self.result["crypto_risk_status"]["btc_max"],
@@ -61,7 +61,7 @@ class JarvisV02Tests(unittest.TestCase):
 
         self.assertEqual(top_sleeve, "quality_etf")
         self.assertEqual(self.result["approval_ticket"]["ideal_allocation"][top_sleeve], 103.85)
-        self.assertEqual(self.result["approval_ticket"]["blocked_actions"][0]["asset"], top_sleeve)
+        self.assertEqual(self.result["approval_ticket"]["executable_allocation"][top_sleeve], 103.85)
 
     def test_etf_scoring_verdict_is_in_ticket(self) -> None:
         verdict = self.result["approval_ticket"]["etf_scoring_verdict"]

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from copy import deepcopy
 import json
 import os
 import subprocess
@@ -38,9 +39,23 @@ class VoiceBriefingTests(unittest.TestCase):
 
         self.assertIn("Sir, portfolio mode is transition.", briefing)
         self.assertIn("€103.85 to Quality ETF", briefing)
-        self.assertIn("€41.54 to Bitcoin", briefing)
-        self.assertIn("€62.31 to tactical reserve", briefing)
-        self.assertIn("Lightyear is not ready.", briefing)
+        self.assertIn("The route is ready.", briefing)
+        self.assertIn("No trades executed.", briefing)
+
+    def test_weekly_voice_omits_awkward_but_when_route_ready(self) -> None:
+        result = allocation_engine.build_weekly_result()
+        ready_result = deepcopy(result)
+        ticket = ready_result["approval_ticket"]
+        ticket["blocked_actions"] = []
+        ticket["warnings"] = []
+        ticket["ideal_allocation"] = {"quality_etf": 103.85}
+        ticket["executable_allocation"] = {"quality_etf": 103.85}
+
+        briefing = run_weekly_allocation.build_weekly_voice_briefing(ready_result)
+
+        self.assertNotIn("but No platform route", briefing)
+        self.assertIn("The route is ready.", briefing)
+        self.assertIn("€103.85 to Quality ETF", briefing)
         self.assertIn("No trades executed.", briefing)
 
     def test_status_speak_is_read_only_and_prints_fallback(self) -> None:
@@ -68,7 +83,7 @@ class VoiceBriefingTests(unittest.TestCase):
             self.assertEqual(completed.returncode, 0, completed.stderr)
             self.assertIn("J.A.R.V.I.S. voice fallback:", completed.stdout)
             self.assertIn("Sir, portfolio mode is transition.", completed.stdout)
-            self.assertIn("Lightyear and Kraken are not ready.", completed.stdout)
+            self.assertIn("Kraken is not ready.", completed.stdout)
             self.assertIn("No trades executed.", completed.stdout)
             self.assertFalse((root / "outputs" / "approval_ticket_latest.json").exists())
             self.assertFalse((root / "outputs" / "decision_log.jsonl").exists())
@@ -103,14 +118,14 @@ class VoiceBriefingTests(unittest.TestCase):
 
             self.assertEqual(spoken_ticket, normal_ticket)
             self.assertIn("J.A.R.V.I.S. voice fallback:", spoken.stdout)
-            self.assertIn("€41.54 to Bitcoin", spoken.stdout)
-            self.assertIn("€62.31 to tactical reserve", spoken.stdout)
+            self.assertIn("€103.85 to Quality ETF", spoken.stdout)
+            self.assertIn("The route is ready.", spoken.stdout)
             self.assertIn("No trades executed.", spoken.stdout)
 
     def test_status_voice_text_contains_required_safety_line(self) -> None:
         briefing = status.build_status_voice_briefing()
         self.assertIn("Sir, portfolio mode is transition.", briefing)
-        self.assertIn("Lightyear and Kraken are not ready.", briefing)
+        self.assertIn("Kraken is not ready.", briefing)
         self.assertIn("Emergency funds remain excluded.", briefing)
         self.assertIn("Status only.", briefing)
         self.assertIn("No trades executed.", briefing)

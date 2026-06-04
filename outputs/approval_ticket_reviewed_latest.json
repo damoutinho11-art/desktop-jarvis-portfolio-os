@@ -5,10 +5,62 @@
   "blocked_actions": [
     {
       "amount": 103.85,
-      "asset": "growth_nasdaq_etf",
-      "reason": "growth_nasdaq_etf blocked: Lightyear platform is not ready."
+      "asset": "quality_etf",
+      "reason": "quality_etf blocked: Lightyear platform is not ready."
     }
   ],
+  "etf_scoring_verdict": {
+    "selected_ideal_etf": "quality_etf",
+    "selected_label": "Selected ideal ETF sleeve: quality_etf",
+    "sleeves": [
+      {
+        "final_score": 83.0,
+        "main_penalties": [
+          "no major scoring penalty"
+        ],
+        "main_positive_drivers": [
+          "allocation gap",
+          "fee/liquidity",
+          "concentration"
+        ],
+        "rank": 1,
+        "reason": "Selected ideal ETF sleeve: quality_etf. It has the strongest eligible ETF score after allocation gap, valuation/risk, concentration, and fee/liquidity inputs. Execution is still blocked because Lightyear is not ready.",
+        "selected": true,
+        "sleeve": "quality_etf"
+      },
+      {
+        "final_score": 79.0,
+        "main_penalties": [
+          "concentration penalty",
+          "valuation/risk input"
+        ],
+        "main_positive_drivers": [
+          "allocation gap",
+          "fee/liquidity",
+          "momentum"
+        ],
+        "rank": 2,
+        "reason": "Not selected: lower score than quality_etf. Platform blocked: Lightyear is not ready.",
+        "selected": false,
+        "sleeve": "growth_nasdaq_etf"
+      },
+      {
+        "final_score": 50.3427,
+        "main_penalties": [
+          "no major scoring penalty"
+        ],
+        "main_positive_drivers": [
+          "fee/liquidity",
+          "concentration",
+          "valuation/risk"
+        ],
+        "rank": 3,
+        "reason": "Not selected: lower score than quality_etf. Platform blocked: Lightyear is not ready.",
+        "selected": false,
+        "sleeve": "global_core_etf"
+      }
+    ]
+  },
   "executable_allocation": {
     "btc": 41.54,
     "tactical_reserve": 62.31
@@ -21,13 +73,13 @@
     }
   ],
   "ideal_allocation": {
-    "growth_nasdaq_etf": 103.85
+    "quality_etf": 103.85
   },
   "manual_decision": {
     "decision": "skipped",
-    "note": "Test-mode verification; no real approval.",
+    "note": "Lightyear is now approved, so the previous BTC fallback ticket is outdated.",
     "safety_line": "Manual approval required. No trades executed.",
-    "timestamp": "2026-06-03T23:31:52+00:00",
+    "timestamp": "2026-06-04T16:39:40+00:00",
     "trades_executed": false
   },
   "portfolio_mode": "transition_mode",
@@ -45,12 +97,11 @@
     "No orders created.",
     "No automatic selling."
   ],
-  "test_decision": true,
   "ticket_id": "JARVIS-2026-06-04-transition_mode",
   "timestamp": "2026-06-04",
   "trades_executed": false,
   "warnings": [
-    "growth_nasdaq_etf blocked: Lightyear platform is not ready.",
+    "quality_etf blocked: Lightyear platform is not ready.",
     "btc fallback selected: LHV Crypto is ready, BTC is underweight, and crypto risk limits allow it.",
     "btc fallback capped: weekly crypto throttle limited BTC buy to \u20ac41.54. tactical_reserve used: remaining \u20ac62.31 held until ETF route is ready."
   ],

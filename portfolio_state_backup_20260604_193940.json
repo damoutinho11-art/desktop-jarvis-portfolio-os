@@ -25,7 +25,7 @@
   "platform_status": {
     "kraken_ready": false,
     "lhv_crypto_ready": true,
-    "lightyear_ready": true,
+    "lightyear_ready": false,
     "trade_republic_ready": true
   },
   "weekly_investment_budget": 103.85

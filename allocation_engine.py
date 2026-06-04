@@ -1187,19 +1187,16 @@ def self_check() -> None:
     verdict = ticket["etf_scoring_verdict"]
 
     assert portfolio_mode["mode"] == "transition_mode"
-    assert any("lightyear" in reason for reason in portfolio_mode["reasons"])
     assert any("kraken" in reason for reason in portfolio_mode["reasons"])
     assert any("legacy cleanup is not complete" in reason for reason in portfolio_mode["reasons"])
     assert any("Tactical reserve is above 10%" in reason for reason in portfolio_mode["reasons"])
     assert ideal["quality_etf"] > 0
     assert executable["global_core_etf"] == 0
     assert executable["growth_nasdaq_etf"] == 0
-    assert executable["quality_etf"] == 0
-    assert executable["btc"] == cents(41.54)
-    assert executable["tactical_reserve"] == cents(62.31)
-    assert any("quality_etf blocked: Lightyear platform is not ready." in item["reason"] for item in warnings)
-    assert any("btc fallback selected: LHV Crypto is ready" in item["reason"] for item in warnings)
-    assert any("btc fallback capped: weekly crypto throttle limited BTC buy to" in item["reason"] for item in warnings)
+    assert executable["quality_etf"] == cents(103.85)
+    assert executable["btc"] == 0
+    assert executable["tactical_reserve"] == 0
+    assert warnings == []
     assert result["crypto_risk_status"]["btc_weight"] <= result["crypto_risk_status"]["btc_max"]
     assert result["crypto_risk_status"]["btc_fallback_weekly_cap_cents"] == cents(41.54)
     assert result["crypto_risk_status"]["total_crypto_buy_weekly_cap_cents"] == cents(51.92)
@@ -1214,16 +1211,10 @@ def self_check() -> None:
     assert verdict["sleeves"][0]["rank"] == 1
     assert verdict["sleeves"][0]["sleeve"] == "quality_etf"
     assert "strongest eligible ETF score" in verdict["sleeves"][0]["reason"]
-    assert ticket["executable_allocation"]["btc"] == 41.54
-    assert ticket["executable_allocation"]["tactical_reserve"] == 62.31
-    assert ticket["blocked_actions"][0]["asset"] == "quality_etf"
-    assert ticket["blocked_actions"][0]["amount"] == 103.85
-    assert len(ticket["fallback_actions"]) == 1
-    assert ticket["fallback_actions"][0]["asset"] == "btc"
-    assert ticket["fallback_actions"][0]["amount"] == 41.54
-    assert len(ticket["reserve_actions"]) == 1
-    assert ticket["reserve_actions"][0]["asset"] == "tactical_reserve"
-    assert ticket["reserve_actions"][0]["amount"] == 62.31
+    assert ticket["executable_allocation"]["quality_etf"] == 103.85
+    assert ticket["blocked_actions"] == []
+    assert ticket["fallback_actions"] == []
+    assert ticket["reserve_actions"] == []
     assert ticket["approval_status"] == "pending_manual_approval"
     assert ticket["trades_executed"] is False
     assert ticket["approval_notice"] == APPROVAL_NOTICE
@@ -1232,8 +1223,8 @@ def self_check() -> None:
     assert record["ticket_id"] == ticket["ticket_id"]
     assert record["approval_status"] == "pending_manual_approval"
     assert record["trades_executed"] is False
-    assert record["executable_allocation"]["btc"] == 41.54
-    assert len(record["main_warnings"]) == 3
+    assert record["executable_allocation"]["quality_etf"] == 103.85
+    assert len(record["main_warnings"]) == 0
     assert len(legacy_statuses) == 4
     assert all(not item["new_buys_allowed"] for item in legacy_statuses)
     assert all(

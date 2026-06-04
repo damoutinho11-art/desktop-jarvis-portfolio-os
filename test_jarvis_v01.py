@@ -46,32 +46,21 @@ class JarvisV01Tests(unittest.TestCase):
         self.assertIn("No orders created.", safety)
         self.assertIn("No automatic selling.", safety)
 
-    def test_lightyear_not_ready_blocks_etf_executable_buys(self) -> None:
-        self.assertFalse(self.state["platform_status"]["lightyear_ready"])
+    def test_lightyear_ready_allows_etf_executable_buy(self) -> None:
+        self.assertTrue(self.state["platform_status"]["lightyear_ready"])
         executable = self.result["executable_allocations_cents"]
         self.assertEqual(executable["global_core_etf"], 0)
         self.assertEqual(executable["growth_nasdaq_etf"], 0)
-        self.assertEqual(executable["quality_etf"], 0)
-        self.assertIn(self.ticket["blocked_actions"][0]["asset"], {
-            "global_core_etf",
-            "growth_nasdaq_etf",
-            "quality_etf",
-        })
-        self.assertIn("Lightyear platform is not ready", self.ticket["blocked_actions"][0]["reason"])
+        self.assertEqual(executable["quality_etf"], allocation_engine.cents(103.85))
+        self.assertEqual(self.ticket["blocked_actions"], [])
 
-    def test_blocked_etf_allocation_falls_back_to_btc_within_throttle(self) -> None:
-        btc_amount = self.ticket["executable_allocation"]["btc"]
-        btc_cap = allocation_engine.euros(
-            self.result["crypto_risk_status"]["btc_fallback_weekly_cap_cents"]
-        )
-        self.assertEqual(btc_amount, 41.54)
-        self.assertLessEqual(btc_amount, btc_cap)
-        self.assertEqual(self.ticket["fallback_actions"][0]["asset"], "btc")
+    def test_no_btc_fallback_when_etf_route_is_ready(self) -> None:
+        self.assertNotIn("btc", self.ticket["executable_allocation"])
+        self.assertEqual(self.ticket["fallback_actions"], [])
 
-    def test_tactical_reserve_receives_remaining_blocked_amount(self) -> None:
-        self.assertEqual(self.ticket["executable_allocation"]["tactical_reserve"], 62.31)
-        self.assertEqual(self.ticket["reserve_actions"][0]["asset"], "tactical_reserve")
-        self.assertEqual(self.ticket["reserve_actions"][0]["amount"], 62.31)
+    def test_tactical_reserve_not_used_when_etf_route_is_ready(self) -> None:
+        self.assertNotIn("tactical_reserve", self.ticket["executable_allocation"])
+        self.assertEqual(self.ticket["reserve_actions"], [])
 
     def test_legacy_holdings_numeric_included_and_null_ignored(self) -> None:
         state = deepcopy(self.state)

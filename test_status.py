@@ -43,7 +43,7 @@ class StatusCommandTests(unittest.TestCase):
 
             self.assertEqual(completed.returncode, 0, completed.stderr)
             self.assertIn("Status only. No trades executed.", completed.stdout)
-            self.assertIn("lightyear_ready: False", completed.stdout)
+            self.assertIn("lightyear_ready: True", completed.stdout)
             self.assertIn("lhv_crypto_ready: True", completed.stdout)
             self.assertFalse((root / "approval_ticket_latest.json").exists())
             self.assertFalse((root / "approval_ticket_2026-06-04.json").exists())
