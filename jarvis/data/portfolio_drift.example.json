@@ -1,0 +1,7 @@
+{
+  "description": "Example drift diagnostics are generated from manual_snapshot, portfolio_policy, and candidate registry fixtures.",
+  "read_only": true,
+  "no_recommendations": true,
+  "no_buy_sell_requests": true,
+  "no_trades_executed": true
+}
