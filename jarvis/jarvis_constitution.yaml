@@ -1,0 +1,25 @@
+version: v0.4
+name: J.A.R.V.I.S. Portfolio OS read-only intelligence kernel
+safety_rules:
+  manual_approval_required: true
+  no_live_trading: true
+  no_api_credentials: true
+  no_broker_execution: true
+  protect_emergency_fund: true
+  recommendations_require_valid_snapshot: true
+approved_asset_classes:
+  - cash
+  - etf
+  - crypto
+  - legacy_etf
+approved_assets:
+  - EUR
+  - BTC
+  - HYPE
+  - global_core_etf
+  - growth_nasdaq_etf
+  - quality_etf
+  - lhv_growth_sxr8
+  - lhv_growth_iemm
+  - lhv_growth_xcha
+

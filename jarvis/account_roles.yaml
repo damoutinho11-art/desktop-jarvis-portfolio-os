@@ -1,0 +1,29 @@
+accounts:
+  emergency_fund:
+    role: protected_cash
+    include_in_investable_by_default: false
+    protected: true
+  daily_spending:
+    role: daily_spending
+    include_in_investable_by_default: false
+    protected: true
+  lhv_crypto_investments:
+    role: investment_account_crypto
+    include_in_investable_by_default: true
+    further_buying_requires_recommendation_and_approval: true
+  lhv_growth:
+    role: legacy_cleanup
+    include_in_investable_by_default: true
+    new_buys_allowed: false
+  lightyear:
+    role: ETF_engine
+    include_in_investable_by_default: true
+  trade_republic:
+    role: spending_cash_rewards
+    include_in_investable_by_default: false
+    protected: true
+  kraken:
+    role: restricted_crypto_external
+    include_in_investable_by_default: false
+    protected: true
+
