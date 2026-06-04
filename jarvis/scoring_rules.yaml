@@ -1,0 +1,29 @@
+version: v0.7
+score_bounds:
+  minimum: 0
+  maximum: 100
+weights:
+  data_quality_score: 0.25
+  cost_score: 0.20
+  platform_fit_score: 0.15
+  tax_fit_score: 0.15
+  risk_fit_score: 0.15
+  portfolio_role_score: 0.10
+  complexity_penalty: 0.20
+risk_scores:
+  low: 90
+  medium: 75
+  high: 45
+  very_high: 25
+preferred_platforms:
+  ETF:
+    - Lightyear
+  crypto:
+    - LHV Crypto Investments
+preferred_sleeves:
+  - global_core_etf
+  - growth_nasdaq_etf
+  - quality_etf
+  - btc
+  - hype
+  - tao
