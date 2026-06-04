@@ -110,6 +110,7 @@ def validate_snapshot(
     account_by_id = {account.account_id: account for account in snapshot.accounts}
     warnings: list[ValidationWarning] = []
     totals = {
+        "total_cash": 0.0,
         "protected_cash": float(snapshot.emergency_fund_amount),
         "investable_cash": 0.0,
         "legacy_holdings": 0.0,
@@ -147,7 +148,24 @@ def validate_snapshot(
 
         role = _effective_role(account, account_roles)
         include = _include_in_investable(account, account_roles)
+        if holding.asset_class == "cash":
+            totals["total_cash"] += holding.amount
         if holding.asset_symbol not in approved_assets:
+            if holding.classification == "legacy_existing":
+                totals["legacy_holdings"] += holding.amount
+                continue
+            if holding.classification == "test_position":
+                totals["unapproved_assets"] += holding.amount
+                warnings.append(
+                    ValidationWarning(
+                        code="test_position",
+                        message=f"Asset {holding.asset_symbol} is marked test_position and is not approved for new recommendations.",
+                        severity="warning",
+                        account_id=holding.account_id,
+                        asset_symbol=holding.asset_symbol,
+                    )
+                )
+                continue
             warnings.append(
                 ValidationWarning(
                     code="candidate_unapproved",

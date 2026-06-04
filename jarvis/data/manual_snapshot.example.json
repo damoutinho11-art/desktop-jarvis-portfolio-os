@@ -1,0 +1,47 @@
+{
+  "snapshot_date": "2026-06-04",
+  "base_currency": "EUR",
+  "accounts": [
+    {
+      "account_id": "emergency_fund",
+      "platform": "bank",
+      "role": "protected_cash",
+      "cash_eur": 3000.0,
+      "holdings": []
+    },
+    {
+      "account_id": "daily_spending",
+      "platform": "bank",
+      "role": "daily_spending",
+      "cash_eur": 250.0,
+      "holdings": []
+    },
+    {
+      "account_id": "lhv_growth",
+      "platform": "LHV",
+      "role": "legacy_cleanup",
+      "cash_eur": 0.0,
+      "holdings": [
+        {
+          "asset_symbol": "lhv_growth_sxr8",
+          "asset_class": "legacy_etf",
+          "market_value_eur": 100.0,
+          "classification": "legacy_existing"
+        }
+      ]
+    },
+    {
+      "account_id": "lhv_crypto_investments",
+      "platform": "LHV",
+      "role": "investment_account_crypto",
+      "cash_eur": 0.0,
+      "holdings": [
+        {
+          "asset_symbol": "BTC",
+          "asset_class": "crypto",
+          "market_value_eur": 20.0
+        }
+      ]
+    }
+  ]
+}
