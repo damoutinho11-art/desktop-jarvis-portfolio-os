@@ -66,6 +66,7 @@ class CandidateAsset:
     custody_platforms: tuple[str, ...] = ()
     transferable: bool | None = None
     mica_route_possible: bool | None = None
+    multi_asset_allowed: bool = False
 
 
 @dataclass(frozen=True)
@@ -196,6 +197,7 @@ def _parse_asset(raw: dict[str, Any], seen_asset_ids: set[str], warnings: list[R
         custody_platforms=custody_platforms,
         transferable=transferable,
         mica_route_possible=mica_route_possible,
+        multi_asset_allowed=bool(raw.get("multi_asset_allowed", False)),
     )
 
 

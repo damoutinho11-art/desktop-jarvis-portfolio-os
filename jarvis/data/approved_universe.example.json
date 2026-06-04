@@ -1,0 +1,7 @@
+{
+  "description": "Approved universe example generated from local candidate registry fixtures.",
+  "read_only": true,
+  "no_recommendations": true,
+  "no_trades_executed": true,
+  "note": "The seed candidate registry contains no approved_investable assets."
+}
