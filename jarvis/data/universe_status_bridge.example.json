@@ -1,0 +1,8 @@
+{
+  "description": "Example bridge output is generated from local universe review fixtures.",
+  "read_only_by_default": true,
+  "no_registry_mutation": true,
+  "no_automatic_approvals": true,
+  "no_buy_sell_requests": true,
+  "no_trades_executed": true
+}
