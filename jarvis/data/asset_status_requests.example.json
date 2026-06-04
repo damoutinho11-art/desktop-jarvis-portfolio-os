@@ -1,0 +1,47 @@
+{
+  "requests": [
+    {
+      "request_id": "status_req_reviewed",
+      "created_at": "2026-06-04T10:00:00+00:00",
+      "asset_id": "quality_etf_candidate",
+      "asset_type": "ETF",
+      "current_status": "candidate_unreviewed",
+      "requested_status": "candidate_reviewed",
+      "rationale": "Fixture-only status review step.",
+      "evidence_summary": "Synthetic local review pack exists for testing.",
+      "required_confirmations": ["manual_review_completed"],
+      "manual_approval_required": true,
+      "auto_execute": false
+    },
+    {
+      "request_id": "status_req_watchlist",
+      "created_at": "2026-06-04T10:05:00+00:00",
+      "asset_id": "quality_etf_candidate",
+      "asset_type": "ETF",
+      "current_status": "candidate_reviewed",
+      "requested_status": "approved_watchlist",
+      "rationale": "Fixture-only watchlist promotion check.",
+      "evidence_summary": "Synthetic scorecard and risk metrics were reviewed.",
+      "required_confirmations": [
+        "candidate_review_pack_present",
+        "scorecard_reviewed",
+        "risk_metrics_reviewed"
+      ],
+      "manual_approval_required": true,
+      "auto_execute": false
+    },
+    {
+      "request_id": "status_req_blocked_direct",
+      "created_at": "2026-06-04T10:10:00+00:00",
+      "asset_id": "quality_etf_candidate",
+      "asset_type": "ETF",
+      "current_status": "candidate_unreviewed",
+      "requested_status": "approved_investable",
+      "rationale": "Unsafe direct promotion fixture.",
+      "evidence_summary": "This should be blocked.",
+      "required_confirmations": [],
+      "manual_approval_required": true,
+      "auto_execute": false
+    }
+  ]
+}
