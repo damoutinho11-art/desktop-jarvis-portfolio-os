@@ -1,0 +1,30 @@
+{
+  "as_of": "2026-06-04",
+  "assets": [
+    {
+      "asset_id": "quality_etf_candidate",
+      "holdings": [
+        {"name": "Example Company A", "weight": 0.08},
+        {"name": "Example Company B", "weight": 0.07},
+        {"name": "Example Company C", "weight": 0.05},
+        {"name": "Example Company D", "weight": 0.04}
+      ],
+      "countries": {
+        "US": 0.68,
+        "NL": 0.08,
+        "JP": 0.07
+      },
+      "sectors": {
+        "Technology": 0.28,
+        "Healthcare": 0.18,
+        "Industrials": 0.12
+      }
+    },
+    {
+      "asset_id": "btc_test_position",
+      "holdings": [],
+      "countries": {},
+      "sectors": {}
+    }
+  ]
+}
