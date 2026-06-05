@@ -1,0 +1,105 @@
+{
+  "as_of": "2026-06-04",
+  "notes": "Synthetic local fixture data only. Holdings, countries, and sectors are not real ETF disclosures.",
+  "assets": [
+    {
+      "asset_id": "vwce_global_core_candidate",
+      "holdings": [
+        {"name": "Company A", "weight": 0.055},
+        {"name": "Company B", "weight": 0.046},
+        {"name": "Company C", "weight": 0.039},
+        {"name": "Company D", "weight": 0.031}
+      ],
+      "countries": {"US": 0.58, "JP": 0.07, "GB": 0.05, "CA": 0.03},
+      "sectors": {"Technology": 0.24, "Financials": 0.15, "Healthcare": 0.12, "Industrials": 0.10}
+    },
+    {
+      "asset_id": "spyi_imie_global_core_candidate",
+      "holdings": [
+        {"name": "Company A", "weight": 0.050},
+        {"name": "Company E", "weight": 0.041},
+        {"name": "Company F", "weight": 0.034},
+        {"name": "Company G", "weight": 0.029}
+      ],
+      "countries": {"US": 0.55, "JP": 0.08, "GB": 0.05, "IN": 0.04},
+      "sectors": {"Technology": 0.23, "Financials": 0.16, "Healthcare": 0.11, "Consumer Discretionary": 0.10}
+    },
+    {
+      "asset_id": "ssac_iusq_global_core_candidate",
+      "holdings": [
+        {"name": "Company B", "weight": 0.052},
+        {"name": "Company C", "weight": 0.044},
+        {"name": "Company H", "weight": 0.036},
+        {"name": "Company I", "weight": 0.030}
+      ],
+      "countries": {"US": 0.60, "JP": 0.07, "GB": 0.04, "CH": 0.03},
+      "sectors": {"Technology": 0.25, "Financials": 0.14, "Healthcare": 0.13, "Industrials": 0.09}
+    },
+    {
+      "asset_id": "webn_global_core_candidate",
+      "holdings": [
+        {"name": "Company A", "weight": 0.048},
+        {"name": "Company J", "weight": 0.039},
+        {"name": "Company K", "weight": 0.032},
+        {"name": "Company L", "weight": 0.027}
+      ],
+      "countries": {"US": 0.57, "JP": 0.08, "GB": 0.05, "FR": 0.03},
+      "sectors": {"Technology": 0.22, "Financials": 0.15, "Healthcare": 0.12, "Industrials": 0.11}
+    },
+    {
+      "asset_id": "ftaw_global_core_candidate",
+      "holdings": [
+        {"name": "Company D", "weight": 0.049},
+        {"name": "Company E", "weight": 0.040},
+        {"name": "Company M", "weight": 0.033},
+        {"name": "Company N", "weight": 0.028}
+      ],
+      "countries": {"US": 0.56, "JP": 0.07, "GB": 0.05, "DE": 0.03},
+      "sectors": {"Technology": 0.23, "Financials": 0.15, "Healthcare": 0.12, "Consumer Staples": 0.08}
+    },
+    {
+      "asset_id": "sxrv_cndx_growth_candidate",
+      "holdings": [
+        {"name": "Growth Company A", "weight": 0.090},
+        {"name": "Growth Company B", "weight": 0.075},
+        {"name": "Growth Company C", "weight": 0.060},
+        {"name": "Growth Company D", "weight": 0.045}
+      ],
+      "countries": {"US": 0.82, "NL": 0.04, "CA": 0.03},
+      "sectors": {"Technology": 0.45, "Consumer Discretionary": 0.18, "Communication Services": 0.14}
+    },
+    {
+      "asset_id": "eqac_growth_candidate",
+      "holdings": [
+        {"name": "Growth Company A", "weight": 0.088},
+        {"name": "Growth Company E", "weight": 0.070},
+        {"name": "Growth Company F", "weight": 0.058},
+        {"name": "Growth Company G", "weight": 0.044}
+      ],
+      "countries": {"US": 0.80, "NL": 0.05, "CA": 0.03},
+      "sectors": {"Technology": 0.43, "Consumer Discretionary": 0.19, "Communication Services": 0.13}
+    },
+    {
+      "asset_id": "xnas_growth_candidate",
+      "holdings": [
+        {"name": "Growth Company B", "weight": 0.086},
+        {"name": "Growth Company C", "weight": 0.071},
+        {"name": "Growth Company H", "weight": 0.055},
+        {"name": "Growth Company I", "weight": 0.043}
+      ],
+      "countries": {"US": 0.81, "NL": 0.04, "IE": 0.03},
+      "sectors": {"Technology": 0.44, "Consumer Discretionary": 0.18, "Communication Services": 0.13}
+    },
+    {
+      "asset_id": "is3q_iwqu_quality_candidate",
+      "holdings": [
+        {"name": "Quality Company A", "weight": 0.060},
+        {"name": "Quality Company B", "weight": 0.052},
+        {"name": "Quality Company C", "weight": 0.041},
+        {"name": "Quality Company D", "weight": 0.034}
+      ],
+      "countries": {"US": 0.68, "CH": 0.05, "GB": 0.05, "JP": 0.04},
+      "sectors": {"Technology": 0.30, "Healthcare": 0.18, "Industrials": 0.12, "Consumer Staples": 0.08}
+    }
+  ]
+}

@@ -25,7 +25,10 @@ def build_candidate_evidence_report(
     summary = matrix.summary
     lines = [
         "J.A.R.V.I.S. Candidate Evidence Coverage Matrix",
-        "Read-only evidence audit. No approvals, recommendations, registry mutation, or trades created.",
+        "Read-only evidence audit using local/synthetic fixtures only.",
+        "Eligible for manual review does not mean approved, recommended, or investable.",
+        "Approval status remains unchanged. Manual approval is still required.",
+        "No approvals, recommendations, registry mutation, or trades created.",
         f"matrix status: {matrix.status}",
         f"total candidates: {summary.total_candidates}",
         f"eligible count: {summary.eligible_for_manual_review_count}",

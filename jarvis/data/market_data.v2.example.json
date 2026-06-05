@@ -1,0 +1,215 @@
+{
+  "as_of": "2026-06-04",
+  "base_currency": "EUR",
+  "notes": "Synthetic local fixture data only. These prices are not real market data.",
+  "series": [
+    {
+      "asset_id": "vwce_global_core_candidate",
+      "currency": "EUR",
+      "prices": [
+        {"date": "2025-12-01", "close": 100.0},
+        {"date": "2026-01-01", "close": 101.2},
+        {"date": "2026-02-01", "close": 99.8},
+        {"date": "2026-03-01", "close": 103.1},
+        {"date": "2026-04-01", "close": 104.4},
+        {"date": "2026-05-01", "close": 105.2},
+        {"date": "2026-06-01", "close": 106.0}
+      ]
+    },
+    {
+      "asset_id": "spyi_imie_global_core_candidate",
+      "currency": "EUR",
+      "prices": [
+        {"date": "2025-12-01", "close": 98.0},
+        {"date": "2026-01-01", "close": 99.1},
+        {"date": "2026-02-01", "close": 98.6},
+        {"date": "2026-03-01", "close": 101.4},
+        {"date": "2026-04-01", "close": 102.0},
+        {"date": "2026-05-01", "close": 103.3},
+        {"date": "2026-06-01", "close": 104.1}
+      ]
+    },
+    {
+      "asset_id": "ssac_iusq_global_core_candidate",
+      "currency": "EUR",
+      "prices": [
+        {"date": "2025-12-01", "close": 97.5},
+        {"date": "2026-01-01", "close": 98.0},
+        {"date": "2026-02-01", "close": 96.9},
+        {"date": "2026-03-01", "close": 99.5},
+        {"date": "2026-04-01", "close": 100.4},
+        {"date": "2026-05-01", "close": 101.2},
+        {"date": "2026-06-01", "close": 102.0}
+      ]
+    },
+    {
+      "asset_id": "webn_global_core_candidate",
+      "currency": "EUR",
+      "prices": [
+        {"date": "2025-12-01", "close": 50.0},
+        {"date": "2026-01-01", "close": 50.7},
+        {"date": "2026-02-01", "close": 50.2},
+        {"date": "2026-03-01", "close": 51.8},
+        {"date": "2026-04-01", "close": 52.1},
+        {"date": "2026-05-01", "close": 52.9},
+        {"date": "2026-06-01", "close": 53.4}
+      ]
+    },
+    {
+      "asset_id": "ftaw_global_core_candidate",
+      "currency": "EUR",
+      "prices": [
+        {"date": "2025-12-01", "close": 40.0},
+        {"date": "2026-01-01", "close": 40.4},
+        {"date": "2026-02-01", "close": 39.9},
+        {"date": "2026-03-01", "close": 41.2},
+        {"date": "2026-04-01", "close": 41.7},
+        {"date": "2026-05-01", "close": 42.1},
+        {"date": "2026-06-01", "close": 42.6}
+      ]
+    },
+    {
+      "asset_id": "sxrv_cndx_growth_candidate",
+      "currency": "EUR",
+      "prices": [
+        {"date": "2025-12-01", "close": 900.0},
+        {"date": "2026-01-01", "close": 930.0},
+        {"date": "2026-02-01", "close": 890.0},
+        {"date": "2026-03-01", "close": 955.0},
+        {"date": "2026-04-01", "close": 970.0},
+        {"date": "2026-05-01", "close": 990.0},
+        {"date": "2026-06-01", "close": 1005.0}
+      ]
+    },
+    {
+      "asset_id": "eqac_growth_candidate",
+      "currency": "EUR",
+      "prices": [
+        {"date": "2025-12-01", "close": 150.0},
+        {"date": "2026-01-01", "close": 153.0},
+        {"date": "2026-02-01", "close": 148.5},
+        {"date": "2026-03-01", "close": 156.2},
+        {"date": "2026-04-01", "close": 158.1},
+        {"date": "2026-05-01", "close": 160.0},
+        {"date": "2026-06-01", "close": 161.4}
+      ]
+    },
+    {
+      "asset_id": "xnas_growth_candidate",
+      "currency": "EUR",
+      "prices": [
+        {"date": "2025-12-01", "close": 120.0},
+        {"date": "2026-01-01", "close": 122.4},
+        {"date": "2026-02-01", "close": 119.0},
+        {"date": "2026-03-01", "close": 124.8},
+        {"date": "2026-04-01", "close": 126.2},
+        {"date": "2026-05-01", "close": 127.6},
+        {"date": "2026-06-01", "close": 129.0}
+      ]
+    },
+    {
+      "asset_id": "is3q_iwqu_quality_candidate",
+      "currency": "EUR",
+      "prices": [
+        {"date": "2025-12-01", "close": 55.0},
+        {"date": "2026-01-01", "close": 55.6},
+        {"date": "2026-02-01", "close": 54.8},
+        {"date": "2026-03-01", "close": 56.2},
+        {"date": "2026-04-01", "close": 56.9},
+        {"date": "2026-05-01", "close": 57.4},
+        {"date": "2026-06-01", "close": 58.0}
+      ]
+    },
+    {
+      "asset_id": "btc_crypto_core_candidate",
+      "currency": "EUR",
+      "prices": [
+        {"date": "2025-12-01", "close": 65000.0},
+        {"date": "2026-01-01", "close": 69000.0},
+        {"date": "2026-02-01", "close": 64000.0},
+        {"date": "2026-03-01", "close": 72000.0},
+        {"date": "2026-04-01", "close": 70000.0},
+        {"date": "2026-05-01", "close": 76000.0},
+        {"date": "2026-06-01", "close": 78000.0}
+      ]
+    },
+    {
+      "asset_id": "eth_crypto_core_candidate",
+      "currency": "EUR",
+      "prices": [
+        {"date": "2025-12-01", "close": 3200.0},
+        {"date": "2026-01-01", "close": 3400.0},
+        {"date": "2026-02-01", "close": 3150.0},
+        {"date": "2026-03-01", "close": 3600.0},
+        {"date": "2026-04-01", "close": 3500.0},
+        {"date": "2026-05-01", "close": 3725.0},
+        {"date": "2026-06-01", "close": 3850.0}
+      ]
+    },
+    {
+      "asset_id": "sol_crypto_core_candidate",
+      "currency": "EUR",
+      "prices": [
+        {"date": "2025-12-01", "close": 140.0},
+        {"date": "2026-01-01", "close": 152.0},
+        {"date": "2026-02-01", "close": 128.0},
+        {"date": "2026-03-01", "close": 160.0},
+        {"date": "2026-04-01", "close": 154.0},
+        {"date": "2026-05-01", "close": 171.0},
+        {"date": "2026-06-01", "close": 176.0}
+      ]
+    },
+    {
+      "asset_id": "link_crypto_core_candidate",
+      "currency": "EUR",
+      "prices": [
+        {"date": "2025-12-01", "close": 18.0},
+        {"date": "2026-01-01", "close": 19.5},
+        {"date": "2026-02-01", "close": 17.2},
+        {"date": "2026-03-01", "close": 20.1},
+        {"date": "2026-04-01", "close": 19.3},
+        {"date": "2026-05-01", "close": 21.0},
+        {"date": "2026-06-01", "close": 21.6}
+      ]
+    },
+    {
+      "asset_id": "aave_crypto_core_candidate",
+      "currency": "EUR",
+      "prices": [
+        {"date": "2025-12-01", "close": 95.0},
+        {"date": "2026-01-01", "close": 104.0},
+        {"date": "2026-02-01", "close": 88.0},
+        {"date": "2026-03-01", "close": 111.0},
+        {"date": "2026-04-01", "close": 106.0},
+        {"date": "2026-05-01", "close": 117.0},
+        {"date": "2026-06-01", "close": 121.0}
+      ]
+    },
+    {
+      "asset_id": "hype_speculative_crypto_candidate",
+      "currency": "EUR",
+      "prices": [
+        {"date": "2025-12-01", "close": 22.0},
+        {"date": "2026-01-01", "close": 25.0},
+        {"date": "2026-02-01", "close": 18.0},
+        {"date": "2026-03-01", "close": 28.0},
+        {"date": "2026-04-01", "close": 24.0},
+        {"date": "2026-05-01", "close": 30.0},
+        {"date": "2026-06-01", "close": 32.0}
+      ]
+    },
+    {
+      "asset_id": "tao_speculative_crypto_candidate",
+      "currency": "EUR",
+      "prices": [
+        {"date": "2025-12-01", "close": 410.0},
+        {"date": "2026-01-01", "close": 455.0},
+        {"date": "2026-02-01", "close": 360.0},
+        {"date": "2026-03-01", "close": 490.0},
+        {"date": "2026-04-01", "close": 440.0},
+        {"date": "2026-05-01", "close": 520.0},
+        {"date": "2026-06-01", "close": 545.0}
+      ]
+    }
+  ]
+}
