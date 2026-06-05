@@ -1,0 +1,59 @@
+{
+  "description": "Public source fetch examples. Local fixture content only by default; no network access unless explicitly enabled per source.",
+  "sources": [
+    {
+      "source_id": "vwce_public_provider_product_static",
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "fund_metadata",
+      "source_type": "provider_product_page",
+      "source_name": "VWCE public provider product page static fixture",
+      "url_reference": "https://example.invalid/vwce-product",
+      "enabled": true,
+      "allow_network_fetch": false,
+      "local_fixture_content": "fund_name: Vanguard FTSE All-World UCITS ETF Acc\nisin: IE00BK5BQT80\nticker: VWCE\nprovider: Vanguard\nbenchmark: FTSE All-World\ndistribution_policy: accumulating\nter_or_fee: 0.22\ncurrency: EUR\ndomicile: Ireland\nreplication_method: physical\nplatform_name: provider public page\navailability_status: reference_only",
+      "notes": "Static public provider product fixture for draft evidence only."
+    },
+    {
+      "source_id": "vwce_public_factsheet_static",
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "fund_metadata",
+      "source_type": "provider_factsheet_pdf",
+      "source_name": "VWCE public factsheet static fixture",
+      "url_reference": "https://example.invalid/vwce-factsheet.pdf",
+      "enabled": true,
+      "allow_network_fetch": false,
+      "local_fixture_content": "fund_name: Vanguard FTSE All-World UCITS ETF Acc\nisin: IE00BK5BQT80\nticker: VWCE\nprovider: Vanguard\nbenchmark: FTSE All-World\ncurrency: EUR\nter_or_fee: 0.22\nplatform_name: provider factsheet\navailability_status: reference_only",
+      "notes": "PDF text fixture, not real downloaded content."
+    },
+    {
+      "source_id": "vwce_public_platform_static",
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "platform_availability",
+      "source_type": "public_platform_page",
+      "source_name": "VWCE public platform page static fixture",
+      "url_reference": "https://example.invalid/platform/vwce",
+      "enabled": true,
+      "allow_network_fetch": false,
+      "local_fixture_content": "ticker: VWCE\ncurrency: EUR\nplatform_name: Lightyear public instrument page\navailability_status: visible_public_reference\nprovider: public platform fixture",
+      "notes": "Public platform fixture only; not authenticated."
+    },
+    {
+      "source_id": "btc_public_market_protocol_static",
+      "asset_id": "btc_crypto_core_candidate",
+      "evidence_type": "market_data",
+      "source_type": "public_crypto_market_api",
+      "source_name": "BTC public market and protocol static fixture",
+      "url_reference": "https://example.invalid/crypto/btc",
+      "enabled": true,
+      "allow_network_fetch": false,
+      "local_fixture_content": "ticker: BTC\nfund_name: Bitcoin\nprovider: Bitcoin network\ncurrency: EUR\nprice_currency: EUR\nplatform_name: public crypto market fixture\navailability_status: reference_only",
+      "notes": "Static public crypto fixture for draft evidence only."
+    }
+  ],
+  "network_calls_enabled_by_default": false,
+  "verified_by_user": false,
+  "approvals_created": false,
+  "registry_mutation_allowed": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false
+}
