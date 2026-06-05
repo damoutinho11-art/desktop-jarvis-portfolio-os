@@ -48,6 +48,42 @@
       "allow_network_fetch": false,
       "local_fixture_content": "ticker: BTC\nfund_name: Bitcoin\nprovider: Bitcoin network\ncurrency: EUR\nprice_currency: EUR\nplatform_name: public crypto market fixture\navailability_status: reference_only",
       "notes": "Static public crypto fixture for draft evidence only."
+    },
+    {
+      "source_id": "vwce_public_market_data_static",
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "market_data",
+      "source_type": "public_market_data_page",
+      "source_name": "VWCE public market data static fixture",
+      "url_reference": "https://example.invalid/market/vwce",
+      "enabled": true,
+      "allow_network_fetch": false,
+      "local_fixture_content": "ticker: VWCE\ncurrency: EUR\nprice_currency: EUR\nprovider: public market data fixture\nplatform_name: public market data page\navailability_status: reference_only",
+      "notes": "Static public market data fixture for draft evidence only."
+    },
+    {
+      "source_id": "vwce_public_exposure_static",
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "exposure_data",
+      "source_type": "provider_factsheet_pdf",
+      "source_name": "VWCE public exposure static fixture",
+      "url_reference": "https://example.invalid/vwce-exposure.pdf",
+      "enabled": true,
+      "allow_network_fetch": false,
+      "local_fixture_content": "ticker: VWCE\nprovider: Vanguard\ncurrency: EUR\nplatform_name: provider exposure factsheet\navailability_status: reference_only\nholdings_source: provider holdings table\ncountry_exposure_source: provider country allocation table\nsector_exposure_source: provider sector allocation table",
+      "notes": "Static exposure fixture only; user verification required."
+    },
+    {
+      "source_id": "vwce_public_tax_route_static",
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "tax_route",
+      "source_type": "manual_url_reference",
+      "source_name": "VWCE tax route static manual research fixture",
+      "url_reference": "https://example.invalid/tax-route/vwce",
+      "enabled": true,
+      "allow_network_fetch": false,
+      "local_fixture_content": "ticker: VWCE\nprovider: manual tax route research\ncurrency: EUR\nplatform_name: manual tax route note\navailability_status: reference_only\ntax_route_summary: Lightyear ETF route; no credit card funding; no emergency fund; no crypto payment funding; manual approval required\ntax_wrapper: taxable brokerage route pending user verification",
+      "notes": "Static tax route research fixture only; not tax advice; user verification required."
     }
   ],
   "network_calls_enabled_by_default": false,

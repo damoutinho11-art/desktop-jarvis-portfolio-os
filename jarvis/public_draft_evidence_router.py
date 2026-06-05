@@ -17,15 +17,15 @@ ETF_ROUTE_FACTS = {
     "distribution_policy": ("distribution_policy",),
     "platform_availability": ("platform_name", "availability_status"),
     "market_data": ("ticker", "price_currency"),
-    "exposure_data": (),
-    "tax_route": (),
+    "exposure_data": ("holdings_source", "country_exposure_source", "sector_exposure_source"),
+    "tax_route": ("tax_route_summary", "tax_wrapper"),
 }
 CRYPTO_ROUTE_FACTS = {
     "protocol_metadata": ("fund_name", "provider", "ticker"),
     "market_data": ("ticker", "price_currency"),
     "platform_availability": ("platform_name", "availability_status"),
     "custody_route": (),
-    "tax_route": (),
+    "tax_route": ("tax_route_summary", "tax_wrapper"),
     "crypto_risk_notes": (),
 }
 MARKET_SOURCE_TYPES = {"public_market_data_page", "public_crypto_market_api"}

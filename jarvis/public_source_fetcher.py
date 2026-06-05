@@ -21,6 +21,8 @@ SUPPORTED_PUBLIC_SOURCE_TYPES = {
     "public_market_data_page",
     "public_crypto_market_api",
     "public_fx_api",
+    "manual_url_reference",
+    "local_source_fixture",
 }
 FORBIDDEN_SOURCE_TYPES = {
     "authenticated_broker_session",
@@ -36,6 +38,8 @@ SOURCE_QUALITY_BY_TYPE = {
     "public_market_data_page": "manual_research",
     "public_crypto_market_api": "verified_api_snapshot",
     "public_fx_api": "verified_api_snapshot",
+    "manual_url_reference": "manual_research",
+    "local_source_fixture": "manual_research",
 }
 FACT_KEYS = (
     "isin",
@@ -51,6 +55,11 @@ FACT_KEYS = (
     "platform_name",
     "availability_status",
     "price_currency",
+    "holdings_source",
+    "country_exposure_source",
+    "sector_exposure_source",
+    "tax_route_summary",
+    "tax_wrapper",
 )
 DEFAULT_TIMEOUT_SECONDS = 5
 DEFAULT_MAX_BYTES = 200_000
