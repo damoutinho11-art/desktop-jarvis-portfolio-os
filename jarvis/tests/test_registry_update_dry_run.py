@@ -1,9 +1,11 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
 
 from jarvis.asset_status_workflow import AssetStatusChangeRequest
 from jarvis.registry_update_dry_run import (
+    load_request_previews_from_bridge_config,
     simulate_registry_update,
     simulate_registry_update_from_files,
     write_registry_copy_from_dry_run,
@@ -12,6 +14,7 @@ from jarvis.registry_update_dry_run import (
 
 REGISTRY = "jarvis/data/candidate_assets.v2.example.json"
 BRIDGE_CONFIG = "jarvis/data/real_status_review_bridge.example.json"
+DRY_RUN_CONFIG = "jarvis/data/registry_update_dry_run.example.json"
 
 
 def _request(
@@ -129,6 +132,31 @@ class RegistryUpdateDryRunTests(unittest.TestCase):
         result = simulate_registry_update_from_files(REGISTRY, BRIDGE_CONFIG)
 
         self.assertFalse(result.registry_mutation_performed)
+
+    def test_empty_status_requests_fixture_does_not_crash(self) -> None:
+        with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".json", delete=False) as file:
+            json.dump({"status_requests": []}, file)
+            path = Path(file.name)
+
+        result = simulate_registry_update_from_files(REGISTRY, path)
+
+        self.assertEqual(result.total_request_previews, 0)
+        self.assertEqual(result.simulated_changes, ())
+
+    def test_bundled_dry_run_example_is_valid_no_op(self) -> None:
+        result = simulate_registry_update_from_files(REGISTRY, DRY_RUN_CONFIG)
+
+        self.assertEqual(result.total_request_previews, 0)
+        self.assertEqual(result.simulated_changes, ())
+        self.assertFalse(result.registry_mutation_performed)
+
+    def test_invalid_config_still_raises(self) -> None:
+        with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".json", delete=False) as file:
+            json.dump({"description": "missing requests and paths"}, file)
+            path = Path(file.name)
+
+        with self.assertRaises(ValueError):
+            load_request_previews_from_bridge_config(REGISTRY, path)
 
 
 if __name__ == "__main__":
