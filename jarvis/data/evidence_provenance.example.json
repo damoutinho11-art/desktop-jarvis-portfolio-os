@@ -1,0 +1,64 @@
+{
+  "description": "Synthetic and unverified provenance fixture for the v2 candidate universe. This file must not approve assets.",
+  "records": [
+    {
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "fund_metadata",
+      "source_quality": "synthetic_fixture",
+      "source_name": "local synthetic candidate fixture",
+      "as_of": "2026-06-04",
+      "verified_by_user": false,
+      "notes": "Synthetic metadata record for testing only."
+    },
+    {
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "market_data",
+      "source_quality": "synthetic_fixture",
+      "source_name": "local synthetic market fixture",
+      "as_of": "2026-06-04",
+      "verified_by_user": false,
+      "notes": "Synthetic market series for testing only."
+    },
+    {
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "exposure_data",
+      "source_quality": "synthetic_fixture",
+      "source_name": "local synthetic exposure fixture",
+      "as_of": "2026-06-04",
+      "verified_by_user": false,
+      "notes": "Synthetic holdings and exposures for testing only."
+    },
+    {
+      "asset_id": "btc_crypto_core_candidate",
+      "evidence_type": "fund_metadata",
+      "source_quality": "synthetic_fixture",
+      "source_name": "local synthetic protocol fixture",
+      "as_of": "2026-06-04",
+      "verified_by_user": false,
+      "notes": "Synthetic protocol metadata for testing only."
+    },
+    {
+      "asset_id": "btc_crypto_core_candidate",
+      "evidence_type": "market_data",
+      "source_quality": "synthetic_fixture",
+      "source_name": "local synthetic market fixture",
+      "as_of": "2026-06-04",
+      "verified_by_user": false,
+      "notes": "Synthetic market series for testing only."
+    },
+    {
+      "asset_id": "btc_crypto_core_candidate",
+      "evidence_type": "custody_route",
+      "source_quality": "manual_research",
+      "source_name": "unverified local note",
+      "as_of": "2026-06-04",
+      "verified_by_user": false,
+      "notes": "Unverified manual note; does not count as review evidence."
+    }
+  ],
+  "read_only": true,
+  "approvals_created": false,
+  "registry_mutation_allowed": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false
+}
