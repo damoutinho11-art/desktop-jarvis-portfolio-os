@@ -1,0 +1,59 @@
+{
+  "description": "Offline source evidence sources. Static content only; no network calls or authenticated sources.",
+  "sources": [
+    {
+      "source_id": "vwce_provider_factsheet_static",
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "fund_metadata",
+      "source_type": "provider_factsheet_pdf",
+      "source_name": "VWCE provider factsheet static fixture",
+      "url_reference": "https://example.invalid/vwce-factsheet",
+      "local_fixture_path": null,
+      "enabled": true,
+      "notes": "Static placeholder content for draft evidence only.",
+      "static_content": "fund_name: Vanguard FTSE All-World UCITS ETF Acc\nisin: IE00BK5BQT80\nticker: VWCE\nprovider: Vanguard\nbenchmark: FTSE All-World\ndistribution_policy: accumulating\nter_or_fee: 0.22\ncurrency: EUR\ndomicile: Ireland\nreplication_method: physical"
+    },
+    {
+      "source_id": "vwce_platform_static",
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "platform_availability",
+      "source_type": "public_platform_page",
+      "source_name": "VWCE public platform availability static fixture",
+      "url_reference": "https://example.invalid/platform/vwce",
+      "local_fixture_path": null,
+      "enabled": true,
+      "notes": "Static platform availability placeholder for draft evidence only.",
+      "static_content": "ticker: VWCE\nplatform_name: Lightyear\navailability_status: available\ncurrency: EUR"
+    },
+    {
+      "source_id": "btc_public_market_static",
+      "asset_id": "btc_crypto_core_candidate",
+      "evidence_type": "market_data",
+      "source_type": "public_crypto_market_api",
+      "source_name": "BTC public market static fixture",
+      "url_reference": "https://example.invalid/crypto/btc",
+      "local_fixture_path": null,
+      "enabled": true,
+      "notes": "Static market/protocol placeholder for draft evidence only.",
+      "static_content": "ticker: BTC\nfund_name: Bitcoin\nprovider: Bitcoin network\ncurrency: EUR\navailability_status: reference_only\nplatform_name: public crypto market fixture"
+    },
+    {
+      "source_id": "disabled_manual_reference",
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "tax_route",
+      "source_type": "manual_url_reference",
+      "source_name": "Disabled manual reference",
+      "url_reference": "https://example.invalid/manual-note",
+      "local_fixture_path": null,
+      "enabled": false,
+      "notes": "Disabled source should be skipped.",
+      "static_content": "ticker: VWCE\ncurrency: EUR"
+    }
+  ],
+  "read_only": true,
+  "network_calls_enabled": false,
+  "approvals_created": false,
+  "registry_mutation_allowed": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false
+}
