@@ -1,0 +1,20 @@
+{
+  "description": "Focused routed public draft evidence verification pack for VWCE. All tasks remain pending manual verification by default.",
+  "target_asset_id": "vwce_global_core_candidate",
+  "required_evidence_types": [
+    "fund_metadata",
+    "fee_metadata",
+    "distribution_policy",
+    "platform_availability",
+    "market_data",
+    "exposure_data",
+    "tax_route"
+  ],
+  "decision_overrides": [],
+  "read_only_by_default": true,
+  "verified_by_user_by_default": false,
+  "approvals_created": false,
+  "registry_mutation_allowed": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false
+}
