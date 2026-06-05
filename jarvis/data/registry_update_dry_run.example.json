@@ -1,0 +1,12 @@
+{
+  "description": "Read-only dry-run configuration for previewing manual candidate registry status updates.",
+  "registry_path": "jarvis/data/candidate_assets.v2.example.json",
+  "real_status_review_bridge_config_path": "jarvis/data/real_status_review_bridge.example.json",
+  "read_only_by_default": true,
+  "writes_registry_by_default": false,
+  "manual_approval_required": true,
+  "registry_mutation_performed": false,
+  "approvals_executed": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false
+}
