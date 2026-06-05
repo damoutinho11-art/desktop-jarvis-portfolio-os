@@ -1,0 +1,7 @@
+{
+  "description": "Example status request audit packs are generated from universe status bridge previews.",
+  "read_only": true,
+  "registry_mutation_allowed": false,
+  "no_approvals_created": true,
+  "no_trades_executed": true
+}
