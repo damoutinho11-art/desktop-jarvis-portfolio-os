@@ -1,0 +1,142 @@
+{
+  "description": "Manual verified evidence intake example. This file does not approve assets or create actions.",
+  "records": [
+    {
+      "evidence_id": "vwce_factsheet_2026_06",
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "fund_metadata",
+      "source_quality": "provider_factsheet",
+      "source_name": "Provider factsheet manually reviewed",
+      "as_of": "2026-06-01",
+      "verified_by_user": true,
+      "verification_notes": "User verified fund metadata fields from a local factsheet copy.",
+      "file_reference": "manual_evidence/provider_factsheets/vwce_factsheet_placeholder.pdf",
+      "url_reference": null,
+      "extracted_facts": {
+        "provider": "Vanguard",
+        "distribution_policy": "accumulating"
+      },
+      "warnings": []
+    },
+    {
+      "evidence_id": "vwce_market_snapshot_2026_06",
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "market_data",
+      "source_quality": "broker_export",
+      "source_name": "Manual broker export placeholder",
+      "as_of": "2026-06-01",
+      "verified_by_user": true,
+      "verification_notes": "User verified local exported price evidence.",
+      "file_reference": "manual_evidence/broker_exports/vwce_market_placeholder.csv",
+      "url_reference": null,
+      "extracted_facts": {
+        "currency": "EUR"
+      },
+      "warnings": []
+    },
+    {
+      "evidence_id": "vwce_exposure_2026_06",
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "exposure_data",
+      "source_quality": "provider_factsheet",
+      "source_name": "Provider exposure factsheet manually reviewed",
+      "as_of": "2026-06-01",
+      "verified_by_user": true,
+      "verification_notes": "User verified exposure data from a local factsheet copy.",
+      "file_reference": "manual_evidence/provider_factsheets/vwce_exposure_placeholder.pdf",
+      "url_reference": null,
+      "extracted_facts": {
+        "has_holdings": true,
+        "has_country_exposure": true,
+        "has_sector_exposure": true
+      },
+      "warnings": []
+    },
+    {
+      "evidence_id": "vwce_platform_2026_06",
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "platform_availability",
+      "source_quality": "platform_screenshot",
+      "source_name": "Lightyear manual platform screenshot",
+      "as_of": "2026-06-01",
+      "verified_by_user": true,
+      "verification_notes": "User verified candidate appears on the platform screenshot.",
+      "file_reference": "manual_evidence/platform_screenshots/vwce_lightyear_placeholder.png",
+      "url_reference": null,
+      "extracted_facts": {
+        "platform": "Lightyear"
+      },
+      "warnings": []
+    },
+    {
+      "evidence_id": "vwce_tax_route_2026_06",
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "tax_route",
+      "source_quality": "manual_research",
+      "source_name": "Manual tax route note",
+      "as_of": "2026-06-01",
+      "verified_by_user": true,
+      "verification_notes": "User verified accumulating Irish UCITS tax-route note for review purposes.",
+      "file_reference": "manual_evidence/manual_notes/vwce_tax_route_placeholder.md",
+      "url_reference": null,
+      "extracted_facts": {
+        "domicile": "Ireland",
+        "distribution_policy": "accumulating"
+      },
+      "warnings": []
+    },
+    {
+      "evidence_id": "vwce_unverified_note",
+      "asset_id": "vwce_global_core_candidate",
+      "evidence_type": "fee_metadata",
+      "source_quality": "manual_research",
+      "source_name": "Unverified manual fee note",
+      "as_of": "2026-06-01",
+      "verified_by_user": false,
+      "verification_notes": "",
+      "file_reference": null,
+      "url_reference": null,
+      "extracted_facts": {
+        "ter_or_fee": 0.22
+      },
+      "warnings": []
+    },
+    {
+      "evidence_id": "btc_custody_2026_06",
+      "asset_id": "btc_crypto_core_candidate",
+      "evidence_type": "custody_route",
+      "source_quality": "broker_export",
+      "source_name": "Manual custody export placeholder",
+      "as_of": "2026-06-01",
+      "verified_by_user": true,
+      "verification_notes": "User verified crypto custody route evidence from a local export placeholder.",
+      "file_reference": "manual_evidence/broker_exports/btc_custody_placeholder.csv",
+      "url_reference": null,
+      "extracted_facts": {
+        "platform": "LHV Crypto Investments"
+      },
+      "warnings": []
+    },
+    {
+      "evidence_id": "btc_protocol_stale_2025_01",
+      "asset_id": "btc_crypto_core_candidate",
+      "evidence_type": "protocol_metadata",
+      "source_quality": "manual_research",
+      "source_name": "Old manual protocol note",
+      "as_of": "2025-01-01",
+      "verified_by_user": true,
+      "verification_notes": "User verified old protocol note; stale warning expected.",
+      "file_reference": "manual_evidence/manual_notes/btc_protocol_old_placeholder.md",
+      "url_reference": null,
+      "extracted_facts": {
+        "network_or_protocol": "Bitcoin"
+      },
+      "warnings": []
+    }
+  ],
+  "read_only": true,
+  "registry_mutation_allowed": false,
+  "approvals_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false
+}
