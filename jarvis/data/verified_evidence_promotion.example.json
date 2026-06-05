@@ -1,0 +1,32 @@
+{
+  "description": "Manual verification decision examples for draft source evidence. This file does not approve assets or write verified intake.",
+  "decisions": [
+    {
+      "task_id": "verify_draft_vwce_provider_factsheet_static",
+      "decision": "accept",
+      "decided_at": "2026-06-05T12:00:00+00:00",
+      "decided_by": "Diogo",
+      "notes": "Accepted as a verified preview for fund metadata only. User still must decide whether to write an intake record."
+    },
+    {
+      "task_id": "verify_draft_vwce_platform_static",
+      "decision": "reject",
+      "decided_at": "2026-06-05T12:05:00+00:00",
+      "decided_by": "Diogo",
+      "notes": "Rejected because the platform evidence needs a current screenshot."
+    },
+    {
+      "task_id": "verify_draft_btc_public_market_static",
+      "decision": "needs_correction",
+      "decided_at": "2026-06-05T12:10:00+00:00",
+      "decided_by": "Diogo",
+      "notes": "Needs correction because extracted protocol and market facts are incomplete."
+    }
+  ],
+  "read_only_by_default": true,
+  "writes_verified_evidence_by_default": false,
+  "approvals_created": false,
+  "registry_mutation_allowed": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false
+}
