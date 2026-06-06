@@ -29,6 +29,15 @@ SOURCE_QUALITY_PRIORITY = {
     "market_data": ("verified_api_snapshot", "manual_research"),
     "tax_route": ("manual_research",),
 }
+SOURCE_NAME_PRIORITY = {
+    "fund_metadata": ("product", "factsheet"),
+    "fee_metadata": ("factsheet", "product"),
+    "distribution_policy": ("product", "factsheet"),
+    "platform_availability": ("platform",),
+    "market_data": ("market",),
+    "exposure_data": ("exposure",),
+    "tax_route": ("tax route", "tax"),
+}
 
 
 @dataclass(frozen=True)
@@ -113,6 +122,15 @@ def _quality_rank(evidence_type: str, source_quality: str) -> int:
     return len(preferred) + 1
 
 
+def _source_name_rank(evidence_type: str, source_name: str) -> int:
+    preferred = SOURCE_NAME_PRIORITY.get(evidence_type, ())
+    normalized = source_name.lower()
+    for index, token in enumerate(preferred):
+        if token in normalized:
+            return index
+    return len(preferred) + 1
+
+
 def select_best_routed_record(records: tuple[dict[str, object], ...] | list[dict[str, object]], evidence_type: str) -> dict[str, object] | None:
     candidates = [record for record in records if record.get("evidence_type") == evidence_type]
     if not candidates:
@@ -121,6 +139,7 @@ def select_best_routed_record(records: tuple[dict[str, object], ...] | list[dict
         candidates,
         key=lambda record: (
             _quality_rank(evidence_type, str(record.get("source_quality", ""))),
+            _source_name_rank(evidence_type, str(record.get("source_name", ""))),
             str(record.get("evidence_id", "")),
         ),
     )[0]

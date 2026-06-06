@@ -143,6 +143,34 @@ class RoutedEvidenceVerificationPackTests(unittest.TestCase):
 
         self.assertFalse(pack.buy_sell_requests_created)
 
+    def test_vwce_best_source_selection_prefers_expected_source_purposes(self) -> None:
+        pack = build_routed_evidence_verification_pack_from_files(REGISTRY, PUBLIC_SOURCES, CONFIG)
+        selected = pack.selected_source_by_evidence_type
+
+        self.assertNotIn("exposure", selected["fund_metadata"].lower())
+        self.assertTrue(
+            "product" in selected["fund_metadata"].lower()
+            or "factsheet" in selected["fund_metadata"].lower()
+        )
+        self.assertTrue(
+            "factsheet" in selected["fee_metadata"].lower()
+            or "product" in selected["fee_metadata"].lower()
+        )
+        self.assertTrue(
+            "product" in selected["distribution_policy"].lower()
+            or "factsheet" in selected["distribution_policy"].lower()
+        )
+        self.assertIn("platform", selected["platform_availability"].lower())
+        self.assertIn("market", selected["market_data"].lower())
+        self.assertIn("exposure", selected["exposure_data"].lower())
+        self.assertIn("tax route", selected["tax_route"].lower())
+
+    def test_cli_pack_still_has_seven_tasks_and_no_missing_evidence(self) -> None:
+        pack = build_routed_evidence_verification_pack_from_files(REGISTRY, PUBLIC_SOURCES, CONFIG)
+
+        self.assertEqual(len(pack.pending_tasks), 7)
+        self.assertEqual(pack.missing_evidence_types, ())
+
 
 if __name__ == "__main__":
     unittest.main()
