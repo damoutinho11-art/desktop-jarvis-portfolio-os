@@ -16,13 +16,13 @@ ETF_ROUTE_FACTS = {
     "fee_metadata": ("ter_or_fee",),
     "distribution_policy": ("distribution_policy",),
     "platform_availability": ("platform_name", "availability_status"),
-    "market_data": ("ticker", "price_currency"),
+    "market_data": ("ticker", "price_currency", "market_price", "price_source", "as_of_market_date"),
     "exposure_data": ("holdings_source", "country_exposure_source", "sector_exposure_source"),
     "tax_route": ("tax_route_summary", "tax_wrapper"),
 }
 CRYPTO_ROUTE_FACTS = {
     "protocol_metadata": ("fund_name", "provider", "ticker"),
-    "market_data": ("ticker", "price_currency"),
+    "market_data": ("ticker", "price_currency", "market_price", "price_source", "as_of_market_date"),
     "platform_availability": ("platform_name", "availability_status"),
     "custody_route": (),
     "tax_route": ("tax_route_summary", "tax_wrapper"),

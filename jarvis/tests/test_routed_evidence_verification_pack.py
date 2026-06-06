@@ -181,18 +181,23 @@ class RoutedEvidenceVerificationPackTests(unittest.TestCase):
                 "exposure_data": "accept",
                 "fee_metadata": "accept",
                 "fund_metadata": "accept",
-                "market_data": "needs_correction",
+                "market_data": "accept",
                 "platform_availability": "needs_correction",
                 "tax_route": "accept",
             },
         )
 
-    def test_vwce_weak_tasks_have_strictness_warnings(self) -> None:
+    def test_vwce_platform_task_keeps_strictness_warning(self) -> None:
         pack = build_routed_evidence_verification_pack_from_files(REGISTRY, PUBLIC_SOURCES, CONFIG)
         warnings_by_type = {task.evidence_type: task.warnings for task in pack.pending_tasks}
 
         self.assertTrue(any("account-specific buyability" in warning for warning in warnings_by_type["platform_availability"]))
-        self.assertTrue(any("price, source, or market as-of date" in warning for warning in warnings_by_type["market_data"]))
+        self.assertFalse(any("price, source, or market as-of date" in warning for warning in warnings_by_type["market_data"]))
+
+    def test_routed_evidence_is_not_verified_by_default(self) -> None:
+        pack = build_routed_evidence_verification_pack_from_files(REGISTRY, PUBLIC_SOURCES, CONFIG)
+
+        self.assertTrue(all(task.draft_evidence_record["verified_by_user"] is False for task in pack.pending_tasks))
 
 
 if __name__ == "__main__":

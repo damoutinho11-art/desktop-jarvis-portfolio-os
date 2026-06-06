@@ -48,7 +48,7 @@ class RoutedEvidenceVerificationReportTests(unittest.TestCase):
         report = build_routed_evidence_verification_report(REGISTRY, PUBLIC_SOURCES, CONFIG)
 
         self.assertIn("- platform_availability: needs_correction", report)
-        self.assertIn("- market_data: needs_correction", report)
+        self.assertIn("- market_data: accept", report)
         self.assertIn("- fund_metadata: accept", report)
 
 

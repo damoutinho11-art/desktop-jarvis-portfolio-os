@@ -58,7 +58,7 @@
       "url_reference": "https://example.invalid/market/vwce",
       "enabled": true,
       "allow_network_fetch": false,
-      "local_fixture_content": "ticker: VWCE\ncurrency: EUR\nprice_currency: EUR\nprovider: public market data fixture\nplatform_name: public market data page\navailability_status: reference_only",
+      "local_fixture_content": "ticker: VWCE\ncurrency: EUR\nprice_currency: EUR\nmarket_price: 100.00\nprice_source: public market data static fixture\nas_of_market_date: 2026-06-05\nprovider: public market data fixture\nplatform_name: public market data page\navailability_status: reference_only",
       "notes": "Static public market data fixture for draft evidence only."
     },
     {
