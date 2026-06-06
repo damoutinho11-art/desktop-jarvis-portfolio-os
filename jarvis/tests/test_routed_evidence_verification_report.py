@@ -20,6 +20,7 @@ class RoutedEvidenceVerificationReportTests(unittest.TestCase):
         self.assertIn("pending verification tasks count:", report)
         self.assertIn("missing evidence types:", report)
         self.assertIn("selected source per evidence type:", report)
+        self.assertIn("recommended decision per evidence type:", report)
         self.assertIn("accepted preview count:", report)
         self.assertIn("no approvals created: true", report)
         self.assertIn("no registry mutation: true", report)
@@ -42,6 +43,13 @@ class RoutedEvidenceVerificationReportTests(unittest.TestCase):
         )
 
         self.assertIn("J.A.R.V.I.S. Routed Evidence Verification Pack Report", completed.stdout)
+
+    def test_report_prints_vwce_strictness_recommendations(self) -> None:
+        report = build_routed_evidence_verification_report(REGISTRY, PUBLIC_SOURCES, CONFIG)
+
+        self.assertIn("- platform_availability: needs_correction", report)
+        self.assertIn("- market_data: needs_correction", report)
+        self.assertIn("- fund_metadata: accept", report)
 
 
 if __name__ == "__main__":

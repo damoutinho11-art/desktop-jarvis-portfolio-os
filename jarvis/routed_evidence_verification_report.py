@@ -30,6 +30,12 @@ def build_routed_evidence_verification_report(
             lines.append(f"- {evidence_type}: {source_name}")
     else:
         lines.append("- none")
+    lines.append("recommended decision per evidence type:")
+    if pack.recommended_decision_by_evidence_type:
+        for evidence_type, decision in pack.recommended_decision_by_evidence_type.items():
+            lines.append(f"- {evidence_type}: {decision}")
+    else:
+        lines.append("- none")
     lines.append(f"accepted preview count: {len(pack.accepted_previews)}")
     lines.append("warnings:")
     lines.extend(f"- {warning}" for warning in pack.warnings) if pack.warnings else lines.append("- none")

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -38,6 +38,18 @@ SOURCE_NAME_PRIORITY = {
     "exposure_data": ("exposure",),
     "tax_route": ("tax route", "tax"),
 }
+STRICT_REQUIRED_FIELDS = {
+    "fund_metadata": ("fund_name", "isin", "provider", "benchmark"),
+    "fee_metadata": ("ter_or_fee",),
+    "distribution_policy": ("distribution_policy",),
+    "platform_availability": ("platform_name", "availability_status"),
+    "market_data": ("ticker", "price_currency"),
+    "exposure_data": ("holdings_source",),
+    "tax_route": ("tax_route_summary",),
+}
+MARKET_DATA_DETAIL_FIELDS = ("market_price", "price_source", "as_of_market_date")
+EXPOSURE_DETAIL_FIELDS = ("country_exposure_source", "sector_exposure_source")
+PUBLIC_ONLY_AVAILABILITY_STATUSES = {"visible_public_reference", "reference_only"}
 
 
 @dataclass(frozen=True)
@@ -64,6 +76,7 @@ class RoutedEvidenceVerificationPack:
     pending_tasks: tuple[EvidenceVerificationTask, ...]
     missing_evidence_types: tuple[str, ...]
     selected_source_by_evidence_type: dict[str, str]
+    recommended_decision_by_evidence_type: dict[str, str]
     decision_results: tuple[EvidenceVerificationDecisionResult, ...]
     accepted_previews: tuple[dict[str, object], ...]
     warnings: tuple[str, ...]
@@ -131,6 +144,51 @@ def _source_name_rank(evidence_type: str, source_name: str) -> int:
     return len(preferred) + 1
 
 
+def _present(value: object) -> bool:
+    if isinstance(value, str):
+        return bool(value.strip())
+    return value is not None
+
+
+def _strictness_warnings(task: EvidenceVerificationTask) -> tuple[str, ...]:
+    facts = task.extracted_facts
+    warnings: list[str] = []
+    for field in STRICT_REQUIRED_FIELDS.get(task.evidence_type, ()):
+        if not _present(facts.get(field)):
+            warnings.append(f"{task.evidence_type}: missing strictness field {field}.")
+
+    if task.evidence_type == "platform_availability":
+        availability_status = str(facts.get("availability_status", "")).strip()
+        account_specific_confirmed = facts.get("account_specific_confirmed") is True
+        if availability_status in PUBLIC_ONLY_AVAILABILITY_STATUSES and not account_specific_confirmed:
+            warnings.append(
+                "platform_availability: public visibility is not account-specific buyability evidence."
+            )
+
+    if task.evidence_type == "market_data" and not any(_present(facts.get(field)) for field in MARKET_DATA_DETAIL_FIELDS):
+        warnings.append("market_data: ticker and price_currency require price, source, or market as-of date.")
+
+    if task.evidence_type == "exposure_data" and not any(_present(facts.get(field)) for field in EXPOSURE_DETAIL_FIELDS):
+        warnings.append("exposure_data: holdings_source requires country or sector exposure source.")
+
+    return tuple(dict.fromkeys(warnings))
+
+
+def _apply_strictness(tasks: tuple[EvidenceVerificationTask, ...]) -> tuple[tuple[EvidenceVerificationTask, ...], dict[str, str]]:
+    strict_tasks: list[EvidenceVerificationTask] = []
+    recommendations: dict[str, str] = {}
+    for task in tasks:
+        strictness_warnings = _strictness_warnings(task)
+        recommendations[task.evidence_type] = "needs_correction" if strictness_warnings else "accept"
+        strict_tasks.append(
+            replace(
+                task,
+                warnings=tuple(dict.fromkeys((*task.warnings, *strictness_warnings))),
+            )
+        )
+    return tuple(strict_tasks), dict(sorted(recommendations.items()))
+
+
 def select_best_routed_record(records: tuple[dict[str, object], ...] | list[dict[str, object]], evidence_type: str) -> dict[str, object] | None:
     candidates = [record for record in records if record.get("evidence_type") == evidence_type]
     if not candidates:
@@ -184,7 +242,7 @@ def build_routed_evidence_verification_pack(
         selected_records.append(record)
         selected_sources[evidence_type] = str(record.get("source_name", "unknown source"))
 
-    tasks = routed_records_to_verification_tasks(selected_records)
+    tasks, recommended_decisions = _apply_strictness(routed_records_to_verification_tasks(selected_records))
     tasks_by_type = {task.evidence_type: task for task in tasks}
     decision_results: list[EvidenceVerificationDecisionResult] = []
     accepted_previews: list[dict[str, object]] = []
@@ -213,6 +271,7 @@ def build_routed_evidence_verification_pack(
         pending_tasks=tasks,
         missing_evidence_types=tuple(missing),
         selected_source_by_evidence_type=dict(sorted(selected_sources.items())),
+        recommended_decision_by_evidence_type=recommended_decisions,
         decision_results=tuple(decision_results),
         accepted_previews=tuple(accepted_previews),
         warnings=warnings,
