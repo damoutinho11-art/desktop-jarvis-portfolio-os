@@ -1,0 +1,11 @@
+{
+  "description": "Read-only bridge from private status review previews into registry update dry-run simulation.",
+  "private_status_review_config_path": "jarvis/data/private_status_review_bridge.example.json",
+  "read_only_by_default": true,
+  "writes_registry_by_default": false,
+  "allow_write_helper": false,
+  "approvals_executed": false,
+  "registry_mutation_performed": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false
+}
