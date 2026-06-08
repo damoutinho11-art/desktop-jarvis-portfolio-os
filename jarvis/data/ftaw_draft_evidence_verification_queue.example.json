@@ -1,0 +1,14 @@
+{
+  "description": "Read-only manual verification queue for FTAW draft public evidence. Preview decisions only.",
+  "target_asset_id": "ftaw_global_core_candidate",
+  "preview_decisions": {},
+  "preview_decision_notes": {},
+  "manual_verification_required": true,
+  "verified_by_user_by_default": false,
+  "writes_files_by_default": false,
+  "approvals_created": false,
+  "registry_mutation_allowed": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false
+}
