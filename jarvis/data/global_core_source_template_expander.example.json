@@ -1,0 +1,190 @@
+{
+  "description": "Candidate-specific disabled source templates for global_core ETF evidence collection. No network fetch and no verification by default.",
+  "candidate_source_guidance": {
+    "ftaw_global_core_candidate": {
+      "fund_metadata": {
+        "source_type": "provider_product_page",
+        "source_name": "FTAW provider product page to collect",
+        "url_reference": "<ftaw_provider_product_page_url_to_collect>",
+        "source_guidance": "Collect provider product page or provider factsheet for FTAW fund metadata."
+      },
+      "fee_metadata": {
+        "source_type": "provider_factsheet_pdf",
+        "source_name": "FTAW provider factsheet or KIID to collect",
+        "url_reference": "<ftaw_provider_factsheet_or_kiid_url_to_collect>",
+        "source_guidance": "Collect provider factsheet or KIID for FTAW fee metadata."
+      },
+      "distribution_policy": {
+        "source_type": "provider_product_page",
+        "source_name": "FTAW distribution policy source to collect",
+        "url_reference": "<ftaw_distribution_policy_url_to_collect>",
+        "source_guidance": "Collect provider product page/factsheet showing FTAW distribution policy."
+      },
+      "platform_availability": {
+        "source_type": "manual_url_reference",
+        "source_name": "FTAW Lightyear account availability evidence to collect",
+        "url_reference": "<ftaw_account_specific_lightyear_screenshot_or_note_to_collect>",
+        "source_guidance": "Collect account-specific Lightyear screenshot or account-specific manual note. Do not place an order."
+      },
+      "tax_route": {
+        "source_type": "manual_url_reference",
+        "source_name": "FTAW manual tax/account route note to collect",
+        "url_reference": "<ftaw_manual_tax_account_route_note_to_collect>",
+        "source_guidance": "Manual tax/account route review required before any future status request."
+      },
+      "exposure_data": {
+        "source_type": "provider_factsheet_pdf",
+        "source_name": "FTAW exposure data source to collect",
+        "url_reference": "<ftaw_holdings_country_sector_source_url_to_collect>",
+        "source_guidance": "Collect provider holdings/country/sector page or factsheet for FTAW exposure data."
+      },
+      "market_data": {
+        "source_type": "public_market_data_page",
+        "source_name": "FTAW public market data page to collect",
+        "url_reference": "<ftaw_public_market_data_page_url_to_collect>",
+        "source_guidance": "Collect public market data page with price, currency, source, and as_of date."
+      }
+    },
+    "spyi_imie_global_core_candidate": {
+      "fund_metadata": {
+        "source_type": "provider_product_page",
+        "source_name": "SPYI/IMIE provider product page to collect",
+        "url_reference": "<spyi_imie_provider_product_page_url_to_collect>",
+        "source_guidance": "Collect provider product page or provider factsheet for SPYI/IMIE fund metadata."
+      },
+      "fee_metadata": {
+        "source_type": "provider_factsheet_pdf",
+        "source_name": "SPYI/IMIE provider factsheet or KIID to collect",
+        "url_reference": "<spyi_imie_provider_factsheet_or_kiid_url_to_collect>",
+        "source_guidance": "Collect provider factsheet or KIID for SPYI/IMIE fee metadata."
+      },
+      "distribution_policy": {
+        "source_type": "provider_product_page",
+        "source_name": "SPYI/IMIE distribution policy source to collect",
+        "url_reference": "<spyi_imie_distribution_policy_url_to_collect>",
+        "source_guidance": "Collect provider product page/factsheet showing SPYI/IMIE distribution policy."
+      },
+      "platform_availability": {
+        "source_type": "manual_url_reference",
+        "source_name": "SPYI/IMIE Lightyear account availability evidence to collect",
+        "url_reference": "<spyi_imie_account_specific_lightyear_screenshot_or_note_to_collect>",
+        "source_guidance": "Collect account-specific Lightyear screenshot or account-specific manual note. Do not place an order."
+      },
+      "tax_route": {
+        "source_type": "manual_url_reference",
+        "source_name": "SPYI/IMIE manual tax/account route note to collect",
+        "url_reference": "<spyi_imie_manual_tax_account_route_note_to_collect>",
+        "source_guidance": "Manual tax/account route review required before any future status request."
+      },
+      "exposure_data": {
+        "source_type": "provider_factsheet_pdf",
+        "source_name": "SPYI/IMIE exposure data source to collect",
+        "url_reference": "<spyi_imie_holdings_country_sector_source_url_to_collect>",
+        "source_guidance": "Collect provider holdings/country/sector page or factsheet for SPYI/IMIE exposure data."
+      },
+      "market_data": {
+        "source_type": "public_market_data_page",
+        "source_name": "SPYI/IMIE public market data page to collect",
+        "url_reference": "<spyi_imie_public_market_data_page_url_to_collect>",
+        "source_guidance": "Collect public market data page with price, currency, source, and as_of date."
+      }
+    },
+    "ssac_iusq_global_core_candidate": {
+      "fund_metadata": {
+        "source_type": "provider_product_page",
+        "source_name": "SSAC/IUSQ provider product page to collect",
+        "url_reference": "<ssac_iusq_provider_product_page_url_to_collect>",
+        "source_guidance": "Collect provider product page or provider factsheet for SSAC/IUSQ fund metadata."
+      },
+      "fee_metadata": {
+        "source_type": "provider_factsheet_pdf",
+        "source_name": "SSAC/IUSQ provider factsheet or KIID to collect",
+        "url_reference": "<ssac_iusq_provider_factsheet_or_kiid_url_to_collect>",
+        "source_guidance": "Collect provider factsheet or KIID for SSAC/IUSQ fee metadata."
+      },
+      "distribution_policy": {
+        "source_type": "provider_product_page",
+        "source_name": "SSAC/IUSQ distribution policy source to collect",
+        "url_reference": "<ssac_iusq_distribution_policy_url_to_collect>",
+        "source_guidance": "Collect provider product page/factsheet showing SSAC/IUSQ distribution policy."
+      },
+      "platform_availability": {
+        "source_type": "manual_url_reference",
+        "source_name": "SSAC/IUSQ Lightyear account availability evidence to collect",
+        "url_reference": "<ssac_iusq_account_specific_lightyear_screenshot_or_note_to_collect>",
+        "source_guidance": "Collect account-specific Lightyear screenshot or account-specific manual note. Do not place an order."
+      },
+      "tax_route": {
+        "source_type": "manual_url_reference",
+        "source_name": "SSAC/IUSQ manual tax/account route note to collect",
+        "url_reference": "<ssac_iusq_manual_tax_account_route_note_to_collect>",
+        "source_guidance": "Manual tax/account route review required before any future status request."
+      },
+      "exposure_data": {
+        "source_type": "provider_factsheet_pdf",
+        "source_name": "SSAC/IUSQ exposure data source to collect",
+        "url_reference": "<ssac_iusq_holdings_country_sector_source_url_to_collect>",
+        "source_guidance": "Collect provider holdings/country/sector page or factsheet for SSAC/IUSQ exposure data."
+      },
+      "market_data": {
+        "source_type": "public_market_data_page",
+        "source_name": "SSAC/IUSQ public market data page to collect",
+        "url_reference": "<ssac_iusq_public_market_data_page_url_to_collect>",
+        "source_guidance": "Collect public market data page with price, currency, source, and as_of date."
+      }
+    },
+    "webn_global_core_candidate": {
+      "fund_metadata": {
+        "source_type": "provider_product_page",
+        "source_name": "WEBN provider product page to collect",
+        "url_reference": "<webn_provider_product_page_url_to_collect>",
+        "source_guidance": "Collect provider product page or provider factsheet for WEBN fund metadata."
+      },
+      "fee_metadata": {
+        "source_type": "provider_factsheet_pdf",
+        "source_name": "WEBN provider factsheet or KIID to collect",
+        "url_reference": "<webn_provider_factsheet_or_kiid_url_to_collect>",
+        "source_guidance": "Collect provider factsheet or KIID for WEBN fee metadata."
+      },
+      "distribution_policy": {
+        "source_type": "provider_product_page",
+        "source_name": "WEBN distribution policy source to collect",
+        "url_reference": "<webn_distribution_policy_url_to_collect>",
+        "source_guidance": "Collect provider product page/factsheet showing WEBN distribution policy."
+      },
+      "platform_availability": {
+        "source_type": "manual_url_reference",
+        "source_name": "WEBN Lightyear account availability evidence to collect",
+        "url_reference": "<webn_account_specific_lightyear_screenshot_or_note_to_collect>",
+        "source_guidance": "Collect account-specific Lightyear screenshot or account-specific manual note. Do not place an order."
+      },
+      "tax_route": {
+        "source_type": "manual_url_reference",
+        "source_name": "WEBN manual tax/account route note to collect",
+        "url_reference": "<webn_manual_tax_account_route_note_to_collect>",
+        "source_guidance": "Manual tax/account route review required before any future status request."
+      },
+      "exposure_data": {
+        "source_type": "provider_factsheet_pdf",
+        "source_name": "WEBN exposure data source to collect",
+        "url_reference": "<webn_holdings_country_sector_source_url_to_collect>",
+        "source_guidance": "Collect provider holdings/country/sector page or factsheet for WEBN exposure data."
+      },
+      "market_data": {
+        "source_type": "public_market_data_page",
+        "source_name": "WEBN public market data page to collect",
+        "url_reference": "<webn_public_market_data_page_url_to_collect>",
+        "source_guidance": "Collect public market data page with price, currency, source, and as_of date."
+      }
+    }
+  },
+  "enabled_by_default": false,
+  "allow_network_fetch_by_default": false,
+  "manual_verification_required": true,
+  "auto_verified": false,
+  "approvals_created": false,
+  "registry_mutation_allowed": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false
+}
