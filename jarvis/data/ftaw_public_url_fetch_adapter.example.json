@@ -1,0 +1,112 @@
+{
+  "description": "Controlled FTAW public URL fetch adapter. Network fetching disabled by default; local fixtures are draft-only.",
+  "enable_network_fetch": false,
+  "sources": [
+    {
+      "source_id": "ftaw_url_fund_metadata_fixture",
+      "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "fund_metadata",
+      "source_type": "provider_product_page",
+      "source_name": "FTAW provider product page fixture",
+      "url_reference": "https://example.invalid/ftaw-product-page-to-collect",
+      "enabled": true,
+      "allow_network_fetch": false,
+      "local_fixture_text": "name: <name_to_capture>\nticker: <ticker_to_capture>\nisin_or_symbol: <isin_or_symbol_to_capture>\nprovider: <provider_to_capture>\nindex_tracked: <index_tracked_to_capture>\nreplication_method: <replication_method_to_capture>",
+      "extraction_rules": {
+        "name": ["name", "fund_name"],
+        "ticker": ["ticker"],
+        "isin_or_symbol": ["isin_or_symbol", "isin"],
+        "provider": ["provider"],
+        "index_tracked": ["index_tracked", "benchmark"],
+        "replication_method": ["replication_method"]
+      }
+    },
+    {
+      "source_id": "ftaw_url_fee_metadata_fixture",
+      "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "fee_metadata",
+      "source_type": "provider_factsheet_pdf",
+      "source_name": "FTAW fee metadata fixture",
+      "url_reference": "https://example.invalid/ftaw-factsheet-to-collect",
+      "enabled": true,
+      "allow_network_fetch": false,
+      "local_fixture_text": "ter_or_fee: <ter_or_fee_to_capture>\nfee_source: <fee_source_to_capture>\nas_of_date: <as_of_date_to_capture>",
+      "extraction_rules": {
+        "ter_or_fee": ["ter_or_fee", "TER"],
+        "fee_source": ["fee_source"],
+        "as_of_date": ["as_of_date", "document_date"]
+      }
+    },
+    {
+      "source_id": "ftaw_url_distribution_policy_fixture",
+      "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "distribution_policy",
+      "source_type": "provider_product_page",
+      "source_name": "FTAW distribution policy fixture",
+      "url_reference": "https://example.invalid/ftaw-distribution-to-collect",
+      "enabled": true,
+      "allow_network_fetch": false,
+      "local_fixture_text": "distribution_policy: <distribution_policy_to_capture>\naccumulating_or_distributing: <accumulating_or_distributing_to_capture>\nas_of_date: <as_of_date_to_capture>",
+      "extraction_rules": {
+        "distribution_policy": ["distribution_policy"],
+        "accumulating_or_distributing": ["accumulating_or_distributing"],
+        "as_of_date": ["as_of_date"]
+      }
+    },
+    {
+      "source_id": "ftaw_url_exposure_data_fixture",
+      "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "exposure_data",
+      "source_type": "provider_holdings_page",
+      "source_name": "FTAW exposure data fixture",
+      "url_reference": "https://example.invalid/ftaw-holdings-to-collect",
+      "enabled": true,
+      "allow_network_fetch": false,
+      "local_fixture_text": "top_holdings_source: <top_holdings_source_to_capture>\ncountry_exposure_source: <country_exposure_source_to_capture>\nsector_exposure_source: <sector_exposure_source_to_capture>\nas_of_date: <as_of_date_to_capture>",
+      "extraction_rules": {
+        "top_holdings_source": ["top_holdings_source"],
+        "country_exposure_source": ["country_exposure_source"],
+        "sector_exposure_source": ["sector_exposure_source"],
+        "as_of_date": ["as_of_date"]
+      }
+    },
+    {
+      "source_id": "ftaw_url_market_data_fixture",
+      "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "market_data",
+      "source_type": "public_market_data_page",
+      "source_name": "FTAW market data fixture",
+      "url_reference": "https://example.invalid/ftaw-market-to-collect",
+      "enabled": true,
+      "allow_network_fetch": false,
+      "local_fixture_text": "price: <price_to_capture>\ncurrency: <currency_to_capture>\nsource: <source_to_capture>\nmarket_date: <market_date_to_capture>",
+      "extraction_rules": {
+        "price": ["price", "market_price"],
+        "currency": ["currency", "price_currency"],
+        "source": ["source", "price_source"],
+        "market_date": ["market_date", "as_of_date"]
+      }
+    },
+    {
+      "source_id": "ftaw_url_disabled_fixture",
+      "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "market_data",
+      "source_type": "public_market_data_page",
+      "source_name": "Disabled FTAW URL source",
+      "url_reference": "https://example.invalid/disabled",
+      "enabled": false,
+      "allow_network_fetch": false,
+      "local_fixture_text": "price: 100",
+      "extraction_rules": {
+        "price": ["price"]
+      }
+    }
+  ],
+  "manual_verification_required": true,
+  "verified_by_user_by_default": false,
+  "approvals_created": false,
+  "registry_mutation_allowed": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false
+}
