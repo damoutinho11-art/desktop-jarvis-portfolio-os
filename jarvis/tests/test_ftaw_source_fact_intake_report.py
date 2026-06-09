@@ -17,9 +17,12 @@ class FTAWSourceFactIntakeReportTests(unittest.TestCase):
 
         self.assertIn("Automated structure. Manual trust.", report)
         self.assertIn("FTAW source fact intake status: READY_WITH_CORRECTIONS", report)
-        self.assertIn("processed fact records count: 3", report)
-        self.assertIn("draft evidence records count: 3", report)
-        self.assertIn("needs-correction count: 3", report)
+        self.assertIn("processed fact records count: 5", report)
+        self.assertIn("draft evidence records count: 5", report)
+        self.assertIn("draft-ready count: 0", report)
+        self.assertIn("needs-correction count: 5", report)
+        self.assertIn("distribution_policy: distribution_policy, accumulating_or_distributing, as_of_date", report)
+        self.assertIn("exposure_data: top_holdings_source, country_exposure_source, sector_exposure_source, as_of_date", report)
         self.assertIn("sample draft record:", report)
         self.assertIn('"verified_by_user": false', report)
         self.assertIn("manual verification required: true", report)
@@ -46,7 +49,7 @@ class FTAWSourceFactIntakeReportTests(unittest.TestCase):
         )
 
         self.assertIn("J.A.R.V.I.S. FTAW Source Fact Intake Report", result.stdout)
-        self.assertIn("draft evidence records count: 3", result.stdout)
+        self.assertIn("draft evidence records count: 5", result.stdout)
 
 
 if __name__ == "__main__":

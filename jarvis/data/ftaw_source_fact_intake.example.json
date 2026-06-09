@@ -36,6 +36,37 @@
     },
     {
       "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "distribution_policy",
+      "source_name": "FTAW manually collected distribution policy facts",
+      "source_quality": "provider_factsheet",
+      "url_reference": "<ftaw_distribution_policy_url_to_collect>",
+      "file_reference": null,
+      "as_of": "<YYYY-MM-DD>",
+      "extracted_facts": {
+        "distribution_policy": "<distribution_policy_to_capture>",
+        "accumulating_or_distributing": "<accumulating_or_distributing_to_capture>",
+        "as_of_date": "<as_of_date_to_capture>"
+      },
+      "user_notes": "Paste manually collected distribution policy facts here. Do not mark verified until reviewed."
+    },
+    {
+      "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "exposure_data",
+      "source_name": "FTAW manually collected exposure facts",
+      "source_quality": "provider_factsheet",
+      "url_reference": "<ftaw_exposure_data_url_to_collect>",
+      "file_reference": null,
+      "as_of": "<YYYY-MM-DD>",
+      "extracted_facts": {
+        "top_holdings_source": "<top_holdings_source_to_capture>",
+        "country_exposure_source": "<country_exposure_source_to_capture>",
+        "sector_exposure_source": "<sector_exposure_source_to_capture>",
+        "as_of_date": "<as_of_date_to_capture>"
+      },
+      "user_notes": "Paste manually collected exposure facts here. Do not mark verified until reviewed."
+    },
+    {
+      "asset_id": "ftaw_global_core_candidate",
       "evidence_type": "market_data",
       "source_name": "FTAW manually collected market facts",
       "source_quality": "manual_research",

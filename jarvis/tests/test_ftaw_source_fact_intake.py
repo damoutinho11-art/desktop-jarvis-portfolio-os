@@ -80,8 +80,20 @@ class FTAWSourceFactIntakeTests(unittest.TestCase):
     def test_missing_or_placeholder_facts_create_needs_correction(self) -> None:
         pack = build_ftaw_source_fact_intake_pack_from_files(SOURCE_REGISTRY, REVIEWED_REGISTRY, URL_FETCH_CONFIG, INTAKE_CONFIG)
 
-        self.assertEqual(pack.needs_correction_count, 3)
-        self.assertTrue(pack.missing_facts_by_evidence_type)
+        self.assertEqual(pack.processed_fact_records_count, 5)
+        self.assertEqual(len(pack.draft_evidence_records), 5)
+        self.assertEqual(pack.draft_ready_count, 0)
+        self.assertEqual(pack.needs_correction_count, 5)
+        self.assertEqual(
+            pack.missing_facts_by_evidence_type,
+            {
+                "distribution_policy": ("distribution_policy", "accumulating_or_distributing", "as_of_date"),
+                "exposure_data": ("top_holdings_source", "country_exposure_source", "sector_exposure_source", "as_of_date"),
+                "fee_metadata": ("ter_or_fee", "fee_source", "as_of_date"),
+                "fund_metadata": ("name", "ticker", "isin_or_symbol", "provider", "index_tracked", "replication_method"),
+                "market_data": ("price", "currency", "source", "market_date"),
+            },
+        )
 
     def test_all_draft_records_are_unverified(self) -> None:
         pack = build_ftaw_source_fact_intake_pack(
