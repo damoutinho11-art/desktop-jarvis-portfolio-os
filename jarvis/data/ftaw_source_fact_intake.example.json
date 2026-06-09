@@ -1,0 +1,62 @@
+{
+  "description": "FTAW user/source fact intake example. Placeholder facts remain correction-needed and unverified.",
+  "records": [
+    {
+      "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "fund_metadata",
+      "source_name": "FTAW manually collected product page facts",
+      "source_quality": "provider_factsheet",
+      "url_reference": "<ftaw_provider_product_page_url_to_collect>",
+      "file_reference": null,
+      "as_of": "<YYYY-MM-DD>",
+      "extracted_facts": {
+        "name": "<name_to_capture>",
+        "ticker": "<ticker_to_capture>",
+        "isin_or_symbol": "<isin_or_symbol_to_capture>",
+        "provider": "<provider_to_capture>",
+        "index_tracked": "<index_tracked_to_capture>",
+        "replication_method": "<replication_method_to_capture>"
+      },
+      "user_notes": "Paste manually collected public fund metadata here. Do not mark verified until reviewed."
+    },
+    {
+      "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "fee_metadata",
+      "source_name": "FTAW manually collected fee facts",
+      "source_quality": "provider_factsheet",
+      "url_reference": "<ftaw_provider_factsheet_or_kiid_url_to_collect>",
+      "file_reference": null,
+      "as_of": "<YYYY-MM-DD>",
+      "extracted_facts": {
+        "ter_or_fee": "<ter_or_fee_to_capture>",
+        "fee_source": "<fee_source_to_capture>",
+        "as_of_date": "<as_of_date_to_capture>"
+      },
+      "user_notes": "Paste manually collected fee facts here. Do not mark verified until reviewed."
+    },
+    {
+      "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "market_data",
+      "source_name": "FTAW manually collected market facts",
+      "source_quality": "manual_research",
+      "url_reference": "<ftaw_market_data_url_to_collect>",
+      "file_reference": null,
+      "as_of": "<YYYY-MM-DD>",
+      "extracted_facts": {
+        "price": "<price_to_capture>",
+        "currency": "<currency_to_capture>",
+        "source": "<source_to_capture>",
+        "market_date": "<market_date_to_capture>"
+      },
+      "user_notes": "Paste manually collected market facts here. Do not mark verified until reviewed."
+    }
+  ],
+  "manual_verification_required": true,
+  "verified_by_user_by_default": false,
+  "writes_files_by_default": false,
+  "approvals_created": false,
+  "registry_mutation_allowed": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false
+}
