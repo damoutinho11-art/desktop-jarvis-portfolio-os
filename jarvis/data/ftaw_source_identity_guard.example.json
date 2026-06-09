@@ -1,0 +1,21 @@
+{
+  "description": "FTAW source identity guard. Placeholder identity means identity confirmation remains required.",
+  "asset_id": "ftaw_global_core_candidate",
+  "expected_name": "<expected_name_to_confirm>",
+  "expected_ticker": "<expected_ticker_to_confirm>",
+  "expected_isin_or_symbol": "<expected_isin_or_symbol_to_confirm>",
+  "expected_provider": "<expected_provider_to_confirm>",
+  "expected_index_tracked": "<expected_index_tracked_to_confirm>",
+  "allowed_source_names": [
+    "<allowed_source_name_to_confirm>"
+  ],
+  "allowed_url_domains": [
+    "<allowed_url_domain_to_confirm>"
+  ],
+  "manual_verification_required": true,
+  "approvals_created": false,
+  "registry_mutation_allowed": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false
+}
