@@ -20,6 +20,7 @@ from .ftaw_source_fact_intake import (
     MANUAL_EVIDENCE_TYPES,
     TARGET_ASSET_ID,
     FTAWSourceFactIntakeConfig,
+    FTAWSourceFactRecord,
     build_ftaw_source_fact_intake_pack,
     load_ftaw_source_fact_intake_config,
 )
@@ -42,6 +43,8 @@ QUEUE_STATUSES = {
 @dataclass(frozen=True)
 class FTAWIdentityGuardedVerificationQueueConfig:
     target_asset_id: str = TARGET_ASSET_ID
+    synthetic_fact_intake_config: FTAWSourceFactIntakeConfig | None = None
+    synthetic_identity_guard_config: FTAWSourceIdentityGuardConfig | None = None
 
 
 @dataclass(frozen=True)
@@ -95,12 +98,68 @@ def _require_text(value: Any, field: str) -> str:
     return value.strip()
 
 
+def _optional_text(value: Any, field: str) -> str | None:
+    if value is None:
+        return None
+    return _require_text(value, field)
+
+
+def _text_tuple(value: Any, field: str) -> tuple[str, ...]:
+    if value is None:
+        return ()
+    if not isinstance(value, list):
+        raise ValueError(f"{field} must be a list.")
+    return tuple(_require_text(item, field) for item in value)
+
+
+def _parse_fact_record(raw: Any) -> FTAWSourceFactRecord:
+    item = _require_mapping(raw, "synthetic_fact_records item")
+    facts = _require_mapping(item.get("extracted_facts"), "extracted_facts")
+    return FTAWSourceFactRecord(
+        asset_id=_require_text(item.get("asset_id"), "asset_id"),
+        evidence_type=_require_text(item.get("evidence_type"), "evidence_type"),
+        source_name=_require_text(item.get("source_name"), "source_name"),
+        source_quality=_require_text(item.get("source_quality"), "source_quality"),
+        url_reference=_require_text(item.get("url_reference"), "url_reference"),
+        file_reference=_optional_text(item.get("file_reference"), "file_reference"),
+        as_of=_require_text(item.get("as_of"), "as_of"),
+        extracted_facts=dict(facts),
+        user_notes=_require_text(item.get("user_notes"), "user_notes"),
+    )
+
+
+def _parse_synthetic_fact_intake(raw: Any) -> FTAWSourceFactIntakeConfig | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, list):
+        raise ValueError("synthetic_fact_records must be a list.")
+    return FTAWSourceFactIntakeConfig(records=tuple(_parse_fact_record(item) for item in raw))
+
+
+def _parse_synthetic_identity_guard(raw: Any) -> FTAWSourceIdentityGuardConfig | None:
+    if raw is None:
+        return None
+    item = _require_mapping(raw, "synthetic_identity_guard")
+    return FTAWSourceIdentityGuardConfig(
+        asset_id=_require_text(item.get("asset_id", TARGET_ASSET_ID), "asset_id"),
+        expected_name=_optional_text(item.get("expected_name"), "expected_name"),
+        expected_ticker=_optional_text(item.get("expected_ticker"), "expected_ticker"),
+        expected_isin_or_symbol=_optional_text(item.get("expected_isin_or_symbol"), "expected_isin_or_symbol"),
+        expected_provider=_optional_text(item.get("expected_provider"), "expected_provider"),
+        expected_index_tracked=_optional_text(item.get("expected_index_tracked"), "expected_index_tracked"),
+        allowed_source_names=_text_tuple(item.get("allowed_source_names", []), "allowed_source_names"),
+        allowed_url_domains=_text_tuple(item.get("allowed_url_domains", []), "allowed_url_domains"),
+    )
+
+
 def load_ftaw_identity_guarded_verification_queue_config(
     path: str | Path,
 ) -> FTAWIdentityGuardedVerificationQueueConfig:
     raw = _require_mapping(json.loads(Path(path).read_text(encoding="utf-8")), "FTAW identity-guarded queue config")
     return FTAWIdentityGuardedVerificationQueueConfig(
-        target_asset_id=_require_text(raw.get("target_asset_id", TARGET_ASSET_ID), "target_asset_id")
+        target_asset_id=_require_text(raw.get("target_asset_id", TARGET_ASSET_ID), "target_asset_id"),
+        synthetic_fact_intake_config=_parse_synthetic_fact_intake(raw.get("synthetic_fact_records")),
+        synthetic_identity_guard_config=_parse_synthetic_identity_guard(raw.get("synthetic_identity_guard")),
     )
 
 
@@ -218,11 +277,14 @@ def build_ftaw_identity_guarded_verification_queue_from_files(
     identity_guard_config_path: str | Path,
     queue_config_path: str | Path,
 ) -> FTAWIdentityGuardedVerificationQueue:
+    queue_config = load_ftaw_identity_guarded_verification_queue_config(queue_config_path)
+    fact_intake_config = queue_config.synthetic_fact_intake_config or load_ftaw_source_fact_intake_config(fact_intake_config_path)
+    identity_guard_config = queue_config.synthetic_identity_guard_config or load_ftaw_source_identity_guard_config(identity_guard_config_path)
     return build_ftaw_identity_guarded_verification_queue(
         source_registry_path,
         reviewed_registry_copy_path,
         url_fetch_config_path,
-        load_ftaw_source_fact_intake_config(fact_intake_config_path),
-        load_ftaw_source_identity_guard_config(identity_guard_config_path),
-        load_ftaw_identity_guarded_verification_queue_config(queue_config_path),
+        fact_intake_config,
+        identity_guard_config,
+        queue_config,
     )

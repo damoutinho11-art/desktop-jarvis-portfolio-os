@@ -37,6 +37,9 @@ def build_ftaw_identity_guarded_verification_queue_report(
         f"needs_identity_confirmation count: {queue.needs_identity_confirmation_count}",
         f"blocked_source_identity_mismatch count: {queue.blocked_source_identity_mismatch_count}",
         f"manual_only_skipped count: {queue.manual_only_skipped_count}",
+        "eligible_for_manual_verification is not approval.",
+        "eligible_for_manual_verification is not verified evidence.",
+        "eligible_for_manual_verification is not a buy signal.",
         "queue items:",
     ]
     if queue.items:

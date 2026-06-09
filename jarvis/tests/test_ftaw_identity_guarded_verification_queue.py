@@ -15,6 +15,7 @@ URL_FETCH_CONFIG = "jarvis/data/ftaw_public_url_fetch_adapter.example.json"
 INTAKE_CONFIG = "jarvis/data/ftaw_source_fact_intake.example.json"
 GUARD_CONFIG = "jarvis/data/ftaw_source_identity_guard.example.json"
 QUEUE_CONFIG = "jarvis/data/ftaw_identity_guarded_verification_queue.example.json"
+SYNTHETIC_PASS_CONFIG = "jarvis/data/ftaw_identity_guarded_verification_queue.synthetic_pass.example.json"
 TARGET = "ftaw_global_core_candidate"
 
 
@@ -171,6 +172,41 @@ class FTAWIdentityGuardedVerificationQueueTests(unittest.TestCase):
         self.assertEqual(queue.total_input_items, 5)
         self.assertEqual(queue.eligible_for_manual_verification_count, 0)
         self.assertEqual(queue.needs_source_facts_count, 5)
+
+    def test_synthetic_pass_example_produces_eligible_item(self) -> None:
+        queue = build_ftaw_identity_guarded_verification_queue_from_files(
+            SOURCE_REGISTRY,
+            None,
+            URL_FETCH_CONFIG,
+            INTAKE_CONFIG,
+            GUARD_CONFIG,
+            SYNTHETIC_PASS_CONFIG,
+        )
+
+        self.assertEqual(queue.queue_status, "READY_FOR_MANUAL_VERIFICATION")
+        self.assertEqual(queue.eligible_for_manual_verification_count, 1)
+        self.assertEqual(queue.manual_only_skipped_count, 2)
+        self.assertEqual(
+            [item.evidence_type for item in queue.items if item.queue_status == "eligible_for_manual_verification"],
+            ["fund_metadata"],
+        )
+
+    def test_synthetic_pass_still_does_not_verify_or_approve(self) -> None:
+        queue = build_ftaw_identity_guarded_verification_queue_from_files(
+            SOURCE_REGISTRY,
+            None,
+            URL_FETCH_CONFIG,
+            INTAKE_CONFIG,
+            GUARD_CONFIG,
+            SYNTHETIC_PASS_CONFIG,
+        )
+
+        self.assertTrue(all(item.verified_by_user is False for item in queue.items))
+        self.assertFalse(queue.approvals_created)
+        self.assertFalse(queue.registry_mutation_performed)
+        self.assertFalse(queue.allocation_recommendation_created)
+        self.assertFalse(queue.buy_sell_requests_created)
+        self.assertFalse(queue.trades_executed)
 
 
 if __name__ == "__main__":
