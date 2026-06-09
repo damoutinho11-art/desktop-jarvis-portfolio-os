@@ -1,0 +1,10 @@
+{
+  "description": "Default FTAW candidate readiness pack. Placeholder/default path remains blocked.",
+  "read_only": true,
+  "approvals_created": false,
+  "registry_mutation_allowed": false,
+  "promotes_verified_evidence": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false
+}

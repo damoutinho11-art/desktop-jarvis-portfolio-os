@@ -1,0 +1,10 @@
+{
+  "description": "Synthetic pass FTAW candidate readiness pack. Ready only for manual verified evidence promotion dry-run review.",
+  "read_only": true,
+  "approvals_created": false,
+  "registry_mutation_allowed": false,
+  "promotes_verified_evidence": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false
+}
