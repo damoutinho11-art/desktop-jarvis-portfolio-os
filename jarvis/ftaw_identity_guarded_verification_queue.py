@@ -56,6 +56,7 @@ class FTAWIdentityGuardedVerificationQueueItem:
     url_reference: str
     queue_status: str
     reason: str
+    extracted_facts: dict[str, object]
     verification_questions: tuple[str, ...]
     missing_facts: tuple[str, ...]
     blockers: tuple[str, ...]
@@ -168,6 +169,7 @@ def _item_for_result(result, identity_status: str, identity_passed: bool) -> FTA
     source_name = str(draft.get("source_name", ""))
     source_quality = str(draft.get("source_quality", ""))
     url_reference = str(draft.get("url_reference", ""))
+    extracted_facts = dict(draft.get("extracted_facts", {})) if isinstance(draft.get("extracted_facts", {}), dict) else {}
     warnings = tuple(result.warnings)
     blockers = tuple(result.blockers)
 
@@ -196,6 +198,7 @@ def _item_for_result(result, identity_status: str, identity_passed: bool) -> FTA
         url_reference=url_reference,
         queue_status=status,
         reason=reason,
+        extracted_facts=extracted_facts,
         verification_questions=questions,
         missing_facts=tuple(result.missing_facts),
         blockers=blockers,
