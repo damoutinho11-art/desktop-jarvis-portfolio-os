@@ -1,0 +1,15 @@
+{
+  "description": "Default FTAW human approval review decision fixture. The default gate is blocked, so this attempted decision must not be recorded as ready.",
+  "decision": {
+    "review_packet_id": "ftaw_global_core_candidate:manual_approval_review",
+    "asset_id": "ftaw_global_core_candidate",
+    "human_decision": "approved_for_registry_update_dry_run",
+    "reviewer_notes": "Attempted default decision fixture; default readiness remains blocked."
+  },
+  "approvals_created": false,
+  "registry_mutation_allowed": false,
+  "promotes_verified_evidence": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false
+}
