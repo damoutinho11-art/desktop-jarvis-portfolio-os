@@ -1,0 +1,26 @@
+{
+  "description": "Synthetic complete FTAW explicit manual apply command contract. Validates command readiness only.",
+  "command": {
+    "command_id": "ftaw-explicit-apply-synthetic-complete-001",
+    "asset_id": "ftaw_global_core_candidate",
+    "dry_run_plan_reference": "ftaw_global_core_candidate:candidate_unreviewed:approved_by_human_review_dry_run:dry_run",
+    "proposed_approval_status": "approved_by_human_review_dry_run",
+    "current_approval_status": "candidate_unreviewed",
+    "command_type": "explicit_manual_registry_apply_request",
+    "human_confirmation_text": "I EXPLICITLY REQUEST A DRY-RUN MATCHED REGISTRY APPLY REVIEW FOR THIS ASSET ONLY",
+    "human_operator": "synthetic_operator",
+    "command_timestamp": "2026-06-10T00:00:00Z",
+    "dry_run_plan_fingerprint": "d21f9f642606eb43e53c2b3309f496c6d6e0c61e93c1fd68e874ef68610551af",
+    "safety_confirmations": {
+      "I understand this is a registry update request only": true,
+      "I understand this is not a buy/sell request": true,
+      "I understand this does not execute trades": true,
+      "I understand allocation recommendations are separate": true,
+      "I understand this must match the dry-run plan exactly": true
+    }
+  },
+  "apply_executed": false,
+  "registry_file_written": false,
+  "approved_asset": false,
+  "buy_signal": false
+}
