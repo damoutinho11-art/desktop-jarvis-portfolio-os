@@ -21,14 +21,19 @@ INTAKE_CONFIG = "jarvis/data/ftaw_source_fact_intake.example.json"
 GUARD_CONFIG = "jarvis/data/ftaw_source_identity_guard.example.json"
 QUEUE_CONFIG = "jarvis/data/ftaw_identity_guarded_verification_queue.example.json"
 SYNTHETIC_QUEUE_CONFIG = "jarvis/data/ftaw_identity_guarded_verification_queue.synthetic_pass.example.json"
+SYNTHETIC_COMPLETE_QUEUE_CONFIG = "jarvis/data/ftaw_identity_guarded_verification_queue.synthetic_complete.example.json"
 DECISION_CONFIG = "jarvis/data/ftaw_manual_verification_decision_recorder.example.json"
 SYNTHETIC_DECISION_CONFIG = "jarvis/data/ftaw_manual_verification_decision_recorder.synthetic_pass.example.json"
+SYNTHETIC_COMPLETE_DECISION_CONFIG = "jarvis/data/ftaw_manual_verification_decision_recorder.synthetic_complete.example.json"
 PREVIEW_CONFIG = "jarvis/data/ftaw_verified_evidence_preview_bridge.example.json"
 SYNTHETIC_PREVIEW_CONFIG = "jarvis/data/ftaw_verified_evidence_preview_bridge.synthetic_pass.example.json"
+SYNTHETIC_COMPLETE_PREVIEW_CONFIG = "jarvis/data/ftaw_verified_evidence_preview_bridge.synthetic_complete.example.json"
 DRY_RUN_CONFIG = "jarvis/data/ftaw_verified_evidence_promotion_dry_run.example.json"
 SYNTHETIC_DRY_RUN_CONFIG = "jarvis/data/ftaw_verified_evidence_promotion_dry_run.synthetic_pass.example.json"
+SYNTHETIC_COMPLETE_DRY_RUN_CONFIG = "jarvis/data/ftaw_verified_evidence_promotion_dry_run.synthetic_complete.example.json"
 READINESS_CONFIG = "jarvis/data/ftaw_candidate_readiness_pack.example.json"
 SYNTHETIC_READINESS_CONFIG = "jarvis/data/ftaw_candidate_readiness_pack.synthetic_pass.example.json"
+SYNTHETIC_COMPLETE_READINESS_CONFIG = "jarvis/data/ftaw_candidate_readiness_pack.synthetic_complete.example.json"
 TARGET = "ftaw_global_core_candidate"
 ITEM_ID = f"{TARGET}:fund_metadata"
 
@@ -44,7 +49,7 @@ def _readiness(queue_config=QUEUE_CONFIG, decision_config=DECISION_CONFIG, previ
         decision_config,
         preview_config,
         dry_run_config,
-        READINESS_CONFIG,
+        SYNTHETIC_COMPLETE_READINESS_CONFIG if queue_config == SYNTHETIC_COMPLETE_QUEUE_CONFIG else READINESS_CONFIG,
     )
 
 
@@ -118,12 +123,39 @@ class FTAWCandidateReadinessPackTests(unittest.TestCase):
 
         self.assertEqual(pack.candidate_readiness_status, "READY_FOR_MANUAL_VERIFIED_EVIDENCE_PROMOTION")
         self.assertEqual(pack.planned_promotion_evidence_types, ("fund_metadata",))
+        self.assertEqual(pack.planned_promotion_evidence_types_count, 1)
+        self.assertEqual(pack.missing_evidence_types_count, 4)
 
     def test_synthetic_pass_does_not_reach_asset_approval_or_buy_signal(self) -> None:
         pack = _readiness(SYNTHETIC_QUEUE_CONFIG, SYNTHETIC_DECISION_CONFIG, SYNTHETIC_PREVIEW_CONFIG, SYNTHETIC_DRY_RUN_CONFIG)
 
         self.assertFalse(pack.ready_for_manual_approval_review)
         self.assertNotEqual(pack.candidate_readiness_status, "READY_FOR_MANUAL_APPROVAL_REVIEW")
+        self.assertFalse(pack.buy_sell_requests_created)
+
+    def test_synthetic_complete_reaches_full_planned_coverage(self) -> None:
+        pack = _readiness(
+            SYNTHETIC_COMPLETE_QUEUE_CONFIG,
+            SYNTHETIC_COMPLETE_DECISION_CONFIG,
+            SYNTHETIC_COMPLETE_PREVIEW_CONFIG,
+            SYNTHETIC_COMPLETE_DRY_RUN_CONFIG,
+        )
+
+        self.assertEqual(pack.planned_promotion_evidence_types_count, 5)
+        self.assertEqual(pack.missing_evidence_types_count, 0)
+        self.assertEqual(pack.missing_evidence_types, ())
+
+    def test_synthetic_complete_manual_approval_review_is_not_approval_or_buy_signal(self) -> None:
+        pack = _readiness(
+            SYNTHETIC_COMPLETE_QUEUE_CONFIG,
+            SYNTHETIC_COMPLETE_DECISION_CONFIG,
+            SYNTHETIC_COMPLETE_PREVIEW_CONFIG,
+            SYNTHETIC_COMPLETE_DRY_RUN_CONFIG,
+        )
+
+        self.assertEqual(pack.candidate_readiness_status, "READY_FOR_MANUAL_APPROVAL_REVIEW")
+        self.assertTrue(pack.ready_for_manual_approval_review)
+        self.assertFalse(pack.approvals_created)
         self.assertFalse(pack.buy_sell_requests_created)
 
     def test_missing_source_facts_block_or_mark_research_incomplete(self) -> None:
@@ -171,6 +203,17 @@ class FTAWCandidateReadinessPackTests(unittest.TestCase):
         self.assertFalse(pack.allocation_recommendation_created)
         self.assertFalse(pack.buy_sell_requests_created)
         self.assertFalse(pack.trades_executed)
+
+    def test_manual_only_evidence_types_are_not_required_for_completion(self) -> None:
+        pack = _readiness(
+            SYNTHETIC_COMPLETE_QUEUE_CONFIG,
+            SYNTHETIC_COMPLETE_DECISION_CONFIG,
+            SYNTHETIC_COMPLETE_PREVIEW_CONFIG,
+            SYNTHETIC_COMPLETE_DRY_RUN_CONFIG,
+        )
+
+        self.assertNotIn("platform_availability", pack.missing_evidence_types)
+        self.assertNotIn("tax_route", pack.missing_evidence_types)
 
 
 if __name__ == "__main__":

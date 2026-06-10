@@ -1,0 +1,133 @@
+{
+  "description": "Synthetic complete fixture for FTAW identity-guarded verification queue. Local synthetic facts only; not approval, not verified evidence, and not a buy signal.",
+  "target_asset_id": "ftaw_global_core_candidate",
+  "synthetic_fact_records": [
+    {
+      "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "fund_metadata",
+      "source_name": "Synthetic FTAW provider product page",
+      "source_quality": "provider_factsheet",
+      "url_reference": "https://provider.example/ftaw",
+      "file_reference": null,
+      "as_of": "2026-06-10",
+      "extracted_facts": {
+        "name": "Synthetic FTAW Global Core ETF",
+        "ticker": "FTAW",
+        "isin_or_symbol": "SYNTHETICFTAWISIN",
+        "provider": "Synthetic Provider",
+        "index_tracked": "Synthetic Global Core Index",
+        "replication_method": "physical"
+      },
+      "user_notes": "Synthetic fixture facts for completion tests only."
+    },
+    {
+      "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "fee_metadata",
+      "source_name": "Synthetic FTAW provider factsheet",
+      "source_quality": "provider_factsheet",
+      "url_reference": "https://provider.example/ftaw-factsheet",
+      "file_reference": null,
+      "as_of": "2026-06-10",
+      "extracted_facts": {
+        "ter_or_fee": "0.00 synthetic",
+        "fee_source": "synthetic provider factsheet",
+        "as_of_date": "2026-06-10"
+      },
+      "user_notes": "Synthetic fee facts for completion tests only."
+    },
+    {
+      "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "distribution_policy",
+      "source_name": "Synthetic FTAW distribution policy page",
+      "source_quality": "provider_factsheet",
+      "url_reference": "https://provider.example/ftaw-distribution",
+      "file_reference": null,
+      "as_of": "2026-06-10",
+      "extracted_facts": {
+        "distribution_policy": "synthetic accumulating policy",
+        "accumulating_or_distributing": "accumulating",
+        "as_of_date": "2026-06-10"
+      },
+      "user_notes": "Synthetic distribution facts for completion tests only."
+    },
+    {
+      "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "exposure_data",
+      "source_name": "Synthetic FTAW holdings page",
+      "source_quality": "provider_factsheet",
+      "url_reference": "https://provider.example/ftaw-holdings",
+      "file_reference": null,
+      "as_of": "2026-06-10",
+      "extracted_facts": {
+        "top_holdings_source": "synthetic holdings table",
+        "country_exposure_source": "synthetic country exposure table",
+        "sector_exposure_source": "synthetic sector exposure table",
+        "as_of_date": "2026-06-10"
+      },
+      "user_notes": "Synthetic exposure facts for completion tests only."
+    },
+    {
+      "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "market_data",
+      "source_name": "Synthetic FTAW public market data page",
+      "source_quality": "manual_research",
+      "url_reference": "https://market.example/ftaw",
+      "file_reference": null,
+      "as_of": "2026-06-10",
+      "extracted_facts": {
+        "price": "100.00 synthetic",
+        "currency": "EUR",
+        "source": "synthetic public market page",
+        "market_date": "2026-06-10"
+      },
+      "user_notes": "Synthetic market facts for completion tests only."
+    },
+    {
+      "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "platform_availability",
+      "source_name": "Manual platform check required",
+      "source_quality": "manual_research",
+      "url_reference": "manual-only",
+      "file_reference": null,
+      "as_of": "2026-06-10",
+      "extracted_facts": {
+        "platform": "manual_only"
+      },
+      "user_notes": "Manual-only evidence remains skipped."
+    },
+    {
+      "asset_id": "ftaw_global_core_candidate",
+      "evidence_type": "tax_route",
+      "source_name": "Manual tax route check required",
+      "source_quality": "manual_research",
+      "url_reference": "manual-only",
+      "file_reference": null,
+      "as_of": "2026-06-10",
+      "extracted_facts": {
+        "tax_route": "manual_only"
+      },
+      "user_notes": "Manual-only evidence remains skipped."
+    }
+  ],
+  "synthetic_identity_guard": {
+    "asset_id": "ftaw_global_core_candidate",
+    "expected_name": "Synthetic FTAW Global Core ETF",
+    "expected_ticker": "FTAW",
+    "expected_isin_or_symbol": "SYNTHETICFTAWISIN",
+    "expected_provider": "Synthetic Provider",
+    "expected_index_tracked": "Synthetic Global Core Index",
+    "allowed_source_names": [
+      "Synthetic FTAW provider product page"
+    ],
+    "allowed_url_domains": [
+      "provider.example"
+    ]
+  },
+  "manual_verification_required": true,
+  "verified_by_user_by_default": false,
+  "approvals_created": false,
+  "registry_mutation_allowed": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false
+}

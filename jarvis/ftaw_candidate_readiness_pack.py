@@ -68,6 +68,7 @@ def _status_from_pipeline(
     preview_bridge_status: str,
     promotion_dry_run_status: str,
     planned_count: int,
+    missing_count: int,
 ) -> tuple[str, str, tuple[str, ...]]:
     reasons: list[str] = []
     if identity_guard_status != "identity_guard_passed":
@@ -88,6 +89,12 @@ def _status_from_pipeline(
     if promotion_dry_run_status != "DRY_RUN_PLANNED" or planned_count == 0:
         reasons.append(f"promotion dry-run status is {promotion_dry_run_status}.")
         return "BLOCKED", "Run promotion dry-run planning.", tuple(reasons)
+    if missing_count == 0:
+        return (
+            "READY_FOR_MANUAL_APPROVAL_REVIEW",
+            "Manually review full dry-run evidence coverage; this is not asset approval.",
+            (),
+        )
     return (
         "READY_FOR_MANUAL_VERIFIED_EVIDENCE_PROMOTION",
         "Manually review dry-run promotion plan; do not approve asset yet.",
@@ -164,6 +171,7 @@ def build_ftaw_candidate_readiness_pack(
         preview.preview_bridge_status,
         dry_run.dry_run_status,
         dry_run.planned_for_promotion_count,
+        len(missing_types),
     )
     extra_reasons: list[str] = list(reasons)
     if missing_types:
@@ -185,7 +193,7 @@ def build_ftaw_candidate_readiness_pack(
         missing_evidence_types=missing_types,
         blocked_reasons=tuple(dict.fromkeys(extra_reasons)),
         next_manual_action=next_action,
-        ready_for_manual_approval_review=False,
+        ready_for_manual_approval_review=status == "READY_FOR_MANUAL_APPROVAL_REVIEW",
         no_verified_evidence_promotion=True,
         approvals_created=False,
         registry_mutation_performed=False,

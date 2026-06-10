@@ -56,6 +56,10 @@ def build_ftaw_candidate_readiness_pack_report(
         [
             f"next manual action: {pack.next_manual_action}",
             f"ready for manual approval review: {str(pack.ready_for_manual_approval_review).lower()}",
+            "manual approval review readiness is not asset approval.",
+            "manual approval review readiness is not a buy signal.",
+            "manual approval review readiness is not registry mutation.",
+            "manual approval review readiness is not trade execution.",
             "candidate readiness is not asset approval.",
             "candidate readiness is not verified evidence promotion.",
             "candidate readiness is not registry mutation.",
