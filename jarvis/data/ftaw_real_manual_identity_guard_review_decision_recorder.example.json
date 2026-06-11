@@ -1,0 +1,18 @@
+{
+  "description": "Default FTAW manual identity guard review decisions. No decisions are entered by default.",
+  "identity_guard_pass_created": false,
+  "queue_eligibility_created": false,
+  "evidence_verified": false,
+  "approved_asset": false,
+  "registry_mutation_allowed": false,
+  "promotes_verified_evidence": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false,
+  "executor_created": false,
+  "auto_ingest_private_files": false,
+  "auto_fetch_sources": false,
+  "auto_download_sources": false,
+  "auto_extract_facts": false,
+  "manual_identity_guard_review_decisions": []
+}
