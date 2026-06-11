@@ -1,0 +1,44 @@
+{
+  "description": "Synthetic partial FTAW manual source fact entries. Facts are examples only and not verified real-world facts.",
+  "auto_fetch_sources": false,
+  "auto_download_sources": false,
+  "auto_extract_facts": false,
+  "auto_ingest_private_files": false,
+  "evidence_verified": false,
+  "identity_guard_pass_records_created": false,
+  "queue_eligibility_created": false,
+  "approved_asset": false,
+  "registry_mutation_allowed": false,
+  "promotes_verified_evidence": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false,
+  "executor_created": false,
+  "manual_source_fact_entries": [
+    {
+      "source_reference_id": "ftaw_fund_metadata_reference_slot",
+      "evidence_type": "fund_metadata",
+      "entered_by_user": true,
+      "user_asserted_reference_reviewed_manually": true,
+      "user_asserted_no_auto_extraction": true,
+      "user_asserted_no_private_file": true,
+      "facts": {
+        "provider": "Synthetic Provider",
+        "fund_name": "Synthetic FTAW Fund",
+        "isin": "SYNTHETIC-ISIN",
+        "ticker_or_symbol": "FTAW"
+      }
+    },
+    {
+      "source_reference_id": "ftaw_fee_metadata_reference_slot",
+      "evidence_type": "fee_metadata",
+      "entered_by_user": true,
+      "user_asserted_reference_reviewed_manually": true,
+      "user_asserted_no_auto_extraction": true,
+      "user_asserted_no_private_file": true,
+      "facts": {
+        "fee_metric_name": "Synthetic TER"
+      }
+    }
+  ]
+}

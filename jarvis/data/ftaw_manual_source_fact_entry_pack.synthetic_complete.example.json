@@ -1,0 +1,119 @@
+{
+  "description": "Synthetic complete FTAW manual source fact entries. Facts are examples only and not verified real-world facts.",
+  "auto_fetch_sources": false,
+  "auto_download_sources": false,
+  "auto_extract_facts": false,
+  "auto_ingest_private_files": false,
+  "evidence_verified": false,
+  "identity_guard_pass_records_created": false,
+  "queue_eligibility_created": false,
+  "approved_asset": false,
+  "registry_mutation_allowed": false,
+  "promotes_verified_evidence": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false,
+  "executor_created": false,
+  "manual_source_fact_entries": [
+    {
+      "source_reference_id": "ftaw_fund_metadata_reference_slot",
+      "evidence_type": "fund_metadata",
+      "entered_by_user": true,
+      "user_asserted_reference_reviewed_manually": true,
+      "user_asserted_no_auto_extraction": true,
+      "user_asserted_no_private_file": true,
+      "facts": {
+        "provider": "Synthetic Provider",
+        "fund_name": "Synthetic FTAW Fund",
+        "isin": "SYNTHETIC-ISIN",
+        "ticker_or_symbol": "FTAW",
+        "extra_note": "Preserved but not required readiness."
+      }
+    },
+    {
+      "source_reference_id": "ftaw_fee_metadata_reference_slot",
+      "evidence_type": "fee_metadata",
+      "entered_by_user": true,
+      "user_asserted_reference_reviewed_manually": true,
+      "user_asserted_no_auto_extraction": true,
+      "user_asserted_no_private_file": true,
+      "facts": {
+        "fee_metric_name": "Synthetic TER",
+        "fee_metric_value": "0.00 synthetic",
+        "fee_as_of": "2026-01-01"
+      }
+    },
+    {
+      "source_reference_id": "ftaw_distribution_policy_reference_slot",
+      "evidence_type": "distribution_policy",
+      "entered_by_user": true,
+      "user_asserted_reference_reviewed_manually": true,
+      "user_asserted_no_auto_extraction": true,
+      "user_asserted_no_private_file": true,
+      "facts": {
+        "distribution_policy": "synthetic accumulating/distributing placeholder",
+        "policy_as_of": "2026-01-01"
+      }
+    },
+    {
+      "source_reference_id": "ftaw_market_data_reference_slot",
+      "evidence_type": "market_data",
+      "entered_by_user": true,
+      "user_asserted_reference_reviewed_manually": true,
+      "user_asserted_no_auto_extraction": true,
+      "user_asserted_no_private_file": true,
+      "facts": {
+        "market_ticker": "FTAW",
+        "quote_currency": "EUR",
+        "quote_source_label": "Synthetic public quote source",
+        "quote_as_of": "2026-01-01"
+      }
+    },
+    {
+      "source_reference_id": "ftaw_exposure_data_reference_slot",
+      "evidence_type": "exposure_data",
+      "entered_by_user": true,
+      "user_asserted_reference_reviewed_manually": true,
+      "user_asserted_no_auto_extraction": true,
+      "user_asserted_no_private_file": true,
+      "facts": {
+        "exposure_source_label": "Synthetic provider holdings source",
+        "exposure_as_of": "2026-01-01",
+        "exposure_summary_reference": "Synthetic exposure summary reference"
+      }
+    },
+    {
+      "source_reference_id": "unknown_reference_slot",
+      "evidence_type": "fund_metadata",
+      "entered_by_user": true,
+      "user_asserted_reference_reviewed_manually": true,
+      "user_asserted_no_auto_extraction": true,
+      "user_asserted_no_private_file": true,
+      "facts": {
+        "provider": "Rejected"
+      }
+    },
+    {
+      "source_reference_id": "ftaw_platform_availability_reference_slot",
+      "evidence_type": "platform_availability",
+      "entered_by_user": true,
+      "user_asserted_reference_reviewed_manually": true,
+      "user_asserted_no_auto_extraction": true,
+      "user_asserted_no_private_file": true,
+      "facts": {
+        "platform": "Rejected private/manual type"
+      }
+    },
+    {
+      "source_reference_id": "ftaw_tax_route_reference_slot",
+      "evidence_type": "tax_route",
+      "entered_by_user": true,
+      "user_asserted_reference_reviewed_manually": true,
+      "user_asserted_no_auto_extraction": true,
+      "user_asserted_no_private_file": true,
+      "facts": {
+        "tax_route": "Rejected manual-only type"
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "description": "Default FTAW manual source fact entry pack. No facts are entered by default.",
+  "auto_fetch_sources": false,
+  "auto_download_sources": false,
+  "auto_extract_facts": false,
+  "auto_ingest_private_files": false,
+  "evidence_verified": false,
+  "identity_guard_pass_records_created": false,
+  "queue_eligibility_created": false,
+  "approved_asset": false,
+  "registry_mutation_allowed": false,
+  "promotes_verified_evidence": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false,
+  "executor_created": false,
+  "manual_source_fact_entries": []
+}
