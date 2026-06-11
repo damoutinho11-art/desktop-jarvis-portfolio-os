@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "target_asset": "ftaw_global_core_candidate",
+  "mode": "read_only_queue_dry_run_bridge_synthetic_partial",
+  "real_queue_item_created": false,
+  "queue_eligibility_created": false,
+  "evidence_verified": false,
+  "verified_evidence_promoted": false,
+  "approved_asset": false,
+  "registry_mutation_allowed": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false,
+  "executor_created": false,
+  "auto_ingest_private_files": false,
+  "auto_fetch_sources": false,
+  "auto_download_sources": false,
+  "auto_extract_facts": false
+}
