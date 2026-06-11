@@ -1,0 +1,97 @@
+{
+  "description": "Synthetic complete FTAW manual public source reference entries. References are examples only and do not claim facts.",
+  "auto_fetch_sources": false,
+  "auto_download_sources": false,
+  "auto_ingest_private_files": false,
+  "source_fact_intake_records_created": false,
+  "identity_guard_pass_records_created": false,
+  "queue_eligibility_created": false,
+  "evidence_collected": false,
+  "evidence_verified": false,
+  "approved_asset": false,
+  "registry_mutation_allowed": false,
+  "promotes_verified_evidence": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false,
+  "executor_created": false,
+  "manual_public_source_references": [
+    {
+      "source_reference_id": "ftaw_fund_metadata_reference_slot",
+      "evidence_type": "fund_metadata",
+      "source_category": "official provider product page",
+      "manual_reference": "https://example.invalid/ftaw/provider-product-page",
+      "entered_by_user": true,
+      "user_asserted_public_reference": true,
+      "user_asserted_no_private_file": true,
+      "user_asserted_no_download_required": true,
+      "user_asserted_reference_only": true
+    },
+    {
+      "source_reference_id": "ftaw_fee_metadata_reference_slot",
+      "evidence_type": "fee_metadata",
+      "source_category": "official provider factsheet/KIID/KID",
+      "manual_reference": "https://example.invalid/ftaw/provider-factsheet-kid",
+      "entered_by_user": true,
+      "user_asserted_public_reference": true,
+      "user_asserted_no_private_file": true,
+      "user_asserted_no_download_required": true,
+      "user_asserted_reference_only": true
+    },
+    {
+      "source_reference_id": "ftaw_distribution_policy_reference_slot",
+      "evidence_type": "distribution_policy",
+      "source_category": "official provider product page or factsheet",
+      "manual_reference": "https://example.invalid/ftaw/provider-distribution-policy",
+      "entered_by_user": true,
+      "user_asserted_public_reference": true,
+      "user_asserted_no_private_file": true,
+      "user_asserted_no_download_required": true,
+      "user_asserted_reference_only": true
+    },
+    {
+      "source_reference_id": "ftaw_market_data_reference_slot",
+      "evidence_type": "market_data",
+      "source_category": "official exchange or market data page",
+      "manual_reference": "https://example.invalid/ftaw/public-market-quote",
+      "entered_by_user": true,
+      "user_asserted_public_reference": true,
+      "user_asserted_no_private_file": true,
+      "user_asserted_no_download_required": true,
+      "user_asserted_reference_only": true
+    },
+    {
+      "source_reference_id": "ftaw_exposure_data_reference_slot",
+      "evidence_type": "exposure_data",
+      "source_category": "official holdings/exposure source",
+      "manual_reference": "https://example.invalid/ftaw/provider-holdings-exposure",
+      "entered_by_user": true,
+      "user_asserted_public_reference": true,
+      "user_asserted_no_private_file": true,
+      "user_asserted_no_download_required": true,
+      "user_asserted_reference_only": true
+    },
+    {
+      "source_reference_id": "ftaw_platform_availability_reference_slot",
+      "evidence_type": "platform_availability",
+      "source_category": "broker/account-specific availability confirmation",
+      "manual_reference": "Rejected synthetic private/account-specific entry; not a public source reference.",
+      "entered_by_user": true,
+      "user_asserted_public_reference": true,
+      "user_asserted_no_private_file": true,
+      "user_asserted_no_download_required": true,
+      "user_asserted_reference_only": true
+    },
+    {
+      "source_reference_id": "ftaw_tax_route_reference_slot",
+      "evidence_type": "tax_route",
+      "source_category": "user/manual tax route confirmation",
+      "manual_reference": "Rejected synthetic tax-route entry; manual confirmation only.",
+      "entered_by_user": true,
+      "user_asserted_public_reference": true,
+      "user_asserted_no_private_file": true,
+      "user_asserted_no_download_required": true,
+      "user_asserted_reference_only": true
+    }
+  ]
+}
