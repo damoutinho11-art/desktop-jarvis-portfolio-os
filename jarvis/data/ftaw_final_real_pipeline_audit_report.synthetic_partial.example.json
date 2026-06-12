@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "target_asset": "ftaw_global_core_candidate",
+  "mode": "read_only_final_real_pipeline_audit_synthetic_partial",
+  "expected_status": "FINAL_REAL_PIPELINE_PARTIAL_SAFE",
+  "registry_mutation_allowed": false,
+  "registry_file_written": false,
+  "approved_asset": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false,
+  "executor_created": false,
+  "auto_ingest_private_files": false,
+  "auto_fetch_sources": false,
+  "auto_download_sources": false,
+  "auto_extract_facts": false
+}
