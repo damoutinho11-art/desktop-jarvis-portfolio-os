@@ -1,0 +1,105 @@
+{
+  "version": "v4.60",
+  "title": "J.A.R.V.I.S. Local Operator Bootstrap Synthetic Ready",
+  "bootstrap_mode": "local_operator_bootstrap_guide_report_only",
+  "report_only": true,
+  "no_network": true,
+  "no_writes": true,
+  "no_subprocess": true,
+  "no_scheduler_creation": true,
+  "local_paths_not_created_by_code": true,
+  "templates": [
+    {
+      "template_id": "manual_candidate_watchlist_entry",
+      "template_path": "templates/jarvis_manual_candidate_watchlist_entry.local.template.json",
+      "recommended_local_copy_path": "jarvis\\local\\manual_candidate_watchlist_entries.local.json",
+      "purpose": "manual candidate watchlist entry by the user",
+      "contains_private_data": false,
+      "should_commit_template": true,
+      "should_commit_local_copy": false
+    },
+    {
+      "template_id": "public_data_sources_manifest",
+      "template_path": "templates/jarvis_public_data_sources.local.template.json",
+      "recommended_local_copy_path": "jarvis\\local\\public_data_sources.local.json",
+      "purpose": "local public source manifest configured by the user",
+      "contains_private_data": false,
+      "should_commit_template": true,
+      "should_commit_local_copy": false
+    }
+  ],
+  "recommended_local_paths": [
+    "jarvis\\local\\manual_candidate_watchlist_entries.local.json",
+    "jarvis\\local\\public_data_sources.local.json",
+    "jarvis\\local\\public_data_fetcher.local.json",
+    "jarvis\\local\\public_data_snapshots\\",
+    "jarvis\\local\\public_data_fetch_reports\\"
+  ],
+  "gitignore_expectations": [
+    "jarvis/local/",
+    "jarvis/private/",
+    "local/",
+    "private/",
+    "*.local.json",
+    "*.private.json",
+    "jarvis/local/public_data_snapshots/",
+    "jarvis/local/public_data_fetch_reports/"
+  ],
+  "required_manual_commands": [
+    "New-Item -ItemType Directory -Force -Path jarvis\\local",
+    "Copy-Item templates\\jarvis_manual_candidate_watchlist_entry.local.template.json jarvis\\local\\manual_candidate_watchlist_entries.local.json",
+    "Copy-Item templates\\jarvis_public_data_sources.local.template.json jarvis\\local\\public_data_sources.local.json",
+    "git status --short"
+  ],
+  "reports_to_run_manually": [
+    "python -m jarvis.jarvis_manual_candidate_data_entry_workspace_report",
+    "python -m jarvis.jarvis_public_data_fetcher_report --input jarvis\\data\\jarvis_public_data_fetcher.example.json --manifest templates\\jarvis_public_data_sources.local.template.json",
+    "python -m jarvis.jarvis_public_data_freshness_monitor_report --input jarvis\\data\\jarvis_public_data_freshness_monitor.synthetic_complete.example.json",
+    "python -m jarvis.jarvis_operator_status_dashboard_report --input jarvis\\data\\jarvis_operator_status_dashboard.synthetic_complete.example.json"
+  ],
+  "smoke_checks": [
+    "local files are ignored",
+    "git status remains clean except intended source changes",
+    "no private data staged",
+    "no fetched data staged",
+    "dashboard can be run"
+  ],
+  "next_manual_action": "copy_templates_to_ignored_local_paths",
+  "safety_controls": {
+    "network_calls": false,
+    "fetching": false,
+    "downloading": false,
+    "writes": false,
+    "directory_creation": false,
+    "template_copying_by_code": false,
+    "subprocess_execution": false,
+    "scheduler_creation": false,
+    "source_parsing_as_evidence": false,
+    "evidence_extraction": false,
+    "evidence_verification": false,
+    "verified_evidence_promotion": false,
+    "registry_mutation": false,
+    "registry_file_written": false,
+    "candidate_registry_write": false,
+    "candidate_intake_file_written": false,
+    "persisted_packet_file": false,
+    "executor_created": false,
+    "approved_asset": false,
+    "trusted_asset": false,
+    "investable": false,
+    "allocation_recommendation": false,
+    "portfolio_weight": false,
+    "buy_signal": false,
+    "sell_signal": false,
+    "trade_executed": false,
+    "broker_api_used": false,
+    "credentials_used": false,
+    "private_file_ingested": false,
+    "automatic_private_data_ingest": false,
+    "fetched_data_committed": false,
+    "manual_trust_required": true,
+    "manual_approval_required": true,
+    "no_execution_invariant": true,
+    "local_files_must_remain_uncommitted": true
+  }
+}
