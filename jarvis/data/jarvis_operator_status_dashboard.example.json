@@ -1,0 +1,61 @@
+{
+  "version": "v4.59",
+  "title": "J.A.R.V.I.S. Operator Status Dashboard Example",
+  "dashboard_mode": "operator_status_dashboard_report_only",
+  "report_only": true,
+  "no_network": true,
+  "no_writes": true,
+  "no_private_file_auto_ingest": true,
+  "current_project_phase": "operator_usability_dashboard",
+  "current_head_note": "Default dashboard fixture is intentionally incomplete.",
+  "component_statuses": [],
+  "blockers": [
+    "default fixture has no component summaries"
+  ],
+  "next_manual_action": "run_status_dashboard",
+  "v5_progress": {
+    "phase1_complete": false,
+    "candidate_intake_chain_complete": false,
+    "manual_workspace_ready": false,
+    "public_fetch_control_ready": false,
+    "freshness_monitor_ready": false,
+    "dashboard_ready": false,
+    "remaining_before_v5": [
+      "enter real manual candidate watchlist data locally",
+      "configure local public source manifest",
+      "run explicit public fetch only if authorized"
+    ]
+  },
+  "safety_controls": {
+    "network_calls": false,
+    "fetching": false,
+    "downloading": false,
+    "writes": false,
+    "source_parsing_as_evidence": false,
+    "evidence_extraction": false,
+    "evidence_verification": false,
+    "verified_evidence_promotion": false,
+    "registry_mutation": false,
+    "registry_file_written": false,
+    "candidate_registry_write": false,
+    "candidate_intake_file_written": false,
+    "persisted_packet_file": false,
+    "executor_created": false,
+    "approved_asset": false,
+    "trusted_asset": false,
+    "investable": false,
+    "allocation_recommendation": false,
+    "portfolio_weight": false,
+    "buy_signal": false,
+    "sell_signal": false,
+    "trade_executed": false,
+    "broker_api_used": false,
+    "credentials_used": false,
+    "private_file_ingested": false,
+    "automatic_private_data_ingest": false,
+    "fetched_data_committed": false,
+    "manual_trust_required": true,
+    "manual_approval_required": true,
+    "no_execution_invariant": true
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "version": "v4.59",
+  "title": "J.A.R.V.I.S. Operator Status Dashboard Synthetic Complete",
+  "dashboard_mode": "operator_status_dashboard_report_only",
+  "report_only": true,
+  "no_network": true,
+  "no_writes": true,
+  "no_private_file_auto_ingest": true,
+  "current_project_phase": "operator_usability_dashboard",
+  "current_head_note": "Synthetic dashboard summary after v4.58.",
+  "component_statuses": [
+    {
+      "component_id": "phase1_real_pipeline",
+      "component_name": "Phase 1 Real Evidence / Manual Review Chain",
+      "stage_range_or_version": "v4.27-v4.47",
+      "report_command": "python -m jarvis.ftaw_final_real_pipeline_audit_report ...synthetic_complete",
+      "latest_known_status": "FINAL_REAL_PIPELINE_DRY_RUN_READY_SAFE",
+      "status_class": "ready_safe",
+      "capability_summary": "real evidence/manual review/backend chain complete as dry-run only",
+      "current_blockers": [],
+      "next_safe_action": "use as downstream manual evidence pipeline only",
+      "redundant_next_steps_to_avoid": [
+        "no_more_review_of_review_loops"
+      ],
+      "safety_notes": [
+        "no executor exists",
+        "no registry mutation"
+      ]
+    },
+    {
+      "component_id": "phase2_candidate_intake_chain",
+      "component_name": "Phase 2 Candidate Intake Chain",
+      "stage_range_or_version": "v4.49-v4.55",
+      "report_command": "python -m jarvis.jarvis_phase2_candidate_intake_chain_audit_report --input jarvis/data/jarvis_phase2_candidate_intake_chain_audit.synthetic_complete.example.json",
+      "latest_known_status": "PHASE2_CANDIDATE_INTAKE_CHAIN_AUDIT_COMPLETE_SAFE",
+      "status_class": "ready_safe",
+      "capability_summary": "candidate intake dry-run chain complete",
+      "current_blockers": [],
+      "next_safe_action": "stop gate-building; use v4.50/v4.56 for manual candidate data",
+      "redundant_next_steps_to_avoid": [
+        "no_more_candidate_intake_gates"
+      ],
+      "safety_notes": [
+        "no candidate registry write",
+        "no packet persistence"
+      ]
+    },
+    {
+      "component_id": "manual_candidate_workspace",
+      "component_name": "Manual Candidate Data Entry Workspace",
+      "stage_range_or_version": "v4.56",
+      "report_command": "python -m jarvis.jarvis_manual_candidate_data_entry_workspace_report",
+      "latest_known_status": "MANUAL_CANDIDATE_DATA_ENTRY_WORKSPACE_READY_SAFE",
+      "status_class": "ready_safe",
+      "capability_summary": "local/private candidate entry templates and guardrails ready",
+      "current_blockers": [],
+      "next_safe_action": "enter real candidates in ignored local file",
+      "redundant_next_steps_to_avoid": [
+        "no_more_candidate_intake_gates"
+      ],
+      "safety_notes": [
+        "private candidate data must remain uncommitted"
+      ]
+    },
+    {
+      "component_id": "public_data_fetcher",
+      "component_name": "Public Data Fetcher Control Plane",
+      "stage_range_or_version": "v4.57",
+      "report_command": "python -m jarvis.jarvis_public_data_fetcher_report --input jarvis/data/jarvis_public_data_fetcher.synthetic_plan.example.json",
+      "latest_known_status": "PUBLIC_DATA_FETCHER_PLAN_READY_SAFE",
+      "status_class": "ready_safe",
+      "capability_summary": "explicit authorized public fetch to local cache only",
+      "current_blockers": [],
+      "next_safe_action": "configure local public source manifest; optional explicit fetch only",
+      "redundant_next_steps_to_avoid": [
+        "no_more_fetch_gates_without_new_capability"
+      ],
+      "safety_notes": [
+        "default no-network/no-write",
+        "exact phrase required for fetch"
+      ]
+    },
+    {
+      "component_id": "public_data_freshness_monitor",
+      "component_name": "Public Data Freshness Monitor",
+      "stage_range_or_version": "v4.58",
+      "report_command": "python -m jarvis.jarvis_public_data_freshness_monitor_report --input jarvis/data/jarvis_public_data_freshness_monitor.synthetic_complete.example.json",
+      "latest_known_status": "PUBLIC_DATA_FRESHNESS_MONITOR_STALE_OR_MISSING_SAFE",
+      "status_class": "stale_or_missing_safe",
+      "capability_summary": "monitor stale/missing cache without network/write",
+      "current_blockers": [
+        "some public cache entries are stale or missing"
+      ],
+      "next_safe_action": "run v4.57 explicit fetch only if local manifest is ready and user authorizes it",
+      "redundant_next_steps_to_avoid": [
+        "no_more_fetch_gates_without_new_capability"
+      ],
+      "safety_notes": [
+        "freshness is not verification",
+        "raw cache remains unverified"
+      ]
+    }
+  ],
+  "blockers": [
+    "public cache freshness has stale or missing entries"
+  ],
+  "next_manual_action": "review_stale_or_missing_public_cache",
+  "v5_progress": {
+    "phase1_complete": true,
+    "candidate_intake_chain_complete": true,
+    "manual_workspace_ready": true,
+    "public_fetch_control_ready": true,
+    "freshness_monitor_ready": true,
+    "dashboard_ready": true,
+    "remaining_before_v5": [
+      "enter real manual candidate watchlist data locally",
+      "configure local public source manifest",
+      "optional explicit daily fetch run",
+      "source review/fact entry bridge only if separately requested",
+      "operator dashboard refinement"
+    ]
+  },
+  "safety_controls": {
+    "network_calls": false,
+    "fetching": false,
+    "downloading": false,
+    "writes": false,
+    "source_parsing_as_evidence": false,
+    "evidence_extraction": false,
+    "evidence_verification": false,
+    "verified_evidence_promotion": false,
+    "registry_mutation": false,
+    "registry_file_written": false,
+    "candidate_registry_write": false,
+    "candidate_intake_file_written": false,
+    "persisted_packet_file": false,
+    "executor_created": false,
+    "approved_asset": false,
+    "trusted_asset": false,
+    "investable": false,
+    "allocation_recommendation": false,
+    "portfolio_weight": false,
+    "buy_signal": false,
+    "sell_signal": false,
+    "trade_executed": false,
+    "broker_api_used": false,
+    "credentials_used": false,
+    "private_file_ingested": false,
+    "automatic_private_data_ingest": false,
+    "fetched_data_committed": false,
+    "manual_trust_required": true,
+    "manual_approval_required": true,
+    "no_execution_invariant": true
+  }
+}
