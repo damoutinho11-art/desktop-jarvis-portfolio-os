@@ -1,0 +1,56 @@
+{
+  "version": "v4.55",
+  "title": "J.A.R.V.I.S. Phase 2 Candidate Intake Chain Audit Example",
+  "audit_mode": "phase2_candidate_intake_chain_integration_audit",
+  "report_only": true,
+  "phase2_candidate_intake_chain_complete": false,
+  "stop_gate_building": true,
+  "next_action": "manual_candidate_watchlist_data_entry_only",
+  "expected_statuses": [],
+  "safety_controls": {
+    "registry_mutation": false,
+    "registry_file_written": false,
+    "candidate_registry_write": false,
+    "candidate_intake_file_written": false,
+    "persisted_packet_file": false,
+    "executor_created": false,
+    "approved_asset": false,
+    "trusted_asset": false,
+    "investable": false,
+    "evidence_collection_started": false,
+    "evidence_verification_started": false,
+    "promoted_verified_evidence": false,
+    "allocation_recommendation": false,
+    "portfolio_weight": false,
+    "buy_signal": false,
+    "sell_signal": false,
+    "trade_executed": false,
+    "broker_api_used": false,
+    "credentials_used": false,
+    "private_file_ingested": false,
+    "automatic_source_fetching": false,
+    "automatic_download": false
+  },
+  "prohibited_actions": [
+    "registry_mutation",
+    "candidate_intake_file_write",
+    "packet_persistence",
+    "approval",
+    "evidence_collection",
+    "trade_execution"
+  ],
+  "route_summary": [
+    "v4.50 manual watchlist entry",
+    "v4.51 manual candidate intake bridge",
+    "v4.52 manual candidate intake review decision",
+    "v4.53 explicit dry-run packet command contract",
+    "v4.54 candidate intake packet dry-run builder",
+    "v4.49 candidate intake",
+    "v4.27-v4.47 Phase 1 real evidence pipeline"
+  ],
+  "notes": [
+    "Default fixture is intentionally incomplete.",
+    "VWCE and FTAW are pilot anchors only."
+  ],
+  "stages": []
+}
