@@ -1,0 +1,25 @@
+{
+  "version": "v4.50",
+  "title": "J.A.R.V.I.S. Manual Candidate Watchlist Entry Example",
+  "watchlist_entries": [
+    {
+      "watchlist_entry_id": "placeholder_incomplete_watchlist_entry",
+      "candidate_id": "placeholder_candidate",
+      "display_name": "Placeholder Candidate",
+      "asset_type": "etf",
+      "symbol_or_identifier": "",
+      "issuer_or_provider": "",
+      "market_or_region": "manual review required",
+      "currency": "EUR",
+      "watchlist_reason": "",
+      "watchlist_source_context": "synthetic placeholder",
+      "manually_entered_by_user": true,
+      "manual_entry_timestamp": "2026-06-12T00:00:00Z",
+      "intended_route": "v4.50-manual-watchlist-entry->v4.49-candidate-intake->v4.27-v4.47-real-evidence-pipeline",
+      "candidate_intake_required": true,
+      "evidence_pipeline_required": true,
+      "manual_review_required": true,
+      "notes": "Incomplete default fixture; no private data."
+    }
+  ]
+}
