@@ -1,0 +1,38 @@
+{
+  "version": "v4.53",
+  "title": "J.A.R.V.I.S. Synthetic Candidate Intake Dry-Run Command Contract - Complete",
+  "source_review_decision_version": "v4.52",
+  "source_review_decision_status": "MANUAL_CANDIDATE_INTAKE_REVIEW_ACCEPTED_FOR_DRY_RUN_SAFE",
+  "source_decision_id": "synthetic-accept-v4-52",
+  "source_decision": "ACCEPT_FOR_CANDIDATE_INTAKE_DRY_RUN",
+  "reviewed_candidate_ids": [
+    "vwce_pilot_candidate",
+    "ftaw_pilot_candidate",
+    "synthetic_stock_candidate"
+  ],
+  "command_contract_mode": "explicit_candidate_intake_packet_dry_run_command_contract_only",
+  "dry_run_only": true,
+  "write_candidate_intake_file": false,
+  "create_candidate_intake_packet": false,
+  "registry_mutation": false,
+  "registry_file_written": false,
+  "candidate_registry_write": false,
+  "evidence_collection_started": false,
+  "evidence_verification_started": false,
+  "command_contract": {
+    "command_id": "synthetic-complete-command-v4-53",
+    "commander": "synthetic_manual_commander",
+    "command_timestamp": "2026-06-12T00:00:00Z",
+    "explicit_command": "AUTHORIZE_CANDIDATE_INTAKE_PACKET_DRY_RUN_ONLY_NO_WRITE_NO_MUTATION",
+    "required_exact_phrase": "AUTHORIZE_CANDIDATE_INTAKE_PACKET_DRY_RUN_ONLY_NO_WRITE_NO_MUTATION",
+    "command_scope": "future dry-run candidate intake packet command contract only",
+    "candidate_ids_in_scope": [
+      "vwce_pilot_candidate",
+      "ftaw_pilot_candidate"
+    ],
+    "next_allowed_step": "future_candidate_intake_packet_dry_run_only",
+    "manual_review_required": true,
+    "safety_acknowledgement": "This command contract does not approve, trust, invest, verify, recommend, buy, sell, trade, write files, create packets, or mutate registry.",
+    "contract_notes": "Ready only for a future separately requested packet dry-run builder."
+  }
+}

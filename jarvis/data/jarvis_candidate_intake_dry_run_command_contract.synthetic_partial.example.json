@@ -1,0 +1,37 @@
+{
+  "version": "v4.53",
+  "title": "J.A.R.V.I.S. Synthetic Candidate Intake Dry-Run Command Contract - Partial",
+  "source_review_decision_version": "v4.52",
+  "source_review_decision_status": "MANUAL_CANDIDATE_INTAKE_REVIEW_ACCEPTED_FOR_DRY_RUN_SAFE",
+  "source_decision_id": "synthetic-accept-v4-52",
+  "source_decision": "ACCEPT_FOR_CANDIDATE_INTAKE_DRY_RUN",
+  "reviewed_candidate_ids": [
+    "vwce_pilot_candidate",
+    "ftaw_pilot_candidate",
+    "synthetic_stock_candidate"
+  ],
+  "command_contract_mode": "explicit_candidate_intake_packet_dry_run_command_contract_only",
+  "dry_run_only": true,
+  "write_candidate_intake_file": false,
+  "create_candidate_intake_packet": false,
+  "registry_mutation": false,
+  "registry_file_written": false,
+  "candidate_registry_write": false,
+  "evidence_collection_started": false,
+  "evidence_verification_started": false,
+  "command_contract": {
+    "command_id": "synthetic-partial-command-v4-53",
+    "commander": "synthetic_manual_commander",
+    "command_timestamp": "2026-06-12T00:00:00Z",
+    "explicit_command": "REVIEW_LATER",
+    "required_exact_phrase": "",
+    "command_scope": "partial dry-run command contract fixture",
+    "candidate_ids_in_scope": [
+      "vwce_pilot_candidate"
+    ],
+    "next_allowed_step": "future_candidate_intake_packet_dry_run_only",
+    "manual_review_required": true,
+    "safety_acknowledgement": "Partial fixture does not write, mutate, approve, verify, recommend, trade, or execute.",
+    "contract_notes": "Missing exact phrase intentionally keeps this partial."
+  }
+}

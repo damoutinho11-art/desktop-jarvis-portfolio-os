@@ -1,0 +1,31 @@
+{
+  "version": "v4.53",
+  "title": "J.A.R.V.I.S. Candidate Intake Dry-Run Command Contract Example",
+  "source_review_decision_version": "v4.52",
+  "source_review_decision_status": "MANUAL_CANDIDATE_INTAKE_REVIEW_BLOCKED_SAFE",
+  "source_decision_id": "",
+  "source_decision": "",
+  "reviewed_candidate_ids": [],
+  "command_contract_mode": "explicit_candidate_intake_packet_dry_run_command_contract_only",
+  "dry_run_only": true,
+  "write_candidate_intake_file": false,
+  "create_candidate_intake_packet": false,
+  "registry_mutation": false,
+  "registry_file_written": false,
+  "candidate_registry_write": false,
+  "evidence_collection_started": false,
+  "evidence_verification_started": false,
+  "command_contract": {
+    "command_id": "",
+    "commander": "",
+    "command_timestamp": "",
+    "explicit_command": "",
+    "required_exact_phrase": "AUTHORIZE_CANDIDATE_INTAKE_PACKET_DRY_RUN_ONLY_NO_WRITE_NO_MUTATION",
+    "command_scope": "",
+    "candidate_ids_in_scope": [],
+    "next_allowed_step": "",
+    "manual_review_required": true,
+    "safety_acknowledgement": "",
+    "contract_notes": "Incomplete default fixture; blocks safely."
+  }
+}
