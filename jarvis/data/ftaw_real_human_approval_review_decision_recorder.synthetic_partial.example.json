@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "target_asset": "ftaw_global_core_candidate",
+  "mode": "read_only_real_human_approval_review_decision_recorder_synthetic_partial",
+  "human_approval_review_decision": {
+    "asset_id": "ftaw_global_core_candidate",
+    "decision": "defer",
+    "reviewed_by_user": true,
+    "user_asserted_manual_approval_review": true,
+    "user_asserted_no_registry_mutation": true,
+    "user_asserted_no_allocation_recommendation": true,
+    "user_asserted_no_buy_signal": true,
+    "user_asserted_no_trade": true,
+    "reviewer_notes": "Synthetic partial defer."
+  },
+  "registry_mutation_allowed": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false,
+  "executor_created": false,
+  "auto_ingest_private_files": false,
+  "auto_fetch_sources": false,
+  "auto_download_sources": false,
+  "auto_extract_facts": false
+}
