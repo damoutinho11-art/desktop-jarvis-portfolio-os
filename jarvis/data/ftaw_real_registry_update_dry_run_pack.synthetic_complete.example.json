@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "target_asset": "ftaw_global_core_candidate",
+  "mode": "read_only_real_registry_update_dry_run_pack_synthetic_complete",
+  "dry_run": true,
+  "proposed_status": "approved_by_human_review_dry_run",
+  "registry_mutation_allowed": false,
+  "registry_file_written": false,
+  "approved_asset": false,
+  "allocation_recommendation_created": false,
+  "buy_sell_requests_created": false,
+  "trades_executed": false,
+  "executor_created": false,
+  "auto_ingest_private_files": false,
+  "auto_fetch_sources": false,
+  "auto_download_sources": false,
+  "auto_extract_facts": false
+}
