@@ -1,0 +1,23 @@
+{
+  "version": "v4.49",
+  "title": "J.A.R.V.I.S. Candidate Intake Example",
+  "candidates": [
+    {
+      "candidate_id": "placeholder_incomplete_candidate",
+      "display_name": "Placeholder Incomplete Candidate",
+      "asset_type": "etf",
+      "symbol_or_identifier": "",
+      "issuer_or_provider": "",
+      "market_or_region": "manual review required",
+      "currency": "EUR",
+      "source_context": "synthetic placeholder",
+      "user_rationale": "Incomplete default fixture to demonstrate safe blocking.",
+      "intake_status": "draft",
+      "created_by_manual_entry": true,
+      "manual_entry_required": true,
+      "evidence_pipeline_required": true,
+      "phase1_route": "v4.27-v4.47-real-evidence-pipeline",
+      "notes": "No private or account data."
+    }
+  ]
+}
