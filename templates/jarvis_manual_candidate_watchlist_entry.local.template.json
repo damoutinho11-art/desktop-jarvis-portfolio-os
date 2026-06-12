@@ -1,0 +1,51 @@
+{
+  "version": "v4.56_template",
+  "title": "J.A.R.V.I.S. Manual Candidate Watchlist Entry Local Template",
+  "instructions": [
+    "Copy this file to the recommended local path before entering real candidate data.",
+    "Do not enter real candidate watchlist data in committed example files.",
+    "Keep local/private candidate files ignored and uncommitted.",
+    "Route completed local entries through v4.50 manual watchlist entry and v4.49 candidate intake before any v4.27-v4.47 evidence/manual review work."
+  ],
+  "private_data_warning": "Real candidate watchlists, account context, screenshots, PDFs, broker data, credentials, and private files must remain local/private and must not be committed.",
+  "recommended_local_copy_path": "jarvis\\local\\manual_candidate_watchlist_entries.local.json",
+  "entries": [
+    {
+      "watchlist_entry_id": "",
+      "candidate_id": "",
+      "display_name": "",
+      "asset_type": "",
+      "symbol_or_identifier": "",
+      "issuer_or_provider": "",
+      "market_or_region": "",
+      "currency": "",
+      "watchlist_reason": "",
+      "watchlist_source_context": "",
+      "manually_entered_by_user": false,
+      "manual_entry_timestamp": "",
+      "intended_route": "v4.50-manual-watchlist-entry->v4.49-candidate-intake->v4.27-v4.47-real-evidence-pipeline",
+      "candidate_intake_required": true,
+      "evidence_pipeline_required": true,
+      "manual_review_required": true,
+      "notes": "",
+      "approved_asset": false,
+      "trusted_asset": false,
+      "investable": false,
+      "verified_evidence": false,
+      "promoted_verified_evidence": false,
+      "allocation_recommendation": false,
+      "portfolio_weight": false,
+      "buy_signal": false,
+      "sell_signal": false,
+      "trade_executed": false,
+      "registry_mutation": false,
+      "candidate_registry_write": false,
+      "executor_created": false,
+      "broker_api_used": false,
+      "credentials_used": false,
+      "automatic_source_fetching": false,
+      "automatic_download": false,
+      "private_file_ingested": false
+    }
+  ]
+}

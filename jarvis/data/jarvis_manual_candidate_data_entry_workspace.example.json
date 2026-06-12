@@ -1,0 +1,58 @@
+{
+  "version": "v4.56",
+  "title": "J.A.R.V.I.S. Manual Candidate Data Entry Workspace Example",
+  "workspace_mode": "manual_local_candidate_watchlist_data_entry_workspace",
+  "template_path": "templates/jarvis_manual_candidate_watchlist_entry.local.template.json",
+  "recommended_local_paths": [
+    "jarvis/local/manual_candidate_watchlist_entries.local.json",
+    "local/manual_candidate_watchlist_entries.local.json"
+  ],
+  "gitignore_required_patterns": [
+    "jarvis/local/",
+    "jarvis/private/",
+    "local/",
+    "private/",
+    "*.local.json",
+    "*.private.json",
+    "*.account.json",
+    "*.credentials.json",
+    ".codex/",
+    "__pycache__/",
+    "*.pyc"
+  ],
+  "committed_template_contains_private_data": false,
+  "local_private_data_expected": true,
+  "private_data_should_be_committed": false,
+  "stop_gate_building": true,
+  "next_action": "manual_candidate_watchlist_data_entry_only",
+  "route_summary": [
+    "v4.56 manual candidate data entry workspace",
+    "v4.50 manual watchlist entry",
+    "v4.49 candidate intake",
+    "v4.27-v4.47 Phase 1 real evidence/manual review pipeline"
+  ],
+  "safety_controls": {
+    "registry_mutation": false,
+    "registry_file_written": false,
+    "candidate_registry_write": false,
+    "candidate_intake_file_written": false,
+    "persisted_packet_file": false,
+    "executor_created": false,
+    "approved_asset": false,
+    "trusted_asset": false,
+    "investable": false,
+    "evidence_collection_started": false,
+    "evidence_verification_started": false,
+    "promoted_verified_evidence": false,
+    "allocation_recommendation": false,
+    "portfolio_weight": false,
+    "buy_signal": false,
+    "sell_signal": false,
+    "trade_executed": false,
+    "broker_api_used": false,
+    "credentials_used": false,
+    "private_file_ingested": false,
+    "automatic_source_fetching": false,
+    "automatic_download": false
+  }
+}
