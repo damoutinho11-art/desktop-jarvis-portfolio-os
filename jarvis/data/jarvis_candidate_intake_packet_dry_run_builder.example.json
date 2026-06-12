@@ -1,0 +1,19 @@
+{
+  "version": "v4.54",
+  "title": "J.A.R.V.I.S. Candidate Intake Packet Dry-Run Builder Example",
+  "source_command_contract_version": "v4.53",
+  "source_command_contract_status": "CANDIDATE_INTAKE_DRY_RUN_COMMAND_CONTRACT_BLOCKED_SAFE",
+  "source_command_id": "",
+  "source_explicit_command": "",
+  "command_candidate_ids_in_scope": [],
+  "builder_mode": "candidate_intake_packet_preview_dry_run_only",
+  "dry_run_only": true,
+  "write_candidate_intake_file": false,
+  "persist_packet_file": false,
+  "registry_mutation": false,
+  "registry_file_written": false,
+  "candidate_registry_write": false,
+  "evidence_collection_started": false,
+  "evidence_verification_started": false,
+  "source_candidate_previews": []
+}

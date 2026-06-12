@@ -1,0 +1,78 @@
+{
+  "version": "v4.54",
+  "title": "J.A.R.V.I.S. Synthetic Candidate Intake Packet Dry-Run Builder - Partial",
+  "source_command_contract_version": "v4.53",
+  "source_command_contract_status": "CANDIDATE_INTAKE_DRY_RUN_COMMAND_CONTRACT_READY_FOR_PACKET_DRY_RUN_SAFE",
+  "source_command_id": "synthetic-complete-command-v4-53",
+  "source_explicit_command": "AUTHORIZE_CANDIDATE_INTAKE_PACKET_DRY_RUN_ONLY_NO_WRITE_NO_MUTATION",
+  "command_candidate_ids_in_scope": [
+    "vwce_pilot_candidate"
+  ],
+  "builder_mode": "candidate_intake_packet_preview_dry_run_only",
+  "dry_run_only": true,
+  "write_candidate_intake_file": false,
+  "persist_packet_file": false,
+  "registry_mutation": false,
+  "registry_file_written": false,
+  "candidate_registry_write": false,
+  "evidence_collection_started": false,
+  "evidence_verification_started": false,
+  "source_candidate_previews": [
+    {
+      "candidate_id": "vwce_pilot_candidate",
+      "display_name": "VWCE Pilot Candidate",
+      "asset_type": "etf",
+      "symbol_or_identifier": "VWCE",
+      "issuer_or_provider": "Synthetic provider",
+      "market_or_region": "global",
+      "currency": "EUR",
+      "source_context": "synthetic v4.51 preview",
+      "user_rationale": "Synthetic partial builder candidate.",
+      "intake_status": "candidate_intake_packet_preview_pending_manual_review",
+      "created_by_manual_entry": true,
+      "manual_entry_required": true,
+      "evidence_pipeline_required": true,
+      "phase1_route": "v4.27-v4.47-real-evidence-pipeline",
+      "notes": "Dry-run only.",
+      "safety_flags": {
+        "approved_asset": false,
+        "trusted_asset": false,
+        "investable": false,
+        "allocation_recommendation": false,
+        "buy_signal": false,
+        "sell_signal": false,
+        "trade_executed": false,
+        "registry_mutation": false,
+        "executor_created": false
+      }
+    },
+    {
+      "candidate_id": "ftaw_pilot_candidate",
+      "display_name": "FTAW Pilot Candidate",
+      "asset_type": "etf",
+      "symbol_or_identifier": "FTAW",
+      "issuer_or_provider": "Synthetic provider",
+      "market_or_region": "global",
+      "currency": "EUR",
+      "source_context": "synthetic v4.51 preview",
+      "user_rationale": "Outside command scope on purpose.",
+      "intake_status": "candidate_intake_packet_preview_pending_manual_review",
+      "created_by_manual_entry": true,
+      "manual_entry_required": true,
+      "evidence_pipeline_required": true,
+      "phase1_route": "v4.27-v4.47-real-evidence-pipeline",
+      "notes": "Should be excluded/blocked by scope.",
+      "safety_flags": {
+        "approved_asset": false,
+        "trusted_asset": false,
+        "investable": false,
+        "allocation_recommendation": false,
+        "buy_signal": false,
+        "sell_signal": false,
+        "trade_executed": false,
+        "registry_mutation": false,
+        "executor_created": false
+      }
+    }
+  ]
+}
