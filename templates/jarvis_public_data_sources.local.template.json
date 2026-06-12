@@ -1,0 +1,34 @@
+{
+  "version": "v4.57_template",
+  "title": "J.A.R.V.I.S. Public Data Sources Local Manifest Template",
+  "instructions": [
+    "Copy this template to the recommended local path before adding real public source URLs.",
+    "Use only public unauthenticated sources.",
+    "Do not include broker, account, credential, token, private, or authenticated URLs.",
+    "Fetched data is raw and unverified local cache only."
+  ],
+  "private_data_warning": "Do not add private account data, broker credentials, authenticated URLs, screenshots, PDFs, or personal files to this manifest.",
+  "recommended_local_copy_path": "jarvis\\local\\public_data_sources.local.json",
+  "default_update_frequency": "daily",
+  "dry_run_only_default": true,
+  "fetched_output_directory": "jarvis\\local\\public_data_snapshots",
+  "sources": [
+    {
+      "source_id": "blank_public_source_placeholder",
+      "candidate_id": "",
+      "display_name": "",
+      "asset_type": "",
+      "source_type": "other_public_reference",
+      "source_url": "https://example.com/public-reference",
+      "update_frequency": "manual",
+      "expected_content_type": "text/html",
+      "public_source_only": true,
+      "requires_authentication": false,
+      "requires_credentials": false,
+      "broker_or_trading_api": false,
+      "contains_private_data": false,
+      "intended_use": "raw_unverified_public_reference_cache_only",
+      "notes": "Replace only in ignored local copy."
+    }
+  ]
+}

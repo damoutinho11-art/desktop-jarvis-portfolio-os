@@ -30,3 +30,9 @@ private/
 *.account.json
 *.credentials.json
 .codex/
+
+# Local public data fetch cache and reports
+jarvis/local/data_cache/
+jarvis/local/public_data_sources.local.json
+jarvis/local/public_data_fetch_reports/
+jarvis/local/public_data_snapshots/
