@@ -1,0 +1,29 @@
+{
+  "version": "v4.52",
+  "title": "J.A.R.V.I.S. Manual Candidate Intake Review Decision Example",
+  "source_bridge_version": "v4.51",
+  "source_bridge_status": "MANUAL_CANDIDATE_INTAKE_BRIDGE_BLOCKED_SAFE",
+  "source_preview_candidate_count": 0,
+  "decision_mode": "manual_candidate_intake_review_decision_record_only",
+  "dry_run_only": true,
+  "write_candidate_intake_file": false,
+  "registry_mutation": false,
+  "candidate_registry_write": false,
+  "evidence_collection_started": false,
+  "evidence_verification_started": false,
+  "decision_record": {
+    "decision_id": "",
+    "reviewer": "",
+    "review_timestamp": "",
+    "decision": "",
+    "decision_scope": "",
+    "reviewed_candidate_ids": [],
+    "rationale": "",
+    "required_followups": [
+      "Complete a human decision before any later dry-run packet step."
+    ],
+    "manual_review_required": true,
+    "next_allowed_step": "",
+    "safety_acknowledgement": ""
+  }
+}

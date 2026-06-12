@@ -1,0 +1,33 @@
+{
+  "version": "v4.52",
+  "title": "J.A.R.V.I.S. Synthetic Manual Candidate Intake Review Decision - Defer",
+  "source_bridge_version": "v4.51",
+  "source_bridge_status": "MANUAL_CANDIDATE_INTAKE_BRIDGE_PARTIAL_SAFE",
+  "source_preview_candidate_count": 3,
+  "decision_mode": "manual_candidate_intake_review_decision_record_only",
+  "dry_run_only": true,
+  "write_candidate_intake_file": false,
+  "registry_mutation": false,
+  "candidate_registry_write": false,
+  "evidence_collection_started": false,
+  "evidence_verification_started": false,
+  "decision_record": {
+    "decision_id": "synthetic-defer-v4-52",
+    "reviewer": "synthetic_manual_reviewer",
+    "review_timestamp": "2026-06-12T00:00:00Z",
+    "decision": "DEFER",
+    "decision_scope": "v4.51 synthetic preview packet",
+    "reviewed_candidate_ids": [
+      "vwce_pilot_candidate",
+      "ftaw_pilot_candidate",
+      "synthetic_stock_candidate"
+    ],
+    "rationale": "Human reviewer deferred the dry-run packet decision for more review.",
+    "required_followups": [
+      "Review candidate identities again before any future dry-run packet step."
+    ],
+    "manual_review_required": true,
+    "next_allowed_step": "manual_followup_or_more_review_only",
+    "safety_acknowledgement": "This defer decision writes no files, mutates no registry, and approves no asset."
+  }
+}
