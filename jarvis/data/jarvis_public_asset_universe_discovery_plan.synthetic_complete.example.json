@@ -1,0 +1,789 @@
+{
+  "version": "v4.61",
+  "title": "J.A.R.V.I.S. Public Asset Universe Discovery Plan Synthetic Complete",
+  "plan_mode": "public_asset_universe_discovery_plan_report_only",
+  "report_only": true,
+  "no_network": true,
+  "no_fetching": true,
+  "no_downloading": true,
+  "no_writes": true,
+  "no_cache_creation": true,
+  "no_subprocess": true,
+  "no_scheduler_creation": true,
+  "no_broker_integration": true,
+  "no_private_data_ingest": true,
+  "target_asset_universes": [
+    {
+      "universe_id": "etf_universe",
+      "universe_name": "Public ETF Universe",
+      "asset_class": "ETF",
+      "scope_description": "Public exchange-traded funds discoverable from public listing, provider, and market reference sources.",
+      "public_only": true,
+      "source_manifest_required": true,
+      "local_cache_required_later": true,
+      "automated_discovery_goal": true,
+      "manual_entry_primary_path": false,
+      "required_fields": [
+        "asset_id",
+        "display_name",
+        "asset_type",
+        "symbol_or_identifier",
+        "issuer_or_provider",
+        "exchange_or_venue",
+        "market_or_region",
+        "currency",
+        "isin_or_figi_or_other_public_identifier",
+        "source_reference_ids",
+        "discovery_source",
+        "discovered_at",
+        "last_refreshed_at",
+        "data_freshness_status",
+        "public_data_only",
+        "raw_unverified",
+        "evidence_status",
+        "approval_status",
+        "investability_status",
+        "execution_status"
+      ],
+      "optional_fields": [
+        "distribution_policy",
+        "replication_or_style",
+        "ter_or_fee",
+        "fund_domicile"
+      ],
+      "source_categories": [
+        "exchange_listing_sources",
+        "fund_provider_sources",
+        "public_market_data_sources",
+        "identifier_mapping_sources"
+      ],
+      "freshness_requirement": "daily market data, weekly or monthly metadata",
+      "classification_tags": [
+        "asset_class",
+        "region",
+        "currency",
+        "exchange_or_venue",
+        "issuer/provider",
+        "instrument_type",
+        "distribution_policy",
+        "replication/style",
+        "sector/theme/category",
+        "liquidity_data_available",
+        "fee_data_available",
+        "risk_data_available",
+        "evidence_completeness",
+        "freshness_status"
+      ],
+      "evidence_pipeline_route": "public universe discovery -> source manifest -> explicit local-cache fetch -> freshness monitor -> classifier -> evidence pack generation -> manual source/fact review -> v4.27-v4.47 real evidence/manual review pipeline",
+      "default_status_values": {
+        "evidence_status": "UNVERIFIED_PUBLIC_DATA",
+        "approval_status": "NOT_APPROVED",
+        "investability_status": "NOT_INVESTABLE",
+        "execution_status": "NO_EXECUTION"
+      },
+      "safety_notes": [
+        "ETF discovery is not evidence verification.",
+        "ETF classification is not approval or allocation advice."
+      ]
+    },
+    {
+      "universe_id": "equity_universe",
+      "universe_name": "Public Equity Universe",
+      "asset_class": "EQUITY",
+      "scope_description": "Public listed equities discoverable from exchange, issuer, filing, and market reference sources.",
+      "public_only": true,
+      "source_manifest_required": true,
+      "local_cache_required_later": true,
+      "automated_discovery_goal": true,
+      "manual_entry_primary_path": false,
+      "required_fields": [
+        "asset_id",
+        "display_name",
+        "asset_type",
+        "symbol_or_identifier",
+        "issuer_or_provider",
+        "exchange_or_venue",
+        "market_or_region",
+        "currency",
+        "isin_or_figi_or_other_public_identifier",
+        "source_reference_ids",
+        "discovery_source",
+        "discovered_at",
+        "last_refreshed_at",
+        "data_freshness_status",
+        "public_data_only",
+        "raw_unverified",
+        "evidence_status",
+        "approval_status",
+        "investability_status",
+        "execution_status"
+      ],
+      "optional_fields": [
+        "sector",
+        "industry",
+        "country",
+        "listing_status"
+      ],
+      "source_categories": [
+        "exchange_listing_sources",
+        "issuer_or_provider_sources",
+        "regulator_or_filings_sources",
+        "public_market_data_sources",
+        "identifier_mapping_sources"
+      ],
+      "freshness_requirement": "daily market data, weekly listing metadata",
+      "classification_tags": [
+        "asset_class",
+        "region",
+        "currency",
+        "exchange_or_venue",
+        "issuer/provider",
+        "instrument_type",
+        "sector/theme/category",
+        "liquidity_data_available",
+        "risk_data_available",
+        "evidence_completeness",
+        "freshness_status"
+      ],
+      "evidence_pipeline_route": "public universe discovery -> source manifest -> explicit local-cache fetch -> freshness monitor -> classifier -> evidence pack generation -> manual source/fact review -> v4.27-v4.47 real evidence/manual review pipeline",
+      "default_status_values": {
+        "evidence_status": "UNVERIFIED_PUBLIC_DATA",
+        "approval_status": "NOT_APPROVED",
+        "investability_status": "NOT_INVESTABLE",
+        "execution_status": "NO_EXECUTION"
+      },
+      "safety_notes": [
+        "Equity discovery is not a stock recommendation.",
+        "Screening output is research priority only."
+      ]
+    },
+    {
+      "universe_id": "fund_or_etp_universe",
+      "universe_name": "Public Fund or ETP Universe",
+      "asset_class": "FUND_OR_ETP",
+      "scope_description": "Public funds and exchange-traded products discoverable from provider, exchange, regulator, and public market sources.",
+      "public_only": true,
+      "source_manifest_required": true,
+      "local_cache_required_later": true,
+      "automated_discovery_goal": true,
+      "manual_entry_primary_path": false,
+      "required_fields": [
+        "asset_id",
+        "display_name",
+        "asset_type",
+        "symbol_or_identifier",
+        "issuer_or_provider",
+        "exchange_or_venue",
+        "market_or_region",
+        "currency",
+        "isin_or_figi_or_other_public_identifier",
+        "source_reference_ids",
+        "discovery_source",
+        "discovered_at",
+        "last_refreshed_at",
+        "data_freshness_status",
+        "public_data_only",
+        "raw_unverified",
+        "evidence_status",
+        "approval_status",
+        "investability_status",
+        "execution_status"
+      ],
+      "optional_fields": [
+        "distribution_policy",
+        "fee_data_available",
+        "provider_category"
+      ],
+      "source_categories": [
+        "fund_provider_sources",
+        "regulator_or_filings_sources",
+        "public_market_data_sources",
+        "identifier_mapping_sources"
+      ],
+      "freshness_requirement": "weekly or monthly metadata, daily where market prices exist",
+      "classification_tags": [
+        "asset_class",
+        "region",
+        "currency",
+        "issuer/provider",
+        "instrument_type",
+        "distribution_policy",
+        "sector/theme/category",
+        "fee_data_available",
+        "risk_data_available",
+        "evidence_completeness",
+        "freshness_status"
+      ],
+      "evidence_pipeline_route": "public universe discovery -> source manifest -> explicit local-cache fetch -> freshness monitor -> classifier -> evidence pack generation -> manual source/fact review -> v4.27-v4.47 real evidence/manual review pipeline",
+      "default_status_values": {
+        "evidence_status": "UNVERIFIED_PUBLIC_DATA",
+        "approval_status": "NOT_APPROVED",
+        "investability_status": "NOT_INVESTABLE",
+        "execution_status": "NO_EXECUTION"
+      },
+      "safety_notes": [
+        "Fund discovery is not approval.",
+        "Fee visibility is not allocation advice."
+      ]
+    },
+    {
+      "universe_id": "crypto_asset_universe",
+      "universe_name": "Public Crypto Asset Universe",
+      "asset_class": "CRYPTO_ASSET",
+      "scope_description": "Public crypto assets discoverable from public reference, protocol, and market sources without wallet or exchange integration.",
+      "public_only": true,
+      "source_manifest_required": true,
+      "local_cache_required_later": true,
+      "automated_discovery_goal": true,
+      "manual_entry_primary_path": false,
+      "required_fields": [
+        "asset_id",
+        "display_name",
+        "asset_type",
+        "symbol_or_identifier",
+        "issuer_or_provider",
+        "exchange_or_venue",
+        "market_or_region",
+        "currency",
+        "isin_or_figi_or_other_public_identifier",
+        "source_reference_ids",
+        "discovery_source",
+        "discovered_at",
+        "last_refreshed_at",
+        "data_freshness_status",
+        "public_data_only",
+        "raw_unverified",
+        "evidence_status",
+        "approval_status",
+        "investability_status",
+        "execution_status"
+      ],
+      "optional_fields": [
+        "network_or_protocol",
+        "crypto_category",
+        "public_contract_or_protocol_reference"
+      ],
+      "source_categories": [
+        "crypto_public_reference_sources",
+        "public_market_data_sources",
+        "identifier_mapping_sources"
+      ],
+      "freshness_requirement": "daily market/reference data",
+      "classification_tags": [
+        "asset_class",
+        "region",
+        "currency",
+        "instrument_type",
+        "crypto category",
+        "liquidity_data_available",
+        "risk_data_available",
+        "evidence_completeness",
+        "freshness_status"
+      ],
+      "evidence_pipeline_route": "public universe discovery -> source manifest -> explicit local-cache fetch -> freshness monitor -> classifier -> evidence pack generation -> manual source/fact review -> v4.27-v4.47 real evidence/manual review pipeline",
+      "default_status_values": {
+        "evidence_status": "UNVERIFIED_PUBLIC_DATA",
+        "approval_status": "NOT_APPROVED",
+        "investability_status": "NOT_INVESTABLE",
+        "execution_status": "NO_EXECUTION"
+      },
+      "safety_notes": [
+        "Crypto discovery does not integrate with exchanges or wallets.",
+        "Crypto screening is not a buy/sell signal."
+      ]
+    },
+    {
+      "universe_id": "exchange_or_market_reference_universe",
+      "universe_name": "Exchange or Market Reference Universe",
+      "asset_class": "MARKET_REFERENCE",
+      "scope_description": "Public exchange, venue, currency, and identifier reference data used to normalize discovered assets.",
+      "public_only": true,
+      "source_manifest_required": true,
+      "local_cache_required_later": true,
+      "automated_discovery_goal": true,
+      "manual_entry_primary_path": false,
+      "required_fields": [
+        "asset_id",
+        "display_name",
+        "asset_type",
+        "symbol_or_identifier",
+        "issuer_or_provider",
+        "exchange_or_venue",
+        "market_or_region",
+        "currency",
+        "isin_or_figi_or_other_public_identifier",
+        "source_reference_ids",
+        "discovery_source",
+        "discovered_at",
+        "last_refreshed_at",
+        "data_freshness_status",
+        "public_data_only",
+        "raw_unverified",
+        "evidence_status",
+        "approval_status",
+        "investability_status",
+        "execution_status"
+      ],
+      "optional_fields": [
+        "exchange_country",
+        "market_hours_reference",
+        "identifier_namespace"
+      ],
+      "source_categories": [
+        "exchange_listing_sources",
+        "identifier_mapping_sources",
+        "public_market_data_sources"
+      ],
+      "freshness_requirement": "weekly or monthly unless market prices are included",
+      "classification_tags": [
+        "asset_class",
+        "region",
+        "currency",
+        "exchange_or_venue",
+        "instrument_type",
+        "freshness_status"
+      ],
+      "evidence_pipeline_route": "public universe discovery -> source manifest -> explicit local-cache fetch -> freshness monitor -> classifier -> evidence pack generation -> manual source/fact review -> v4.27-v4.47 real evidence/manual review pipeline",
+      "default_status_values": {
+        "evidence_status": "UNVERIFIED_PUBLIC_DATA",
+        "approval_status": "NOT_APPROVED",
+        "investability_status": "NOT_INVESTABLE",
+        "execution_status": "NO_EXECUTION"
+      },
+      "safety_notes": [
+        "Market references normalize research data only.",
+        "Reference data is not evidence verification."
+      ]
+    }
+  ],
+  "public_source_categories": [
+    {
+      "source_category_id": "exchange_listing_sources",
+      "source_category_name": "Exchange listing sources",
+      "intended_use": "Discover listed symbols, venues, currencies, and listing references.",
+      "public_only": true,
+      "authentication_required": false,
+      "credentials_allowed": false,
+      "broker_api_allowed": false,
+      "private_data_allowed": false,
+      "expected_update_frequency": "daily_or_weekly",
+      "expected_fields": [
+        "symbol",
+        "exchange_or_venue",
+        "currency",
+        "listing_status"
+      ],
+      "future_manifest_required": true,
+      "future_fetch_allowed_only_with_explicit_authorization": true,
+      "safety_notes": [
+        "No exchange trading integration."
+      ]
+    },
+    {
+      "source_category_id": "issuer_or_provider_sources",
+      "source_category_name": "Issuer or provider sources",
+      "intended_use": "Identify issuer/provider identity and official public product pages.",
+      "public_only": true,
+      "authentication_required": false,
+      "credentials_allowed": false,
+      "broker_api_allowed": false,
+      "private_data_allowed": false,
+      "expected_update_frequency": "weekly_or_monthly",
+      "expected_fields": [
+        "issuer_or_provider",
+        "official_page_reference",
+        "product_or_security_name"
+      ],
+      "future_manifest_required": true,
+      "future_fetch_allowed_only_with_explicit_authorization": true,
+      "safety_notes": [
+        "Public identity reference only."
+      ]
+    },
+    {
+      "source_category_id": "regulator_or_filings_sources",
+      "source_category_name": "Regulator or filing sources",
+      "intended_use": "Reference public filings, registration, and official disclosures where available.",
+      "public_only": true,
+      "authentication_required": false,
+      "credentials_allowed": false,
+      "broker_api_allowed": false,
+      "private_data_allowed": false,
+      "expected_update_frequency": "weekly_or_monthly",
+      "expected_fields": [
+        "filing_reference",
+        "issuer_name",
+        "identifier"
+      ],
+      "future_manifest_required": true,
+      "future_fetch_allowed_only_with_explicit_authorization": true,
+      "safety_notes": [
+        "No private filing portals."
+      ]
+    },
+    {
+      "source_category_id": "fund_provider_sources",
+      "source_category_name": "Fund provider sources",
+      "intended_use": "Reference public ETF/fund metadata, factsheets, fee fields, distributions, and holdings links.",
+      "public_only": true,
+      "authentication_required": false,
+      "credentials_allowed": false,
+      "broker_api_allowed": false,
+      "private_data_allowed": false,
+      "expected_update_frequency": "weekly_or_monthly",
+      "expected_fields": [
+        "fund_name",
+        "isin",
+        "ticker",
+        "provider",
+        "fee_reference",
+        "distribution_policy"
+      ],
+      "future_manifest_required": true,
+      "future_fetch_allowed_only_with_explicit_authorization": true,
+      "safety_notes": [
+        "Provider metadata remains unverified until manual evidence review."
+      ]
+    },
+    {
+      "source_category_id": "public_market_data_sources",
+      "source_category_name": "Public market data sources",
+      "intended_use": "Reference public quote, currency, and as-of-date data without broker APIs.",
+      "public_only": true,
+      "authentication_required": false,
+      "credentials_allowed": false,
+      "broker_api_allowed": false,
+      "private_data_allowed": false,
+      "expected_update_frequency": "daily",
+      "expected_fields": [
+        "symbol",
+        "price_or_reference_value",
+        "currency",
+        "as_of_date"
+      ],
+      "future_manifest_required": true,
+      "future_fetch_allowed_only_with_explicit_authorization": true,
+      "safety_notes": [
+        "Market data is not a buy/sell signal."
+      ]
+    },
+    {
+      "source_category_id": "crypto_public_reference_sources",
+      "source_category_name": "Crypto public reference sources",
+      "intended_use": "Reference public protocol, market, and asset metadata without exchange or wallet integration.",
+      "public_only": true,
+      "authentication_required": false,
+      "credentials_allowed": false,
+      "broker_api_allowed": false,
+      "private_data_allowed": false,
+      "expected_update_frequency": "daily_or_weekly",
+      "expected_fields": [
+        "symbol",
+        "network_or_protocol",
+        "public_reference",
+        "market_reference"
+      ],
+      "future_manifest_required": true,
+      "future_fetch_allowed_only_with_explicit_authorization": true,
+      "safety_notes": [
+        "No crypto exchange or wallet integration."
+      ]
+    },
+    {
+      "source_category_id": "identifier_mapping_sources",
+      "source_category_name": "Identifier mapping sources",
+      "intended_use": "Map public identifiers such as symbols, ISINs, FIGIs, venues, and currencies.",
+      "public_only": true,
+      "authentication_required": false,
+      "credentials_allowed": false,
+      "broker_api_allowed": false,
+      "private_data_allowed": false,
+      "expected_update_frequency": "weekly_or_monthly",
+      "expected_fields": [
+        "symbol",
+        "identifier",
+        "identifier_type",
+        "exchange_or_venue"
+      ],
+      "future_manifest_required": true,
+      "future_fetch_allowed_only_with_explicit_authorization": true,
+      "safety_notes": [
+        "Identifier mapping is not approval."
+      ]
+    }
+  ],
+  "required_universe_fields": {
+    "all_universes": [
+      "asset_id",
+      "display_name",
+      "asset_type",
+      "symbol_or_identifier",
+      "issuer_or_provider",
+      "exchange_or_venue",
+      "market_or_region",
+      "currency",
+      "isin_or_figi_or_other_public_identifier",
+      "source_reference_ids",
+      "discovery_source",
+      "discovered_at",
+      "last_refreshed_at",
+      "data_freshness_status",
+      "public_data_only",
+      "raw_unverified",
+      "evidence_status",
+      "approval_status",
+      "investability_status",
+      "execution_status"
+    ]
+  },
+  "freshness_policy": {
+    "daily_market_data": true,
+    "weekly_listing_reference": true,
+    "monthly_provider_metadata": true,
+    "stale_data_routes_to_research_queue": true
+  },
+  "local_cache_plan": {
+    "planned_paths": [
+      "jarvis\\local\\public_asset_universe\\",
+      "jarvis\\local\\public_asset_universe\\raw\\",
+      "jarvis\\local\\public_asset_universe\\normalized\\",
+      "jarvis\\local\\public_asset_universe\\indexes\\",
+      "jarvis\\local\\public_asset_universe\\reports\\"
+    ],
+    "local_cache_must_remain_ignored_uncommitted": true,
+    "raw_data_remains_unverified": true,
+    "normalized_data_remains_unapproved": true,
+    "cache_writes_performed_in_v4_61": false,
+    "future_cache_builder_requires_explicit_authorization": true,
+    "future_cache_builder_local_cache_only": true,
+    "no_fetched_data_committed": true
+  },
+  "classification_plan": {
+    "classification_tags": [
+      "asset_class",
+      "region",
+      "currency",
+      "exchange_or_venue",
+      "issuer/provider",
+      "instrument_type",
+      "distribution_policy",
+      "replication/style",
+      "sector/theme/category",
+      "crypto category",
+      "liquidity_data_available",
+      "fee_data_available",
+      "risk_data_available",
+      "evidence_completeness",
+      "freshness_status"
+    ],
+    "classification_not_approval": true,
+    "classification_not_allocation": true
+  },
+  "screening_plan": {
+    "allowed_outputs": [
+      "RESEARCH_READY",
+      "NEEDS_MORE_PUBLIC_DATA",
+      "STALE_PUBLIC_DATA",
+      "MISSING_REQUIRED_FIELDS",
+      "BLOCKED_BY_SOURCE_LIMITATION",
+      "MANUAL_REVIEW_REQUIRED"
+    ],
+    "forbidden_outputs": [
+      "BUY",
+      "SELL",
+      "HOLD recommendation",
+      "APPROVED",
+      "TRUSTED",
+      "INVESTABLE",
+      "ALLOCATION",
+      "PORTFOLIO_WEIGHT",
+      "TRADE"
+    ],
+    "research_prioritization_only": true
+  },
+  "evidence_readiness_route": [
+    "public universe discovery",
+    "source manifest",
+    "explicit local-cache fetch",
+    "freshness monitor",
+    "universe normalization",
+    "classifier",
+    "research-priority queue",
+    "evidence pack generation",
+    "manual source/fact review",
+    "v4.27-v4.47 real evidence/manual review pipeline",
+    "final human decision outside J.A.R.V.I.S."
+  ],
+  "human_action_boundary": {
+    "user_may_manually_buy_externally": true,
+    "jarvis_may_execute_trade": false,
+    "jarvis_may_login_to_broker": false,
+    "jarvis_may_store_credentials": false,
+    "jarvis_may_call_broker_api": false,
+    "jarvis_may_prepare_research_dashboard": true,
+    "jarvis_may_prepare_evidence_pack_later": true,
+    "jarvis_may_recommend_allocation": false,
+    "jarvis_may_emit_buy_sell_signal": false,
+    "external_manual_venues_only": [
+      "Lightyear",
+      "LHV",
+      "crypto platform"
+    ]
+  },
+  "future_build_sequence": [
+    {
+      "stage_id": "v4.62",
+      "stage_name": "Public Asset Universe Source Manifest Schema",
+      "real_new_boundary": true,
+      "purpose": "Define public source manifests for broad universe discovery.",
+      "must_not_do": [
+        "fetch",
+        "write cache",
+        "verify evidence"
+      ],
+      "why_not_redundant": "It replaces manual one-by-one entry with structured public source inputs."
+    },
+    {
+      "stage_id": "v4.63",
+      "stage_name": "Public Asset Universe Fetch Dry-Run Planner",
+      "real_new_boundary": true,
+      "purpose": "Plan explicit local-cache fetches without executing network calls by default.",
+      "must_not_do": [
+        "fetch by default",
+        "schedule",
+        "use credentials"
+      ],
+      "why_not_redundant": "It separates source manifest design from future authorized fetch planning."
+    },
+    {
+      "stage_id": "v4.64",
+      "stage_name": "Public Asset Universe Local Cache Builder",
+      "real_new_boundary": true,
+      "purpose": "Future explicit local-cache-only builder for public data.",
+      "must_not_do": [
+        "commit fetched data",
+        "verify evidence",
+        "approve assets"
+      ],
+      "why_not_redundant": "It is the first future boundary where explicitly authorized cache writes may exist."
+    },
+    {
+      "stage_id": "v4.65",
+      "stage_name": "Public Asset Universe Normalizer",
+      "real_new_boundary": true,
+      "purpose": "Normalize raw public cache into unapproved, unverified asset records.",
+      "must_not_do": [
+        "approve",
+        "trust",
+        "recommend"
+      ],
+      "why_not_redundant": "It creates normalized public research records from cache data."
+    },
+    {
+      "stage_id": "v4.66",
+      "stage_name": "Public Asset Universe Classifier",
+      "real_new_boundary": true,
+      "purpose": "Classify assets for research navigation without implying investability.",
+      "must_not_do": [
+        "mark investable",
+        "allocate",
+        "buy/sell"
+      ],
+      "why_not_redundant": "It turns normalized records into research categories."
+    },
+    {
+      "stage_id": "v4.67",
+      "stage_name": "Research Priority Queue Dashboard",
+      "real_new_boundary": true,
+      "purpose": "Prioritize research candidates from public data completeness and freshness.",
+      "must_not_do": [
+        "recommend allocation",
+        "approve",
+        "trade"
+      ],
+      "why_not_redundant": "It gives the user a dashboard instead of manual asset enumeration."
+    },
+    {
+      "stage_id": "v4.68",
+      "stage_name": "Evidence Pack Generator Dry-Run",
+      "real_new_boundary": true,
+      "purpose": "Prepare evidence pack previews for manual source/fact review.",
+      "must_not_do": [
+        "verify evidence",
+        "promote evidence",
+        "emit buy/sell signal"
+      ],
+      "why_not_redundant": "It bridges public research records into the existing manual evidence pipeline."
+    },
+    {
+      "stage_id": "v5.0",
+      "stage_name": "Research OS MVP Audit",
+      "real_new_boundary": true,
+      "purpose": "Audit the local-first public research OS MVP end to end.",
+      "must_not_do": [
+        "create executor",
+        "integrate brokers",
+        "trade"
+      ],
+      "why_not_redundant": "It confirms the new research OS capability rather than adding another gate."
+    }
+  ],
+  "next_manual_action": "prepare_public_universe_source_manifest",
+  "redundant_next_steps_to_avoid": [
+    "manually_enter_every_asset",
+    "another_gate",
+    "another_review_layer",
+    "broker_integration",
+    "credential_setup",
+    "evidence_verification",
+    "approval",
+    "registry_mutation",
+    "allocation_recommendation",
+    "buy_signal",
+    "sell_signal",
+    "trade_execution",
+    "executor_creation"
+  ],
+  "safety_controls": {
+    "network_calls": false,
+    "fetching": false,
+    "downloading": false,
+    "scraping": false,
+    "api_calls": false,
+    "writes": false,
+    "cache_creation": false,
+    "subprocess_execution": false,
+    "scheduler_creation": false,
+    "browser_automation": false,
+    "broker_integration": false,
+    "lightyear_integration": false,
+    "lhv_integration": false,
+    "crypto_exchange_integration": false,
+    "credentials_used": false,
+    "private_file_ingested": false,
+    "automatic_private_data_ingest": false,
+    "account_data_ingested": false,
+    "source_parsing_as_evidence": false,
+    "evidence_extraction": false,
+    "evidence_verification": false,
+    "verified_evidence_promotion": false,
+    "registry_mutation": false,
+    "registry_file_written": false,
+    "candidate_registry_write": false,
+    "candidate_intake_file_written": false,
+    "approved_asset": false,
+    "trusted_asset": false,
+    "investable": false,
+    "allocation_recommendation": false,
+    "portfolio_weight": false,
+    "buy_signal": false,
+    "sell_signal": false,
+    "trade_executed": false,
+    "executor_created": false,
+    "public_data_only": true,
+    "manual_trust_required": true,
+    "manual_approval_required": true,
+    "no_execution_invariant": true,
+    "final_purchase_external_manual_only": true
+  }
+}
