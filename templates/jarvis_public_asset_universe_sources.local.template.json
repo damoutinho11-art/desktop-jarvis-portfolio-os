@@ -1,0 +1,66 @@
+{
+  "template_notice": "Copy this template manually to jarvis\\local\\public_asset_universe_sources.local.json if needed. Keep the local copy ignored and uncommitted.",
+  "warnings": [
+    "No credentials.",
+    "No broker URLs.",
+    "No private/account data.",
+    "No Lightyear/LHV/crypto exchange integration.",
+    "Future fetch requires explicit authorization.",
+    "Raw fetched data remains unverified.",
+    "This template does not fetch, verify, approve, allocate, buy, sell, trade, or execute."
+  ],
+  "version": "v4.62-local-template",
+  "manifest_mode": "local_public_asset_universe_source_manifest_template",
+  "report_only": true,
+  "no_network": true,
+  "no_fetching": true,
+  "no_downloading": true,
+  "no_scraping": true,
+  "no_api_calls": true,
+  "no_writes": true,
+  "no_cache_creation": true,
+  "source_manifest_id": "local_public_asset_universe_sources_template",
+  "source_manifest_name": "Local Public Asset Universe Sources Template",
+  "sources": [
+    {
+      "source_id": "placeholder_public_etf_source",
+      "source_name": "Placeholder public ETF source",
+      "source_category_id": "etf_listing_sources",
+      "target_asset_universes": [
+        "etf_universe"
+      ],
+      "source_type": "public_web_page",
+      "source_url": "https://example.com/public-etf-list",
+      "public_only": true,
+      "authentication_required": false,
+      "credentials_allowed": false,
+      "broker_api_allowed": false,
+      "private_data_allowed": false,
+      "trading_access_allowed": false,
+      "expected_update_frequency": "weekly",
+      "expected_fields": [
+        "symbol",
+        "name",
+        "currency",
+        "public_identifier"
+      ],
+      "required_fields_for_future_fetch": [
+        "source_url",
+        "source_category_id",
+        "target_asset_universes"
+      ],
+      "allowed_future_fetch_method": "manual_download_reference_only",
+      "future_fetch_requires_explicit_authorization": true,
+      "future_fetch_output_scope": "raw_unverified_public_reference_only",
+      "future_cache_path_hint": "jarvis\\local\\public_asset_universe\\raw\\",
+      "raw_data_unverified": true,
+      "discovery_not_verification": true,
+      "classification_not_approval": true,
+      "screening_not_investment_advice": true,
+      "safety_notes": [
+        "Placeholder only.",
+        "Replace manually with public source references only."
+      ]
+    }
+  ]
+}
