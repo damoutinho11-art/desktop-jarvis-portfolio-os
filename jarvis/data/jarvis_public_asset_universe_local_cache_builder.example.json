@@ -1,0 +1,101 @@
+{
+  "version": "v4.64",
+  "title": "J.A.R.V.I.S. Public Asset Universe Local Cache Builder Example",
+  "builder_mode": "public_asset_universe_local_cache_builder_default_off",
+  "report_only": true,
+  "default_no_fetch": true,
+  "default_no_write": true,
+  "explicit_authorization_required": true,
+  "authorization_phrase": "",
+  "authorization_phrase_required": "AUTHORIZE_PUBLIC_ASSET_UNIVERSE_FETCH_LOCAL_CACHE_ONLY_NO_VERIFY_NO_TRADE",
+  "authorization_phrase_valid": false,
+  "no_scraping": true,
+  "no_browser_automation": true,
+  "no_broker_integration": true,
+  "no_private_data_ingest": true,
+  "source_fetch_plans": [],
+  "cache_policy": {
+    "allowed_write_root": "jarvis\\local\\public_asset_universe\\",
+    "planned_paths": [
+      "jarvis\\local\\public_asset_universe\\raw\\",
+      "jarvis\\local\\public_asset_universe\\metadata\\",
+      "jarvis\\local\\public_asset_universe\\fetch_plans\\",
+      "jarvis\\local\\public_asset_universe\\reports\\"
+    ],
+    "local_cache_only": true,
+    "cache_paths_ignored_uncommitted_required": true,
+    "raw_data_unverified": true
+  },
+  "write_policy": {
+    "default_writes_allowed": false,
+    "authorized_writes_local_cache_only": true
+  },
+  "fetch_policy": {
+    "default_fetch_allowed": false,
+    "explicit_authorization_required": true,
+    "public_unauthenticated_sources_only": true
+  },
+  "metadata_policy": {
+    "metadata_written_only_after_authorized_fetch": true,
+    "metadata_is_not_approval": true
+  },
+  "dry_run_summary": {
+    "default_no_fetch": true,
+    "default_no_write": true
+  },
+  "next_manual_action": "review_local_cache_builder_authorization",
+  "redundant_next_steps_to_avoid": [
+    "classifier_inside_v4_64",
+    "evidence_extraction",
+    "scheduler",
+    "investment_screening",
+    "broker_integration",
+    "registry_mutation",
+    "executor"
+  ],
+  "safety_controls": {
+    "network_calls": false,
+    "fetching": false,
+    "downloading": false,
+    "writes": false,
+    "cache_creation": false,
+    "scraping": false,
+    "api_calls_without_explicit_authorization": false,
+    "subprocess_execution": false,
+    "scheduler_creation": false,
+    "browser_automation": false,
+    "broker_integration": false,
+    "lightyear_integration": false,
+    "lhv_integration": false,
+    "crypto_exchange_integration": false,
+    "credentials_used": false,
+    "private_file_ingested": false,
+    "automatic_private_data_ingest": false,
+    "account_data_ingested": false,
+    "source_parsing_as_evidence": false,
+    "evidence_extraction": false,
+    "evidence_verification": false,
+    "verified_evidence_promotion": false,
+    "registry_mutation": false,
+    "registry_file_written": false,
+    "candidate_registry_write": false,
+    "candidate_intake_file_written": false,
+    "approved_asset": false,
+    "trusted_asset": false,
+    "investable": false,
+    "allocation_recommendation": false,
+    "portfolio_weight": false,
+    "buy_signal": false,
+    "sell_signal": false,
+    "trade_executed": false,
+    "executor_created": false,
+    "public_data_only": true,
+    "manual_trust_required": true,
+    "manual_approval_required": true,
+    "no_execution_invariant": true,
+    "final_purchase_external_manual_only": true,
+    "local_cache_only": true,
+    "raw_data_unverified": true,
+    "explicit_authorization_required": true
+  }
+}
