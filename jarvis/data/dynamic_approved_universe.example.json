@@ -1,0 +1,146 @@
+{
+  "assets": [
+    {
+      "asset_id": "vwce_global_core_candidate",
+      "name": "VWCE Global Core Candidate",
+      "asset_type": "ETF",
+      "sleeve": "global_core",
+      "ticker": "VWCE",
+      "isin_or_symbol": "IE00BK5BQT80",
+      "platforms": [
+        "Lightyear",
+        "Trade Republic"
+      ],
+      "currency": "EUR",
+      "domicile": "Ireland",
+      "distribution_policy": "accumulating",
+      "ter_or_fee": 0.22,
+      "data_source": "synthetic_dynamic_ready_fixture_not_real_approval",
+      "approval_status": "approved_investable",
+      "risk_level": "medium",
+      "provider": "Vanguard",
+      "index_tracked": "FTSE All-World",
+      "replication_method": "physical"
+    },
+    {
+      "asset_id": "sxrv_cndx_growth_candidate",
+      "name": "SXRV Growth Innovation Candidate",
+      "asset_type": "ETF",
+      "sleeve": "growth_innovation",
+      "ticker": "SXRV",
+      "isin_or_symbol": "IE00B53SZB19",
+      "platforms": [
+        "Lightyear",
+        "Trade Republic"
+      ],
+      "currency": "EUR",
+      "domicile": "Ireland",
+      "distribution_policy": "accumulating",
+      "ter_or_fee": 0.33,
+      "data_source": "synthetic_dynamic_ready_fixture_not_real_approval",
+      "approval_status": "approved_investable",
+      "risk_level": "high",
+      "provider": "iShares",
+      "index_tracked": "NASDAQ-100",
+      "replication_method": "physical"
+    },
+    {
+      "asset_id": "is3q_iwqu_quality_candidate",
+      "name": "IS3Q Quality Factor Candidate",
+      "asset_type": "ETF",
+      "sleeve": "quality_factor",
+      "ticker": "IS3Q",
+      "isin_or_symbol": "IE00BP3QZ601",
+      "platforms": [
+        "Lightyear",
+        "Trade Republic"
+      ],
+      "currency": "EUR",
+      "domicile": "Ireland",
+      "distribution_policy": "accumulating",
+      "ter_or_fee": 0.3,
+      "data_source": "synthetic_dynamic_ready_fixture_not_real_approval",
+      "approval_status": "approved_investable",
+      "risk_level": "medium",
+      "provider": "iShares",
+      "index_tracked": "MSCI World Quality Factor",
+      "replication_method": "physical"
+    },
+    {
+      "asset_id": "btc_crypto_core_candidate",
+      "name": "BTC Crypto Core Candidate",
+      "asset_type": "crypto",
+      "sleeve": "crypto_core",
+      "ticker": "BTC",
+      "isin_or_symbol": "BTC",
+      "platforms": [
+        "LHV Crypto Investments",
+        "Kraken"
+      ],
+      "currency": "EUR",
+      "domicile": "n/a",
+      "distribution_policy": "n/a",
+      "ter_or_fee": 0.0,
+      "data_source": "synthetic_dynamic_ready_fixture_not_real_approval",
+      "approval_status": "approved_investable",
+      "risk_level": "high",
+      "network_or_protocol": "Bitcoin",
+      "custody_platforms": [
+        "LHV Crypto Investments",
+        "Kraken"
+      ],
+      "transferable": false,
+      "mica_route_possible": true
+    },
+    {
+      "asset_id": "hype_speculative_crypto_candidate",
+      "name": "HYPE Speculative Crypto Candidate",
+      "asset_type": "crypto",
+      "sleeve": "speculative_crypto",
+      "ticker": "HYPE",
+      "isin_or_symbol": "HYPE",
+      "platforms": [
+        "Kraken"
+      ],
+      "currency": "EUR",
+      "domicile": "n/a",
+      "distribution_policy": "n/a",
+      "ter_or_fee": 0.0,
+      "data_source": "synthetic_dynamic_ready_fixture_not_real_approval",
+      "approval_status": "approved_investable",
+      "risk_level": "very_high",
+      "multi_asset_allowed": true,
+      "network_or_protocol": "Hyperliquid",
+      "custody_platforms": [
+        "Kraken"
+      ],
+      "transferable": false,
+      "mica_route_possible": true
+    },
+    {
+      "asset_id": "tao_speculative_crypto_candidate",
+      "name": "TAO Speculative Crypto Candidate",
+      "asset_type": "crypto",
+      "sleeve": "speculative_crypto",
+      "ticker": "TAO",
+      "isin_or_symbol": "TAO",
+      "platforms": [
+        "Kraken"
+      ],
+      "currency": "EUR",
+      "domicile": "n/a",
+      "distribution_policy": "n/a",
+      "ter_or_fee": 0.0,
+      "data_source": "synthetic_dynamic_ready_fixture_not_real_approval",
+      "approval_status": "approved_investable",
+      "risk_level": "very_high",
+      "multi_asset_allowed": true,
+      "network_or_protocol": "Bittensor",
+      "custody_platforms": [
+        "Kraken"
+      ],
+      "transferable": false,
+      "mica_route_possible": true
+    }
+  ]
+}
