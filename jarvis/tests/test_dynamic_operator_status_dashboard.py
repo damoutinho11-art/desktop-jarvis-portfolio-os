@@ -62,10 +62,12 @@ class DynamicOperatorStatusDashboardTests(unittest.TestCase):
 
         self.assertEqual(result.status, STATUS_READY)
         self.assertEqual(result.import_plan_status, "DYNAMIC_MARKET_IMPORT_PLAN_READY_SAFE")
+        self.assertEqual(result.market_data_intake_status, "DYNAMIC_MARKET_DATA_INTAKE_READY_SAFE")
         self.assertEqual(result.preflight_status, "DYNAMIC_PORTFOLIO_PREFLIGHT_READY_SAFE")
         self.assertEqual(result.optimizer_status, "DYNAMIC_POLICY_READY_SAFE")
         self.assertEqual(result.weekly_plan_status, "DYNAMIC_WEEKLY_PLAN_READY_SAFE")
         self.assertEqual(result.import_ready_rows, 6)
+        self.assertEqual(result.intake_ready_series_count, 6)
         self.assertEqual(result.weekly_plan_line_count, 6)
         self.assertTrue(result.manual_approval_required)
         self.assertTrue(result.fetching_forbidden)
@@ -81,6 +83,7 @@ class DynamicOperatorStatusDashboardTests(unittest.TestCase):
 
         self.assertEqual(result.status, STATUS_BLOCKED)
         self.assertTrue(any("import plan is not ready" in blocker for blocker in result.blockers))
+        self.assertTrue(any("market data intake is not ready" in blocker for blocker in result.blockers))
         self.assertTrue(any("preflight is not ready" in blocker for blocker in result.blockers))
         self.assertTrue(result.execution_forbidden)
 

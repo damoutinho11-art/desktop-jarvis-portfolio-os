@@ -58,8 +58,9 @@ class DynamicCommandCenterAuditTests(unittest.TestCase):
 
         self.assertEqual(result.status, STATUS_READY)
         self.assertEqual(result.dashboard_status, "DYNAMIC_OPERATOR_STATUS_READY_SAFE")
-        self.assertEqual(result.ready_status_count, 8)
-        self.assertEqual(result.required_command_count, 8)
+        self.assertEqual(result.ready_status_count, 9)
+        self.assertEqual(result.required_command_count, 9)
+        self.assertEqual(result.chain_statuses["market_data_intake"], "DYNAMIC_MARKET_DATA_INTAKE_READY_SAFE")
         self.assertFalse(result.blockers)
         self.assertTrue(result.manual_approval_required)
         self.assertTrue(result.fetching_forbidden)

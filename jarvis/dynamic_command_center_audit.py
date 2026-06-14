@@ -23,6 +23,7 @@ STATUS_BLOCKED = "DYNAMIC_COMMAND_CENTER_AUDIT_BLOCKED_SAFE"
 REQUIRED_COMMANDS = (
     "python -m jarvis.dynamic_market_source_binding_report",
     "python -m jarvis.dynamic_market_import_plan_report",
+    "python -m jarvis.dynamic_market_data_intake_validator_report",
     "python -m jarvis.dynamic_bound_market_coverage_report",
     "python -m jarvis.dynamic_market_coverage_audit_report",
     "python -m jarvis.dynamic_allocation_optimizer_report",
@@ -87,6 +88,7 @@ def audit_dynamic_command_center(
 
     chain_statuses = {
         "market_import_plan": dashboard.import_plan_status,
+        "market_data_intake": dashboard.market_data_intake_status,
         "portfolio_preflight": dashboard.preflight_status,
         "bound_market_coverage": dashboard.bound_market_status,
         "source_binding": dashboard.binding_status,
@@ -98,6 +100,7 @@ def audit_dynamic_command_center(
 
     ready_statuses = {
         "DYNAMIC_MARKET_IMPORT_PLAN_READY_SAFE",
+        "DYNAMIC_MARKET_DATA_INTAKE_READY_SAFE",
         "DYNAMIC_PORTFOLIO_PREFLIGHT_READY_SAFE",
         "DYNAMIC_BOUND_MARKET_COVERAGE_READY_SAFE",
         "DYNAMIC_MARKET_SOURCE_BINDING_READY_SAFE",
