@@ -1,0 +1,74 @@
+{
+  "endpoint_pack_id": "dynamic_public_data_fetcher_endpoints_example",
+  "manual_review_required": true,
+  "authorization_required_before_fetch": true,
+  "execution_forbidden": true,
+  "endpoints": [
+    {
+      "asset_id": "vwce_global_core_candidate",
+      "source_type": "public_market_data_csv",
+      "source_url": "https://example.com/market-data/vwce.csv",
+      "update_frequency": "daily",
+      "public_source_only": true,
+      "requires_authentication": false,
+      "requires_credentials": false,
+      "broker_or_trading_api": false,
+      "contains_private_data": false
+    },
+    {
+      "asset_id": "sxrv_cndx_growth_candidate",
+      "source_type": "public_market_data_csv",
+      "source_url": "https://example.com/market-data/sxrv.csv",
+      "update_frequency": "daily",
+      "public_source_only": true,
+      "requires_authentication": false,
+      "requires_credentials": false,
+      "broker_or_trading_api": false,
+      "contains_private_data": false
+    },
+    {
+      "asset_id": "btc_crypto_core_candidate",
+      "source_type": "public_market_data_json",
+      "source_url": "https://example.com/market-data/btc.json",
+      "update_frequency": "daily",
+      "public_source_only": true,
+      "requires_authentication": false,
+      "requires_credentials": false,
+      "broker_or_trading_api": false,
+      "contains_private_data": false
+    },
+    {
+      "asset_id": "is3q_iwqu_quality_candidate",
+      "source_type": "public_market_data_csv",
+      "source_url": "https://example.com/market-data/is3q.csv",
+      "update_frequency": "daily",
+      "public_source_only": true,
+      "requires_authentication": false,
+      "requires_credentials": false,
+      "broker_or_trading_api": false,
+      "contains_private_data": false
+    },
+    {
+      "asset_id": "hype_speculative_crypto_candidate",
+      "source_type": "public_market_data_json",
+      "source_url": "https://example.com/market-data/hype.json",
+      "update_frequency": "daily",
+      "public_source_only": true,
+      "requires_authentication": false,
+      "requires_credentials": false,
+      "broker_or_trading_api": false,
+      "contains_private_data": false
+    },
+    {
+      "asset_id": "tao_speculative_crypto_candidate",
+      "source_type": "public_market_data_json",
+      "source_url": "https://example.com/market-data/tao.json",
+      "update_frequency": "daily",
+      "public_source_only": true,
+      "requires_authentication": false,
+      "requires_credentials": false,
+      "broker_or_trading_api": false,
+      "contains_private_data": false
+    }
+  ]
+}
