@@ -1,0 +1,56 @@
+{
+  "binding_pack_id": "dynamic_market_source_bindings_example",
+  "manual_review_required": true,
+  "execution_forbidden": true,
+  "fetching_forbidden": true,
+  "bindings": [
+    {
+      "asset_id": "vwce_global_core_candidate",
+      "source_provider": "manual_market_fixture",
+      "source_symbol": "VWCE",
+      "cache_series_id": "vwce_global_core_candidate",
+      "expected_currency": "EUR",
+      "enabled": true
+    },
+    {
+      "asset_id": "sxrv_cndx_growth_candidate",
+      "source_provider": "manual_market_fixture",
+      "source_symbol": "SXRV",
+      "cache_series_id": "sxrv_cndx_growth_candidate",
+      "expected_currency": "EUR",
+      "enabled": true
+    },
+    {
+      "asset_id": "is3q_iwqu_quality_candidate",
+      "source_provider": "manual_market_fixture",
+      "source_symbol": "IS3Q",
+      "cache_series_id": "is3q_iwqu_quality_candidate",
+      "expected_currency": "EUR",
+      "enabled": true
+    },
+    {
+      "asset_id": "btc_crypto_core_candidate",
+      "source_provider": "manual_market_fixture",
+      "source_symbol": "BTC",
+      "cache_series_id": "btc_crypto_core_candidate",
+      "expected_currency": "EUR",
+      "enabled": true
+    },
+    {
+      "asset_id": "hype_speculative_crypto_candidate",
+      "source_provider": "manual_market_fixture",
+      "source_symbol": "HYPE",
+      "cache_series_id": "hype_speculative_crypto_candidate",
+      "expected_currency": "EUR",
+      "enabled": true
+    },
+    {
+      "asset_id": "tao_speculative_crypto_candidate",
+      "source_provider": "manual_market_fixture",
+      "source_symbol": "TAO",
+      "cache_series_id": "tao_speculative_crypto_candidate",
+      "expected_currency": "EUR",
+      "enabled": true
+    }
+  ]
+}
