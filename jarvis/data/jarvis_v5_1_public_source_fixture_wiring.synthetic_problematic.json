@@ -1,0 +1,36 @@
+{
+  "version": "v5.1",
+  "title": "J.A.R.V.I.S. v5.1 Public Source Fixture Wiring Synthetic Problematic",
+  "fixture_wiring_mode": "v5_1_public_source_fixture_wiring_inline_synthetic_problematic",
+  "report_only": true,
+  "default_no_write": true,
+  "read_only_by_default": true,
+  "local_fixture_only": true,
+  "local_cache_only": true,
+  "no_network": true,
+  "no_fetching": true,
+  "no_downloading": true,
+  "no_scraping": true,
+  "no_api_calls": true,
+  "no_browser_automation": true,
+  "no_subprocess": true,
+  "no_scheduler_creation": true,
+  "no_broker_integration": true,
+  "no_private_data_ingest": true,
+  "current_date": "2026-06-13",
+  "fixture_policy": {"fixture_wiring_only": true, "fixture_data_unverified": true},
+  "authorization_policy": {"explicit_authorization_required": true, "required_authorization_phrase": "AUTHORIZE_V5_1_PUBLIC_SOURCE_FIXTURE_WIRING_LOCAL_ONLY_NO_FETCH_NO_VERIFY_NO_TRADE", "authorization_phrase": "", "authorization_phrase_valid": false, "default_write_allowed": false, "write_allowed_only_with_explicit_authorization": true, "local_fixture_only": true, "fixture_data_unverified": true, "no_fetching": true, "no_evidence_verification": true, "no_approval": true, "no_allocation": true, "no_trade": true, "no_executor": true},
+  "accepted_fixture_formats": ["csv", "json", "txt", "md", "html_saved_public_page", "pdf_public_document_reference_only", "unknown"],
+  "fixture_root_policy": {"fixture_root": "jarvis/local/public_source_fixtures", "committed_real_downloads_allowed": false, "private_files_allowed": false},
+  "public_source_fixture_records": [
+    {"fixture_id": "duplicate_bad_fixture", "source_id": "bad_source", "source_name": "Bad source", "source_category_id": "unsupported_category", "asset_universe": "bad", "fixture_type": "bad", "fixture_format": "xlsx", "expected_local_path": "docs/bad_fixture.xlsx", "fixture_status": "READY", "public_only": true, "downloaded_by_jarvis": true, "source_verified_by_operator": false, "evidence_verified": true, "approved_asset": false, "trusted_asset": false, "investable": false, "allocation_recommendation": false, "buy_signal": false, "sell_signal": false, "trade_executed": false, "executor_created": false, "api_key": "forbidden"},
+    {"fixture_id": "duplicate_bad_fixture", "source_id": "bad_source_2", "source_name": "Bad source 2", "source_category_id": "etf_universe", "asset_universe": "etf", "fixture_type": "public_universe_reference", "fixture_format": "csv", "expected_local_path": "jarvis/data/bad_fixture.csv", "fixture_status": "STALE", "public_only": true, "downloaded_by_jarvis": false, "source_verified_by_operator": false, "evidence_verified": false, "approved_asset": true, "trusted_asset": true, "investable": true, "allocation_recommendation": true, "buy_signal": true, "sell_signal": true, "trade_executed": true, "executor_created": true}
+  ],
+  "pipeline_mapping_rules": ["unsupported categories block mapping"],
+  "operator_runbook_steps": ["Fix unsupported formats, unsafe paths, duplicate ids, and forbidden flags before continuing."],
+  "safety_controls": {
+    "network_calls": false, "fetching": false, "downloading": false, "scraping": false, "api_calls": false, "writes_without_explicit_authorization": false, "cache_mutation_without_explicit_authorization": false, "subprocess_execution": false, "scheduler_creation": false, "browser_automation": false, "broker_integration": false, "lightyear_integration": false, "lhv_integration": false, "crypto_exchange_integration": false, "credentials_used": false, "private_file_ingested": false, "automatic_private_data_ingest": false, "account_data_ingested": false, "source_parsing_as_evidence": false, "evidence_extraction": false, "evidence_verification": false, "verified_evidence_promotion": false, "investment_screening": false, "research_scoring": false, "ranking_by_investment_merit": false, "recommendation": false, "registry_mutation": false, "registry_file_written": false, "candidate_registry_write": false, "candidate_intake_file_written": false, "approved_asset": false, "trusted_asset": false, "investable": false, "allocation_recommendation": false, "portfolio_weight": false, "buy_signal": false, "sell_signal": false, "trade_executed": false, "executor_created": false, "public_data_only": true, "manual_trust_required": true, "manual_approval_required": true, "no_execution_invariant": true, "final_purchase_external_manual_only": true, "local_fixture_only": true, "fixture_data_unverified": true, "fixture_wiring_only": true
+  },
+  "next_manual_action": "prepare_local_public_source_fixtures",
+  "redundant_next_steps_to_avoid": ["live_fetch_now", "evidence_verification", "approval", "registry_mutation", "allocation_recommendation", "trade_execution", "executor_creation"]
+}

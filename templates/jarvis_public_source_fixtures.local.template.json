@@ -1,0 +1,49 @@
+{
+  "fixture_root": "jarvis/local/public_source_fixtures",
+  "current_date": "2026-06-13",
+  "public_source_fixture_records": [
+    {
+      "fixture_id": "example_etf_universe_csv",
+      "source_id": "operator_supplied_public_etf_source",
+      "source_name": "Operator supplied public ETF universe reference",
+      "source_category_id": "etf_universe",
+      "asset_universe": "public_etf_universe",
+      "fixture_type": "public_universe_reference",
+      "fixture_format": "csv",
+      "expected_local_path": "jarvis/local/public_source_fixtures/etf_universe/example_etf_universe.csv",
+      "expected_public_source_url_optional": "",
+      "expected_refresh_frequency": "manual_operator_refresh",
+      "public_only": true,
+      "manually_downloaded_by_operator": false,
+      "downloaded_by_jarvis": false,
+      "source_verified_by_operator": false,
+      "evidence_verified": false,
+      "approved_asset": false,
+      "trusted_asset": false,
+      "investable": false,
+      "allocation_recommendation": false,
+      "buy_signal": false,
+      "sell_signal": false,
+      "trade_executed": false,
+      "executor_created": false
+    }
+  ],
+  "operator_notes": [
+    "Copy this template to jarvis/local/public_source_fixtures/public_source_fixtures.local.json before use.",
+    "Do not include credentials, private account data, broker screenshots, or downloaded private files.",
+    "Public fixture presence is not evidence verification, approval, trust, investability, recommendation, or trading permission."
+  ],
+  "safety_confirmations": {
+    "public_data_only": true,
+    "manual_trust_required": true,
+    "manual_approval_required": true,
+    "downloaded_by_jarvis": false,
+    "evidence_verified": false,
+    "approved_asset": false,
+    "allocation_recommendation": false,
+    "buy_signal": false,
+    "sell_signal": false,
+    "trade_executed": false,
+    "executor_created": false
+  }
+}
