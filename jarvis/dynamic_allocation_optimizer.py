@@ -203,30 +203,93 @@ def _sleeve_risk_adjustment(
     return adjustments
 
 
+
+def _clamp_to_sleeve(value: float, minimum: float, maximum: float) -> float:
+    return min(max(value, minimum), maximum)
+
+
 def _apply_policy_bounds(policy: PortfolioPolicy, targets: dict[str, float]) -> dict[str, float]:
-    bounded: dict[str, float] = {}
+    """Normalize targets to sum to 1.0 while respecting sleeve min/max bounds."""
     sleeve_by_id = policy.sleeve_by_id()
+    adjusted: dict[str, float] = {}
 
-    for sleeve_id, target in targets.items():
-        sleeve = sleeve_by_id[sleeve_id]
-        bounded[sleeve_id] = min(max(target, sleeve.min_weight), sleeve.max_weight)
+    for sleeve in policy.sleeves:
+        raw_target = float(targets.get(sleeve.sleeve_id, sleeve.target_weight))
+        adjusted[sleeve.sleeve_id] = _clamp_to_sleeve(raw_target, sleeve.min_weight, sleeve.max_weight)
 
-    total = sum(bounded.values())
-    if total <= 0:
-        return bounded
+    for _ in range(50):
+        total = sum(adjusted.values())
+        diff = 1.0 - total
 
-    normalized = {sleeve_id: value / total for sleeve_id, value in bounded.items()}
+        if abs(diff) <= 0.0000000001:
+            break
 
-    # Second pass after normalization to avoid violating hard min/max too much.
-    for sleeve_id, value in list(normalized.items()):
-        sleeve = sleeve_by_id[sleeve_id]
-        normalized[sleeve_id] = min(max(value, sleeve.min_weight), sleeve.max_weight)
+        if diff > 0:
+            eligible = [
+                sleeve
+                for sleeve in policy.sleeves
+                if adjusted[sleeve.sleeve_id] < sleeve.max_weight - 0.0000000001
+            ]
+            total_room = sum(sleeve.max_weight - adjusted[sleeve.sleeve_id] for sleeve in eligible)
+            if not eligible or total_room <= 0:
+                break
 
-    total = sum(normalized.values())
-    if total > 0:
-        normalized = {sleeve_id: _round_weight(value / total) for sleeve_id, value in normalized.items()}
+            for sleeve in eligible:
+                sleeve_id = sleeve.sleeve_id
+                room = sleeve.max_weight - adjusted[sleeve_id]
+                adjusted[sleeve_id] += min(room, diff * (room / total_room))
 
-    return normalized
+        else:
+            required_reduction = -diff
+            eligible = [
+                sleeve
+                for sleeve in policy.sleeves
+                if adjusted[sleeve.sleeve_id] > sleeve.min_weight + 0.0000000001
+            ]
+            total_room = sum(adjusted[sleeve.sleeve_id] - sleeve.min_weight for sleeve in eligible)
+            if not eligible or total_room <= 0:
+                break
+
+            for sleeve in eligible:
+                sleeve_id = sleeve.sleeve_id
+                room = adjusted[sleeve_id] - sleeve.min_weight
+                adjusted[sleeve_id] -= min(room, required_reduction * (room / total_room))
+
+    total = sum(adjusted.values())
+    diff = 1.0 - total
+
+    if abs(diff) > 0.0000000001:
+        if diff > 0:
+            eligible = sorted(
+                policy.sleeves,
+                key=lambda sleeve: sleeve.max_weight - adjusted[sleeve.sleeve_id],
+                reverse=True,
+            )
+            for sleeve in eligible:
+                sleeve_id = sleeve.sleeve_id
+                room = sleeve.max_weight - adjusted[sleeve_id]
+                if room > 0:
+                    adjusted[sleeve_id] += min(room, diff)
+                    break
+        else:
+            required_reduction = -diff
+            eligible = sorted(
+                policy.sleeves,
+                key=lambda sleeve: adjusted[sleeve.sleeve_id] - sleeve.min_weight,
+                reverse=True,
+            )
+            for sleeve in eligible:
+                sleeve_id = sleeve.sleeve_id
+                room = adjusted[sleeve_id] - sleeve.min_weight
+                if room > 0:
+                    adjusted[sleeve_id] -= min(room, required_reduction)
+                    break
+
+    return {
+        sleeve_id: _clamp_to_sleeve(value, sleeve_by_id[sleeve_id].min_weight, sleeve_by_id[sleeve_id].max_weight)
+        for sleeve_id, value in adjusted.items()
+    }
+
 
 
 def _enforce_crypto_caps(policy: PortfolioPolicy, targets: dict[str, float]) -> tuple[dict[str, float], list[str]]:
@@ -256,11 +319,7 @@ def _enforce_crypto_caps(policy: PortfolioPolicy, targets: dict[str, float]) -> 
         adjusted["global_core"] = adjusted.get("global_core", 0.0) + freed
         warnings.append("speculative crypto cap enforced; excess moved to global_core.")
 
-    total = sum(adjusted.values())
-    if total > 0:
-        adjusted = {sleeve_id: _round_weight(value / total) for sleeve_id, value in adjusted.items()}
-
-    return adjusted, warnings
+    return _apply_policy_bounds(policy, adjusted), warnings
 
 
 def propose_dynamic_allocation(

@@ -139,6 +139,18 @@ class DynamicAllocationOptimizerTests(unittest.TestCase):
         self.assertAlmostEqual(sum(result.proposed_targets.values()), 1.0, places=5)
         self.assertTrue(any("complete approved-asset" in reason for reason in result.reasons))
 
+    def test_proposed_targets_respect_policy_minimums_after_adjustment(self) -> None:
+        result = propose_dynamic_allocation(
+            "20y",
+            POLICY,
+            _registry(),
+            _market_data(["NOT_APPROVED"]),
+        )
+
+        self.assertEqual(result.status, STATUS_PARTIAL)
+        self.assertGreaterEqual(result.proposed_targets["tactical_cash"], 0.05)
+        self.assertAlmostEqual(sum(result.proposed_targets.values()), 1.0, places=5)
+
     def test_unknown_horizon_blocks_safely(self) -> None:
         result = propose_dynamic_allocation("99y", POLICY, _registry())
 
