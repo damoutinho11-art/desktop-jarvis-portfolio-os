@@ -13,10 +13,12 @@ from typing import Any
 from .dynamic_market_data_intake_validator import validate_dynamic_market_data_intake
 from .dynamic_market_import_plan import build_dynamic_market_import_plan
 from .dynamic_portfolio_preflight import run_dynamic_portfolio_preflight
+from .dynamic_public_data_fetcher_adapter import build_dynamic_public_data_fetcher_adapter
 
 
 STATUS_READY = "DYNAMIC_OPERATOR_STATUS_READY_SAFE"
 STATUS_BLOCKED = "DYNAMIC_OPERATOR_STATUS_BLOCKED_SAFE"
+DEFAULT_ENDPOINT_PATH = "jarvis/data/dynamic_public_data_fetcher_endpoints.example.json"
 
 
 @dataclass(frozen=True)
@@ -25,6 +27,7 @@ class DynamicOperatorStatusResult:
     horizon: str
     preflight_status: str
     import_plan_status: str
+    public_data_fetcher_adapter_status: str
     market_data_intake_status: str
     bound_market_status: str
     binding_status: str
@@ -33,6 +36,7 @@ class DynamicOperatorStatusResult:
     weekly_plan_status: str
     contribution_status: str
     import_ready_rows: int
+    adapted_source_count: int
     intake_ready_series_count: int
     weekly_plan_line_count: int
     warnings: tuple[str, ...]
@@ -47,6 +51,7 @@ class DynamicOperatorStatusResult:
             "horizon": self.horizon,
             "preflight_status": self.preflight_status,
             "import_plan_status": self.import_plan_status,
+            "public_data_fetcher_adapter_status": self.public_data_fetcher_adapter_status,
             "market_data_intake_status": self.market_data_intake_status,
             "bound_market_status": self.bound_market_status,
             "binding_status": self.binding_status,
@@ -55,6 +60,7 @@ class DynamicOperatorStatusResult:
             "weekly_plan_status": self.weekly_plan_status,
             "contribution_status": self.contribution_status,
             "import_ready_rows": self.import_ready_rows,
+            "adapted_source_count": self.adapted_source_count,
             "intake_ready_series_count": self.intake_ready_series_count,
             "weekly_plan_line_count": self.weekly_plan_line_count,
             "warnings": list(self.warnings),
@@ -75,8 +81,10 @@ def build_dynamic_operator_status(
     registry_path: str | Path,
     binding_path: str | Path,
     market_data_path: str | Path,
+    endpoint_path: str | Path = DEFAULT_ENDPOINT_PATH,
 ) -> DynamicOperatorStatusResult:
     import_result = build_dynamic_market_import_plan(registry_path, binding_path)
+    adapter_result = build_dynamic_public_data_fetcher_adapter(registry_path, binding_path, endpoint_path)
     intake_result = validate_dynamic_market_data_intake(registry_path, binding_path, market_data_path)
     preflight_result = run_dynamic_portfolio_preflight(
         horizon=horizon,
@@ -91,6 +99,7 @@ def build_dynamic_operator_status(
     warnings = tuple(
         dict.fromkeys(
             import_result.warnings
+            + adapter_result.warnings
             + intake_result.warnings
             + preflight_result.warnings
         )
@@ -98,6 +107,7 @@ def build_dynamic_operator_status(
     blockers = tuple(
         dict.fromkeys(
             import_result.blockers
+            + adapter_result.blockers
             + intake_result.blockers
             + preflight_result.blockers
         )
@@ -105,6 +115,8 @@ def build_dynamic_operator_status(
 
     if import_result.status != "DYNAMIC_MARKET_IMPORT_PLAN_READY_SAFE":
         blockers = tuple(dict.fromkeys(blockers + (f"import plan is not ready: {import_result.status}",)))
+    if adapter_result.status != "DYNAMIC_PUBLIC_DATA_FETCHER_ADAPTER_READY_SAFE":
+        blockers = tuple(dict.fromkeys(blockers + (f"public data fetcher adapter is not ready: {adapter_result.status}",)))
     if intake_result.status != "DYNAMIC_MARKET_DATA_INTAKE_READY_SAFE":
         blockers = tuple(dict.fromkeys(blockers + (f"market data intake is not ready: {intake_result.status}",)))
     if preflight_result.status != "DYNAMIC_PORTFOLIO_PREFLIGHT_READY_SAFE":
@@ -117,6 +129,7 @@ def build_dynamic_operator_status(
         horizon=horizon,
         preflight_status=preflight_result.status,
         import_plan_status=import_result.status,
+        public_data_fetcher_adapter_status=adapter_result.status,
         market_data_intake_status=intake_result.status,
         bound_market_status=preflight_result.bound_market_status,
         binding_status=preflight_result.binding_status,
@@ -125,6 +138,7 @@ def build_dynamic_operator_status(
         weekly_plan_status=preflight_result.weekly_plan_status,
         contribution_status=preflight_result.contribution_status,
         import_ready_rows=import_result.ready_row_count,
+        adapted_source_count=adapter_result.adapted_source_count,
         intake_ready_series_count=intake_result.ready_series_count,
         weekly_plan_line_count=len(preflight_result.weekly_plan_lines),
         warnings=warnings,

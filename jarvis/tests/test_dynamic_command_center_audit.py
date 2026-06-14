@@ -14,6 +14,7 @@ POLICY = "jarvis/data/portfolio_policy.example.json"
 REGISTRY = "jarvis/data/dynamic_approved_universe.example.json"
 BINDINGS = "jarvis/data/dynamic_market_source_bindings.example.json"
 MARKET_DATA = "jarvis/data/dynamic_market_data.approved_universe.example.json"
+ENDPOINTS = "jarvis/data/dynamic_public_data_fetcher_endpoints.example.json"
 
 
 def _write_json(payload: dict) -> Path:
@@ -53,14 +54,21 @@ def _disabled_bindings() -> Path:
 class DynamicCommandCenterAuditTests(unittest.TestCase):
     def test_command_center_is_ready_with_tracked_dynamic_fixtures(self) -> None:
         result = audit_dynamic_command_center(
-            "20y", _plan(), _snapshot(), POLICY, REGISTRY, BINDINGS, MARKET_DATA
+            "20y", _plan(), _snapshot(), POLICY, REGISTRY, BINDINGS, MARKET_DATA, ENDPOINTS
         )
 
         self.assertEqual(result.status, STATUS_READY)
         self.assertEqual(result.dashboard_status, "DYNAMIC_OPERATOR_STATUS_READY_SAFE")
-        self.assertEqual(result.ready_status_count, 9)
-        self.assertEqual(result.required_command_count, 9)
-        self.assertEqual(result.chain_statuses["market_data_intake"], "DYNAMIC_MARKET_DATA_INTAKE_READY_SAFE")
+        self.assertEqual(result.ready_status_count, 10)
+        self.assertEqual(result.required_command_count, 10)
+        self.assertEqual(
+            result.chain_statuses["public_data_fetcher_adapter"],
+            "DYNAMIC_PUBLIC_DATA_FETCHER_ADAPTER_READY_SAFE",
+        )
+        self.assertEqual(
+            result.chain_statuses["market_data_intake"],
+            "DYNAMIC_MARKET_DATA_INTAKE_READY_SAFE",
+        )
         self.assertFalse(result.blockers)
         self.assertTrue(result.manual_approval_required)
         self.assertTrue(result.fetching_forbidden)
@@ -70,7 +78,7 @@ class DynamicCommandCenterAuditTests(unittest.TestCase):
 
     def test_command_center_blocks_when_dashboard_chain_blocks(self) -> None:
         result = audit_dynamic_command_center(
-            "20y", _plan(), _snapshot(), POLICY, REGISTRY, _disabled_bindings(), MARKET_DATA
+            "20y", _plan(), _snapshot(), POLICY, REGISTRY, _disabled_bindings(), MARKET_DATA, ENDPOINTS
         )
 
         self.assertEqual(result.status, STATUS_BLOCKED)

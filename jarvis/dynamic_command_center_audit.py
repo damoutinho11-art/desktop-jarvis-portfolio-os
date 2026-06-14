@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from .dynamic_operator_status_dashboard import (
+    DEFAULT_ENDPOINT_PATH,
     STATUS_READY as DASHBOARD_READY,
     build_dynamic_operator_status,
 )
@@ -23,6 +24,7 @@ STATUS_BLOCKED = "DYNAMIC_COMMAND_CENTER_AUDIT_BLOCKED_SAFE"
 REQUIRED_COMMANDS = (
     "python -m jarvis.dynamic_market_source_binding_report",
     "python -m jarvis.dynamic_market_import_plan_report",
+    "python -m jarvis.dynamic_public_data_fetcher_adapter_report",
     "python -m jarvis.dynamic_market_data_intake_validator_report",
     "python -m jarvis.dynamic_bound_market_coverage_report",
     "python -m jarvis.dynamic_market_coverage_audit_report",
@@ -75,6 +77,7 @@ def audit_dynamic_command_center(
     registry_path: str | Path,
     binding_path: str | Path,
     market_data_path: str | Path,
+    endpoint_path: str | Path = DEFAULT_ENDPOINT_PATH,
 ) -> DynamicCommandCenterAuditResult:
     dashboard = build_dynamic_operator_status(
         horizon=horizon,
@@ -84,10 +87,12 @@ def audit_dynamic_command_center(
         registry_path=registry_path,
         binding_path=binding_path,
         market_data_path=market_data_path,
+        endpoint_path=endpoint_path,
     )
 
     chain_statuses = {
         "market_import_plan": dashboard.import_plan_status,
+        "public_data_fetcher_adapter": dashboard.public_data_fetcher_adapter_status,
         "market_data_intake": dashboard.market_data_intake_status,
         "portfolio_preflight": dashboard.preflight_status,
         "bound_market_coverage": dashboard.bound_market_status,
@@ -100,6 +105,7 @@ def audit_dynamic_command_center(
 
     ready_statuses = {
         "DYNAMIC_MARKET_IMPORT_PLAN_READY_SAFE",
+        "DYNAMIC_PUBLIC_DATA_FETCHER_ADAPTER_READY_SAFE",
         "DYNAMIC_MARKET_DATA_INTAKE_READY_SAFE",
         "DYNAMIC_PORTFOLIO_PREFLIGHT_READY_SAFE",
         "DYNAMIC_BOUND_MARKET_COVERAGE_READY_SAFE",

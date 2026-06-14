@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 
 from .dynamic_command_center_audit import DynamicCommandCenterAuditResult, audit_dynamic_command_center
+from .dynamic_operator_status_dashboard import DEFAULT_ENDPOINT_PATH
 
 
 DEFAULT_HORIZON = "20y"
@@ -72,6 +73,7 @@ def report_dynamic_command_center_audit(
     registry_path: str | Path = DEFAULT_REGISTRY_PATH,
     binding_path: str | Path = DEFAULT_BINDING_PATH,
     market_data_path: str | Path = DEFAULT_MARKET_DATA_PATH,
+    endpoint_path: str | Path = DEFAULT_ENDPOINT_PATH,
 ) -> str:
     return build_dynamic_command_center_audit_report(
         audit_dynamic_command_center(
@@ -82,6 +84,7 @@ def report_dynamic_command_center_audit(
             registry_path,
             binding_path,
             market_data_path,
+            endpoint_path,
         )
     )
 
@@ -95,6 +98,7 @@ def main() -> None:
     parser.add_argument("registry_path", nargs="?", default=DEFAULT_REGISTRY_PATH)
     parser.add_argument("binding_path", nargs="?", default=DEFAULT_BINDING_PATH)
     parser.add_argument("market_data_path", nargs="?", default=DEFAULT_MARKET_DATA_PATH)
+    parser.add_argument("endpoint_path", nargs="?", default=DEFAULT_ENDPOINT_PATH)
     args = parser.parse_args()
 
     print(
@@ -106,6 +110,7 @@ def main() -> None:
             args.registry_path,
             args.binding_path,
             args.market_data_path,
+            args.endpoint_path,
         )
     )
 
