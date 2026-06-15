@@ -11,6 +11,10 @@ from pathlib import Path
 from typing import Any
 
 from .dynamic_market_data_intake_validator import validate_dynamic_market_data_intake
+from .dynamic_market_data_source_quality_gate import (
+    STATUS_READY as SOURCE_QUALITY_READY,
+    audit_dynamic_market_data_source_quality,
+)
 from .dynamic_market_import_plan import build_dynamic_market_import_plan
 from .dynamic_portfolio_preflight import run_dynamic_portfolio_preflight
 from .dynamic_public_data_fetcher_adapter import build_dynamic_public_data_fetcher_adapter
@@ -29,6 +33,7 @@ class DynamicOperatorStatusResult:
     import_plan_status: str
     public_data_fetcher_adapter_status: str
     market_data_intake_status: str
+    source_quality_status: str
     bound_market_status: str
     binding_status: str
     coverage_status: str
@@ -53,6 +58,7 @@ class DynamicOperatorStatusResult:
             "import_plan_status": self.import_plan_status,
             "public_data_fetcher_adapter_status": self.public_data_fetcher_adapter_status,
             "market_data_intake_status": self.market_data_intake_status,
+            "source_quality_status": self.source_quality_status,
             "bound_market_status": self.bound_market_status,
             "binding_status": self.binding_status,
             "coverage_status": self.coverage_status,
@@ -86,6 +92,12 @@ def build_dynamic_operator_status(
     import_result = build_dynamic_market_import_plan(registry_path, binding_path)
     adapter_result = build_dynamic_public_data_fetcher_adapter(registry_path, binding_path, endpoint_path)
     intake_result = validate_dynamic_market_data_intake(registry_path, binding_path, market_data_path)
+    source_quality_result = audit_dynamic_market_data_source_quality(
+        registry_path,
+        binding_path,
+        endpoint_path,
+        market_data_path,
+    )
     preflight_result = run_dynamic_portfolio_preflight(
         horizon=horizon,
         plan_path=plan_path,
@@ -101,6 +113,7 @@ def build_dynamic_operator_status(
             import_result.warnings
             + adapter_result.warnings
             + intake_result.warnings
+            + source_quality_result.warnings
             + preflight_result.warnings
         )
     )
@@ -109,6 +122,7 @@ def build_dynamic_operator_status(
             import_result.blockers
             + adapter_result.blockers
             + intake_result.blockers
+            + source_quality_result.blockers
             + preflight_result.blockers
         )
     )
@@ -119,6 +133,8 @@ def build_dynamic_operator_status(
         blockers = tuple(dict.fromkeys(blockers + (f"public data fetcher adapter is not ready: {adapter_result.status}",)))
     if intake_result.status != "DYNAMIC_MARKET_DATA_INTAKE_READY_SAFE":
         blockers = tuple(dict.fromkeys(blockers + (f"market data intake is not ready: {intake_result.status}",)))
+    if source_quality_result.status != SOURCE_QUALITY_READY:
+        blockers = tuple(dict.fromkeys(blockers + (f"source quality gate is not ready: {source_quality_result.status}",)))
     if preflight_result.status != "DYNAMIC_PORTFOLIO_PREFLIGHT_READY_SAFE":
         blockers = tuple(dict.fromkeys(blockers + (f"preflight is not ready: {preflight_result.status}",)))
 
@@ -131,6 +147,7 @@ def build_dynamic_operator_status(
         import_plan_status=import_result.status,
         public_data_fetcher_adapter_status=adapter_result.status,
         market_data_intake_status=intake_result.status,
+        source_quality_status=source_quality_result.status,
         bound_market_status=preflight_result.bound_market_status,
         binding_status=preflight_result.binding_status,
         coverage_status=preflight_result.coverage_status,

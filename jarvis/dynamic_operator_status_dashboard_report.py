@@ -32,6 +32,7 @@ def build_dynamic_operator_status_report(result: DynamicOperatorStatusResult) ->
         f"- market import plan: {result.import_plan_status}",
         f"- public data fetcher adapter: {result.public_data_fetcher_adapter_status}",
         f"- market data intake: {result.market_data_intake_status}",
+        f"- source quality: {result.source_quality_status}",
         f"- portfolio preflight: {result.preflight_status}",
         f"- bound market coverage: {result.bound_market_status}",
         f"- source binding: {result.binding_status}",

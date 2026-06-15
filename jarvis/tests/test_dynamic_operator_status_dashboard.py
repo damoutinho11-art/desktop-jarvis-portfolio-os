@@ -60,9 +60,10 @@ class DynamicOperatorStatusDashboardTests(unittest.TestCase):
             "20y", _plan(), _snapshot(), POLICY, REGISTRY, BINDINGS, MARKET_DATA
         )
 
-        self.assertEqual(result.status, STATUS_READY)
+        self.assertEqual(result.status, STATUS_BLOCKED)
         self.assertEqual(result.import_plan_status, "DYNAMIC_MARKET_IMPORT_PLAN_READY_SAFE")
         self.assertEqual(result.market_data_intake_status, "DYNAMIC_MARKET_DATA_INTAKE_READY_SAFE")
+        self.assertEqual(result.source_quality_status, "DYNAMIC_MARKET_DATA_SOURCE_QUALITY_BLOCKED_SAFE")
         self.assertEqual(result.preflight_status, "DYNAMIC_PORTFOLIO_PREFLIGHT_READY_SAFE")
         self.assertEqual(result.optimizer_status, "DYNAMIC_POLICY_READY_SAFE")
         self.assertEqual(result.weekly_plan_status, "DYNAMIC_WEEKLY_PLAN_READY_SAFE")
@@ -74,7 +75,7 @@ class DynamicOperatorStatusDashboardTests(unittest.TestCase):
         self.assertTrue(result.execution_forbidden)
         self.assertFalse(result.to_dict()["creates_buy_request"])
         self.assertTrue(result.to_dict()["no_trades_executed"])
-        self.assertFalse(result.blockers)
+        self.assertTrue(any("source quality gate is not ready" in blocker for blocker in result.blockers))
 
     def test_dashboard_blocks_when_import_and_preflight_are_not_ready(self) -> None:
         result = build_dynamic_operator_status(

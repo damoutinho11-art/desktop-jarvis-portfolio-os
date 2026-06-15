@@ -57,10 +57,10 @@ class DynamicCommandCenterAuditTests(unittest.TestCase):
             "20y", _plan(), _snapshot(), POLICY, REGISTRY, BINDINGS, MARKET_DATA, ENDPOINTS
         )
 
-        self.assertEqual(result.status, STATUS_READY)
-        self.assertEqual(result.dashboard_status, "DYNAMIC_OPERATOR_STATUS_READY_SAFE")
+        self.assertEqual(result.status, STATUS_BLOCKED)
+        self.assertEqual(result.dashboard_status, "DYNAMIC_OPERATOR_STATUS_BLOCKED_SAFE")
         self.assertEqual(result.ready_status_count, 10)
-        self.assertEqual(result.required_command_count, 11)
+        self.assertEqual(result.required_command_count, 12)
         self.assertEqual(
             result.chain_statuses["public_data_fetcher_adapter"],
             "DYNAMIC_PUBLIC_DATA_FETCHER_ADAPTER_READY_SAFE",
@@ -69,7 +69,8 @@ class DynamicCommandCenterAuditTests(unittest.TestCase):
             result.chain_statuses["market_data_intake"],
             "DYNAMIC_MARKET_DATA_INTAKE_READY_SAFE",
         )
-        self.assertFalse(result.blockers)
+        self.assertTrue(any("operator dashboard is not ready" in blocker for blocker in result.blockers))
+        self.assertTrue(any("not all command-center chain statuses are ready" in blocker for blocker in result.blockers))
         self.assertTrue(result.manual_approval_required)
         self.assertTrue(result.fetching_forbidden)
         self.assertTrue(result.execution_forbidden)
@@ -88,3 +89,4 @@ class DynamicCommandCenterAuditTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

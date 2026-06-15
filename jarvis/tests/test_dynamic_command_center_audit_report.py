@@ -19,9 +19,9 @@ class DynamicCommandCenterAuditReportTests(unittest.TestCase):
         )
 
         self.assertIn("J.A.R.V.I.S. Dynamic Portfolio Command Center Audit", report)
-        self.assertIn("status: DYNAMIC_COMMAND_CENTER_AUDIT_READY_SAFE", report)
-        self.assertIn("dashboard status: DYNAMIC_OPERATOR_STATUS_READY_SAFE", report)
-        self.assertIn("required command count: 11", report)
+        self.assertIn("status: DYNAMIC_COMMAND_CENTER_AUDIT_BLOCKED_SAFE", report)
+        self.assertIn("dashboard status: DYNAMIC_OPERATOR_STATUS_BLOCKED_SAFE", report)
+        self.assertIn("required command count: 12", report)
         self.assertIn("ready status count: 10", report)
         self.assertIn("public_data_fetcher_adapter: DYNAMIC_PUBLIC_DATA_FETCHER_ADAPTER_READY_SAFE", report)
         self.assertIn("market_data_intake: DYNAMIC_MARKET_DATA_INTAKE_READY_SAFE", report)

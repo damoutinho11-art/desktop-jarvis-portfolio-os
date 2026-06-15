@@ -18,9 +18,10 @@ class DynamicOperatorStatusDashboardReportTests(unittest.TestCase):
         )
 
         self.assertIn("J.A.R.V.I.S. Dynamic Operator Status Dashboard", report)
-        self.assertIn("status: DYNAMIC_OPERATOR_STATUS_READY_SAFE", report)
+        self.assertIn("status: DYNAMIC_OPERATOR_STATUS_BLOCKED_SAFE", report)
         self.assertIn("- market import plan: DYNAMIC_MARKET_IMPORT_PLAN_READY_SAFE", report)
         self.assertIn("- market data intake: DYNAMIC_MARKET_DATA_INTAKE_READY_SAFE", report)
+        self.assertIn("- source quality: DYNAMIC_MARKET_DATA_SOURCE_QUALITY_BLOCKED_SAFE", report)
         self.assertIn("- portfolio preflight: DYNAMIC_PORTFOLIO_PREFLIGHT_READY_SAFE", report)
         self.assertIn("- optimizer: DYNAMIC_POLICY_READY_SAFE", report)
         self.assertIn("- weekly plan: DYNAMIC_WEEKLY_PLAN_READY_SAFE", report)
