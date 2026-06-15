@@ -8,10 +8,11 @@ from pathlib import Path
 from .dynamic_allocation_weekly_plan import DynamicWeeklyPlanResult, build_dynamic_weekly_plan
 
 
-DEFAULT_PLAN_PATH = "jarvis/data/contribution_plan.example.json"
-DEFAULT_SNAPSHOT_PATH = "jarvis/data/manual_snapshot.example.json"
+DEFAULT_PLAN_PATH = "jarvis/data/private/personal_weekly_contribution.local.json"
+DEFAULT_SNAPSHOT_PATH = "jarvis/data/private/personal_snapshot.local.json"
 DEFAULT_POLICY_PATH = "jarvis/data/portfolio_policy.example.json"
-DEFAULT_REGISTRY_PATH = "jarvis/data/candidate_assets.example.json"
+DEFAULT_REGISTRY_PATH = "jarvis/data/dynamic_approved_universe.example.json"
+DEFAULT_MARKET_DATA_PATH = "jarvis/data/dynamic_market_data.approved_universe.example.json"
 
 
 def _format_percent(value: float) -> str:
@@ -92,7 +93,7 @@ def report_dynamic_weekly_plan(
     snapshot_path: str | Path = DEFAULT_SNAPSHOT_PATH,
     policy_path: str | Path = DEFAULT_POLICY_PATH,
     registry_path: str | Path = DEFAULT_REGISTRY_PATH,
-    market_data_path: str | Path | None = None,
+    market_data_path: str | Path | None = DEFAULT_MARKET_DATA_PATH,
 ) -> str:
     return build_dynamic_weekly_plan_report(
         build_dynamic_weekly_plan(
@@ -110,12 +111,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Generate a report-only dynamic weekly contribution plan."
     )
-    parser.add_argument("horizon", nargs="?", default="10y", help="5y, 10y, or 20y")
+    parser.add_argument("horizon", nargs="?", default="20y", help="5y, 10y, or 20y")
     parser.add_argument("plan_path", nargs="?", default=DEFAULT_PLAN_PATH)
     parser.add_argument("snapshot_path", nargs="?", default=DEFAULT_SNAPSHOT_PATH)
     parser.add_argument("policy_path", nargs="?", default=DEFAULT_POLICY_PATH)
     parser.add_argument("registry_path", nargs="?", default=DEFAULT_REGISTRY_PATH)
-    parser.add_argument("market_data_path", nargs="?", default=None)
+    parser.add_argument("market_data_path", nargs="?", default=DEFAULT_MARKET_DATA_PATH)
 
     args = parser.parse_args()
     print(

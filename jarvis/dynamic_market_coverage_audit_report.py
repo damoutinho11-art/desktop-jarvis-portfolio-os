@@ -11,8 +11,8 @@ from .dynamic_market_coverage_audit import (
 )
 
 
-DEFAULT_REGISTRY_PATH = "jarvis/data/candidate_assets.example.json"
-DEFAULT_MARKET_DATA_PATH = "jarvis/data/market_data.example.json"
+DEFAULT_REGISTRY_PATH = "jarvis/data/dynamic_approved_universe.example.json"
+DEFAULT_MARKET_DATA_PATH = "jarvis/data/dynamic_market_data.approved_universe.example.json"
 
 
 def build_dynamic_market_coverage_audit_report(result: DynamicMarketCoverageAuditResult) -> str:

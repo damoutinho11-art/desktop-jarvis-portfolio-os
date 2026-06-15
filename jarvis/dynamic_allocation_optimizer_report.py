@@ -12,7 +12,8 @@ from .dynamic_allocation_optimizer import (
 
 
 DEFAULT_POLICY_PATH = "jarvis/data/portfolio_policy.example.json"
-DEFAULT_REGISTRY_PATH = "jarvis/data/candidate_assets.example.json"
+DEFAULT_REGISTRY_PATH = "jarvis/data/dynamic_approved_universe.example.json"
+DEFAULT_MARKET_DATA_PATH = "jarvis/data/dynamic_market_data.approved_universe.example.json"
 
 
 def _format_percent(value: float) -> str:
@@ -82,7 +83,7 @@ def report_dynamic_allocation_optimizer(
     horizon: str,
     policy_path: str | Path = DEFAULT_POLICY_PATH,
     registry_path: str | Path = DEFAULT_REGISTRY_PATH,
-    market_data_path: str | Path | None = None,
+    market_data_path: str | Path | None = DEFAULT_MARKET_DATA_PATH,
 ) -> str:
     result = propose_dynamic_allocation(
         horizon=horizon,
@@ -97,10 +98,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Generate a report-only dynamic allocation policy proposal."
     )
-    parser.add_argument("horizon", nargs="?", default="10y", help="5y, 10y, or 20y")
+    parser.add_argument("horizon", nargs="?", default="20y", help="5y, 10y, or 20y")
     parser.add_argument("policy_path", nargs="?", default=DEFAULT_POLICY_PATH)
     parser.add_argument("registry_path", nargs="?", default=DEFAULT_REGISTRY_PATH)
-    parser.add_argument("market_data_path", nargs="?", default=None)
+    parser.add_argument("market_data_path", nargs="?", default=DEFAULT_MARKET_DATA_PATH)
 
     args = parser.parse_args()
     print(
