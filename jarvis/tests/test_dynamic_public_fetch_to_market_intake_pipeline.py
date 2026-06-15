@@ -66,7 +66,7 @@ class DynamicPublicFetchToMarketIntakePipelineTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            fetch_result = fetch_public_sources(config, root=root, fetch_func=fake_fetch)
+            fetch_result = fetch_public_sources(config, None, root=root, fetch_func=fake_fetch)
 
             self.assertEqual(
                 fetch_result.overall_status,
