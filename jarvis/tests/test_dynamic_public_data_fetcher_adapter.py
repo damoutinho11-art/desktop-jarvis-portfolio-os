@@ -52,6 +52,9 @@ class DynamicPublicDataFetcherAdapterTests(unittest.TestCase):
         self.assertEqual(config["fetcher_mode"], "dry_run_default")
         self.assertTrue(all(source["public_source_only"] for source in config["sources"]))
         self.assertTrue(all(source["requires_credentials"] is False for source in config["sources"]))
+        self.assertTrue(all(source["expected_content_type"] for source in config["sources"]))
+        self.assertTrue(all(source["expected_content_type"] in {"application/json", "text/csv"} for source in config["sources"]))
+        self.assertTrue(all(row.expected_content_type for row in result.rows))
         self.assertTrue(all(source["broker_or_trading_api"] is False for source in config["sources"]))
 
     def test_missing_endpoint_mapping_blocks_safely(self) -> None:

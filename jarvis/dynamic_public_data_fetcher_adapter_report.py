@@ -40,7 +40,7 @@ def build_dynamic_public_data_fetcher_adapter_report(result: DynamicPublicDataFe
     for row in result.rows:
         lines.append(
             f"- {row.asset_id}: {row.status}; source_id={row.source_id}; "
-            f"type={row.source_type}; frequency={row.update_frequency}; "
+            f"type={row.source_type}; content_type={row.expected_content_type}; frequency={row.update_frequency}; "
             f"series={row.cache_series_id}"
         )
         for warning in row.warnings:

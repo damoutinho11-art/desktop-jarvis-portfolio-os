@@ -40,6 +40,7 @@ class DynamicPublicDataFetcherAdapterRow:
     update_frequency: str | None
     cache_series_id: str | None
     expected_currency: str | None
+    expected_content_type: str | None
     valid_for_public_fetcher: bool
     status: str
     warnings: tuple[str, ...]
@@ -54,6 +55,7 @@ class DynamicPublicDataFetcherAdapterRow:
             "update_frequency": self.update_frequency,
             "cache_series_id": self.cache_series_id,
             "expected_currency": self.expected_currency,
+            "expected_content_type": self.expected_content_type,
             "valid_for_public_fetcher": self.valid_for_public_fetcher,
             "status": self.status,
             "warnings": list(self.warnings),
@@ -140,6 +142,22 @@ def _endpoints_by_asset_id(endpoint_path: str | Path) -> dict[str, dict[str, Any
     return result
 
 
+def _expected_content_type(source_type: str | None, source_url: str | None, endpoint: dict[str, Any]) -> str | None:
+    explicit = _text(endpoint.get("expected_content_type"))
+    if explicit:
+        return explicit
+
+    lowered_type = (source_type or "").lower()
+    lowered_url = (source_url or "").lower()
+
+    if "json" in lowered_type or lowered_url.endswith(".json"):
+        return "application/json"
+    if "csv" in lowered_type or lowered_url.endswith(".csv"):
+        return "text/csv"
+
+    return None
+
+
 def _safe_fetcher_config(source_rows: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "title": "JARVIS Dynamic Public Market Data Fetcher Config",
@@ -201,6 +219,7 @@ def build_dynamic_public_data_fetcher_adapter(
         source_type = _text(endpoint.get("source_type"))
         source_url = _text(endpoint.get("source_url"))
         update_frequency = _text(endpoint.get("update_frequency")) or "daily"
+        expected_content_type = _expected_content_type(source_type, source_url, endpoint)
 
         source_row = {
             "source_id": source_id,
@@ -216,6 +235,7 @@ def build_dynamic_public_data_fetcher_adapter(
             "contains_private_data": endpoint.get("contains_private_data") is True,
             "dynamic_cache_series_id": import_row.cache_series_id,
             "expected_currency": import_row.expected_currency,
+            "expected_content_type": expected_content_type,
         }
 
         validation = validate_source(source_row)
@@ -242,6 +262,7 @@ def build_dynamic_public_data_fetcher_adapter(
                 update_frequency=update_frequency,
                 cache_series_id=import_row.cache_series_id,
                 expected_currency=import_row.expected_currency,
+                expected_content_type=expected_content_type,
                 valid_for_public_fetcher=valid,
                 status=status,
                 warnings=tuple(dict.fromkeys(row_warnings)),
