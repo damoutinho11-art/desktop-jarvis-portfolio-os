@@ -60,7 +60,7 @@ class DynamicCommandCenterAuditTests(unittest.TestCase):
         self.assertEqual(result.status, STATUS_READY)
         self.assertEqual(result.dashboard_status, "DYNAMIC_OPERATOR_STATUS_READY_SAFE")
         self.assertEqual(result.ready_status_count, 10)
-        self.assertEqual(result.required_command_count, 10)
+        self.assertEqual(result.required_command_count, 11)
         self.assertEqual(
             result.chain_statuses["public_data_fetcher_adapter"],
             "DYNAMIC_PUBLIC_DATA_FETCHER_ADAPTER_READY_SAFE",

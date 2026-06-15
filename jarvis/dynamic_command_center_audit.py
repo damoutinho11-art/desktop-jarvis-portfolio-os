@@ -25,6 +25,7 @@ REQUIRED_COMMANDS = (
     "python -m jarvis.dynamic_market_source_binding_report",
     "python -m jarvis.dynamic_market_import_plan_report",
     "python -m jarvis.dynamic_public_data_fetcher_adapter_report",
+    "python -m jarvis.dynamic_market_raw_cache_normalizer_report",
     "python -m jarvis.dynamic_market_data_intake_validator_report",
     "python -m jarvis.dynamic_bound_market_coverage_report",
     "python -m jarvis.dynamic_market_coverage_audit_report",
