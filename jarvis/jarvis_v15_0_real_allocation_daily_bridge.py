@@ -115,7 +115,7 @@ class RealAllocationDailyBridgeResult:
 
 
 def _format_eur(value: int | float) -> str:
-    return f"â‚¬{float(value):,.2f}"
+    return f"EUR {float(value):,.2f}"
 
 
 def _positive_allocations(allocations: dict[str, Any]) -> dict[str, float]:
