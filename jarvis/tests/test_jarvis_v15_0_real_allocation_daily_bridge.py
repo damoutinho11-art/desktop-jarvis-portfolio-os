@@ -80,7 +80,7 @@ class JarvisV150RealAllocationDailyBridgeTests(unittest.TestCase):
         self.assertEqual(result.status, STATUS_READY)
         self.assertEqual(result.selected_ideal_sleeve, "quality_etf")
         self.assertEqual(result.executable_allocation, {"quality_etf": 103.85})
-        self.assertIn("best current executable allocation: quality_etf â‚¬103.85", output)
+        self.assertIn("best current executable allocation: quality_etf EUR 103.85", output)
 
     def test_growth_nasdaq_fixture_selects_growth_nasdaq_dynamically(self) -> None:
         result = build_real_allocation_daily_bridge(
@@ -91,7 +91,7 @@ class JarvisV150RealAllocationDailyBridgeTests(unittest.TestCase):
         self.assertEqual(result.status, STATUS_READY)
         self.assertEqual(result.selected_ideal_sleeve, "growth_nasdaq_etf")
         self.assertEqual(result.executable_allocation, {"growth_nasdaq_etf": 103.85})
-        self.assertIn("best current executable allocation: growth_nasdaq_etf â‚¬103.85", output)
+        self.assertIn("best current executable allocation: growth_nasdaq_etf EUR 103.85", output)
         self.assertNotIn("selected ideal sleeve: quality_etf", output)
 
     def test_global_core_fixture_selects_global_core_dynamically(self) -> None:
