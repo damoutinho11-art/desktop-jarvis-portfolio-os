@@ -48,8 +48,9 @@ The user's final real-world buy remains manual and outside J.A.R.V.I.S.
 
 ## Next Step
 
-operator_architecture_review_before_next_public_data_capability
+v10_0_autonomous_public_data_refresh_runtime
 
 Reason:
 
 The roadmap is now locked against redundant public-data planning loops. The next step should be an explicit architecture review before adding any further public-data capability.
+

@@ -32,7 +32,7 @@ STATUS_BLOCKED = "JARVIS_V9_1_CAPABILITY_MAP_AND_ROADMAP_LOCK_BLOCKED_SAFE"
 ROADMAP_LOCK_READY = "CAPABILITY_MAP_AND_ROADMAP_LOCK_READY"
 ROADMAP_LOCK_BLOCKED = "CAPABILITY_MAP_AND_ROADMAP_LOCK_BLOCKED"
 
-NEXT_STAGE = "operator_architecture_review_before_next_public_data_capability"
+NEXT_STAGE = "v10_0_autonomous_public_data_refresh_runtime"
 
 CURRENT_STAGE = "v9_1_capability_map_and_roadmap_lock"
 
@@ -425,4 +425,5 @@ def audit_v9_1_capability_map_and_roadmap_lock(
         warnings=tuple(dict.fromkeys(warnings)),
         **flags,
     )
+
 

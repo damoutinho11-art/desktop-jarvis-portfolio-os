@@ -13,7 +13,7 @@ class JarvisV91CapabilityMapAndRoadmapLockTests(unittest.TestCase):
 
         self.assertEqual(result.status, STATUS_READY)
         self.assertEqual(result.roadmap_lock_status, ROADMAP_LOCK_READY)
-        self.assertEqual(result.recommended_next_stage, "operator_architecture_review_before_next_public_data_capability")
+        self.assertEqual(result.recommended_next_stage, "v10_0_autonomous_public_data_refresh_runtime")
         self.assertTrue(result.capability_map_ready)
         self.assertTrue(result.roadmap_lock_ready)
         self.assertEqual(result.missing_capability_count, 0)
@@ -52,3 +52,4 @@ class JarvisV91CapabilityMapAndRoadmapLockTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
