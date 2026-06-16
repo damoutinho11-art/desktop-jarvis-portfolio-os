@@ -157,6 +157,9 @@ class JarvisV160RealDailyReadinessGateTests(unittest.TestCase):
 
         self.assertEqual(result.status, STATUS_REVIEW_REQUIRED)
         self.assertIn("data readiness: STALE_REVIEW_REQUIRED", output)
+        self.assertIn("Weekly dual-lane mandate:", output)
+        self.assertIn("Crypto lane:", output)
+        self.assertIn("Stock/Fund/ETF lane:", output)
         self.assertNotIn("btc_candidate", output)
         self.assertNotIn("crypto_core_btc", output)
 

@@ -1,4 +1,4 @@
-"""Deterministic local allocation engine for J.A.R.V.I.S. Portfolio OS v0."""
+﻿"""Deterministic local allocation engine for J.A.R.V.I.S. Portfolio OS v0."""
 
 from __future__ import annotations
 
@@ -12,6 +12,8 @@ from etf_scoring import ETF_SLEEVES, load_etf_universe, score_etf_universe
 
 
 APPROVAL_NOTICE = "Manual approval required. No trades executed."
+CRYPTO_MANDATE_ASSETS = ("btc", "hype", "tao")
+WEEKLY_DUAL_LANE_MANDATE = "weekly_crypto_and_stock_fund_etf"
 
 
 @dataclass(frozen=True)
@@ -37,7 +39,7 @@ def euros(value_cents: int) -> float:
 
 
 def format_eur(value_cents: int) -> str:
-    return f"€{euros(value_cents):,.2f}"
+    return f"â‚¬{euros(value_cents):,.2f}"
 
 
 def allocations_to_euros(allocations_cents: dict[str, int]) -> dict[str, float]:
@@ -503,49 +505,136 @@ def allocate_fallback_pool(
     return remaining, notes
 
 
+def _asset_gap_and_deficit(
+    constitution: dict[str, Any],
+    holdings: dict[str, int],
+    weekly_budget_cents: int,
+    asset: str,
+) -> tuple[float, int]:
+    final_total_cents = sum(holdings.values()) + weekly_budget_cents
+    target_weight = float(constitution["target_weights"].get(asset, 0.0))
+    current_value = holdings.get(asset, 0)
+    current_weight = current_value / final_total_cents if final_total_cents else 0.0
+    target_value = int(round(final_total_cents * target_weight))
+    deficit = max(0, target_value - current_value)
+    return target_weight - current_weight, deficit
+
+
+def _ranked_crypto_lane_candidates(
+    constitution: dict[str, Any],
+    holdings: dict[str, int],
+    weekly_budget_cents: int,
+) -> list[tuple[str, float, float, int, int]]:
+    final_total_cents = sum(holdings.values()) + weekly_budget_cents
+    minimums = {
+        name: cents(value)
+        for name, value in constitution.get("minimum_efficient_buys", {}).items()
+    }
+    candidates: list[tuple[str, float, float, int, int]] = []
+    for asset in CRYPTO_MANDATE_ASSETS:
+        if asset not in constitution.get("target_weights", {}):
+            continue
+        gap, deficit = _asset_gap_and_deficit(
+            constitution, holdings, weekly_budget_cents, asset
+        )
+        if deficit <= 0:
+            continue
+        risk_room = crypto_room_for_asset(
+            asset, holdings, {}, final_total_cents, constitution
+        )
+        weekly_room = weekly_crypto_buy_room(asset, {}, weekly_budget_cents, 0, constitution)
+        amount_room = min(deficit, risk_room, weekly_room, weekly_budget_cents)
+        minimum = minimums.get(asset)
+        if amount_room <= 0 or (minimum is not None and amount_room < minimum):
+            continue
+        target_weight = float(constitution["target_weights"].get(asset, 0.0))
+        candidates.append((asset, gap, target_weight, deficit, amount_room))
+    candidates.sort(key=lambda item: (-item[1], -item[2], item[0]))
+    return candidates
+
+
+def _ranked_stock_fund_etf_lane_candidates(
+    constitution: dict[str, Any],
+    holdings: dict[str, int],
+    weekly_budget_cents: int,
+    etf_scores: dict[str, dict[str, Any]] | None,
+) -> list[tuple[str, float, float, int]]:
+    candidates: list[tuple[str, float, float, int]] = []
+    if not etf_scores:
+        return candidates
+    for sleeve, score in etf_scores.items():
+        if sleeve not in ETF_SLEEVES:
+            continue
+        if sleeve not in constitution.get("target_weights", {}):
+            continue
+        if not score.get("enabled", False) or score.get("final_score", 0.0) <= 0:
+            continue
+        _gap, deficit = _asset_gap_and_deficit(
+            constitution, holdings, weekly_budget_cents, sleeve
+        )
+        if deficit <= 0:
+            continue
+        candidates.append((sleeve, float(score["final_score"]), _gap, deficit))
+    candidates.sort(key=lambda item: (-item[1], -item[2], item[0]))
+    return candidates
+
+
 def calculate_ideal_allocations(
     constitution: dict[str, Any],
     holdings: dict[str, int],
     weekly_budget_cents: int,
     etf_scores: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, int]:
-    after_total_cents = sum(holdings.values()) + weekly_budget_cents
+    """Build a dynamic weekly two-lane allocation.
+
+    Product mandate: each weekly recommendation should try to prepare one crypto
+    manual buy and one stock/fund/ETF manual buy. Amounts are not static; they
+    are bounded by current target gaps, weekly budget, crypto risk caps, minimum
+    efficient buys, platform-executable rules downstream, and ETF scores.
+    """
     allocations = {name: 0 for name in constitution["target_weights"]}
     remaining = weekly_budget_cents
 
-    deficits: list[tuple[str, float, int, float]] = []
-    for status in current_statuses(constitution, holdings):
-        target_value = int(round(after_total_cents * status.target_weight))
-        deficit = max(0, target_value - status.current_value_cents)
-        if deficit > 0:
-            etf_score = 0.0
-            if etf_scores and status.name in ETF_SLEEVES:
-                score = etf_scores.get(status.name, {})
-                if not score.get("enabled", False) or score.get("final_score", 0.0) <= 0:
-                    continue
-                etf_score = float(score["final_score"])
-            deficits.append((status.name, status.gap, deficit, etf_score))
-
-    deficits.sort(
-        key=lambda item: (
-            0 if item[0] in ETF_SLEEVES else 1,
-            -item[3] if item[0] in ETF_SLEEVES else -item[1],
-            item[0],
-        )
+    crypto_candidates = _ranked_crypto_lane_candidates(
+        constitution, holdings, weekly_budget_cents
     )
+    if crypto_candidates:
+        asset, _gap, _target_weight, _deficit, amount_room = crypto_candidates[0]
+        amount = min(remaining, amount_room)
+        if amount > 0:
+            allocations[asset] += amount
+            remaining -= amount
 
-    for name, _gap, deficit, _etf_score in deficits:
+    etf_candidates = _ranked_stock_fund_etf_lane_candidates(
+        constitution, holdings, weekly_budget_cents, etf_scores
+    )
+    for sleeve, _score, _gap, deficit in etf_candidates:
         if remaining <= 0:
             break
-        suggested = min(deficit, remaining)
-        allocations[name] += suggested
-        remaining -= suggested
+        amount = min(remaining, deficit)
+        if amount <= 0:
+            continue
+        allocations[sleeve] += amount
+        remaining -= amount
+
+    if remaining > 0 and not crypto_candidates:
+        # If no crypto lane was possible, keep the engine dynamic by letting the
+        # best eligible stock/fund/ETF lane use the full weekly budget where it
+        # has enough target gap. Otherwise the residue stays in tactical reserve.
+        for sleeve, _score, _gap, deficit in etf_candidates:
+            if remaining <= 0:
+                break
+            additional_room = max(0, deficit - allocations[sleeve])
+            amount = min(remaining, additional_room)
+            if amount <= 0:
+                continue
+            allocations[sleeve] += amount
+            remaining -= amount
 
     if remaining > 0:
         allocations["tactical_reserve"] += remaining
 
     return allocations
-
 
 def component_driver_labels(components: dict[str, float]) -> list[str]:
     labels = {
@@ -729,6 +818,122 @@ def calculate_executable_allocations(
     return executable, warnings
 
 
+
+def _positive_lane_allocations(
+    allocations: dict[str, int], assets: set[str] | tuple[str, ...]
+) -> dict[str, float]:
+    return {
+        name: euros(allocations.get(name, 0))
+        for name in sorted(assets)
+        if allocations.get(name, 0) > 0
+    }
+
+
+def _lane_primary_asset(allocations: dict[str, float]) -> str | None:
+    if not allocations:
+        return None
+    return sorted(allocations.items(), key=lambda item: (-item[1], item[0]))[0][0]
+
+
+def build_weekly_dual_lane_mandate(
+    *,
+    constitution: dict[str, Any],
+    holdings: dict[str, int],
+    ideal_allocations: dict[str, int],
+    executable_allocations: dict[str, int],
+    etf_scores: dict[str, dict[str, Any]],
+    warnings: list[dict[str, Any]],
+    weekly_budget_cents: int,
+) -> dict[str, Any]:
+    crypto_assets = set(CRYPTO_MANDATE_ASSETS)
+    stock_fund_etf_assets = set(ETF_SLEEVES)
+    crypto_executable = _positive_lane_allocations(executable_allocations, crypto_assets)
+    stock_fund_etf_executable = _positive_lane_allocations(
+        executable_allocations, stock_fund_etf_assets
+    )
+    crypto_ideal = _positive_lane_allocations(ideal_allocations, crypto_assets)
+    stock_fund_etf_ideal = _positive_lane_allocations(
+        ideal_allocations, stock_fund_etf_assets
+    )
+    crypto_asset = _lane_primary_asset(crypto_executable) or _lane_primary_asset(crypto_ideal)
+    stock_fund_etf_asset = _lane_primary_asset(stock_fund_etf_executable) or _lane_primary_asset(stock_fund_etf_ideal)
+    crypto_status = crypto_risk_status(
+        constitution, holdings, executable_allocations, weekly_budget_cents
+    )
+    crypto_amount = sum(crypto_executable.values())
+    stock_fund_etf_amount = sum(stock_fund_etf_executable.values())
+
+    blocked_assets = {
+        item.get("asset"): item.get("reason", "")
+        for item in warnings
+        if item.get("category") == "blocked"
+    }
+
+    if crypto_amount > 0 and crypto_asset:
+        crypto_lane_status = "READY_FOR_MANUAL_BUY"
+        crypto_reason = (
+            f"{crypto_asset} selected dynamically under target-gap, weekly crypto buy cap, "
+            "platform-readiness, and crypto risk rules."
+        )
+    elif crypto_asset and crypto_asset in blocked_assets:
+        crypto_lane_status = "DEFERRED_BY_PLATFORM_OR_MINIMUM"
+        crypto_reason = blocked_assets[crypto_asset]
+    else:
+        crypto_lane_status = "DEFERRED_BY_RISK_OR_NO_ELIGIBLE_CRYPTO"
+        crypto_reason = (
+            "No crypto manual buy is recommended this week because no crypto candidate "
+            "passed target-gap, minimum-buy, platform, and risk-room checks."
+        )
+
+    if stock_fund_etf_amount > 0 and stock_fund_etf_asset:
+        stock_lane_status = "READY_FOR_MANUAL_BUY"
+        stock_reason = (
+            f"{stock_fund_etf_asset} selected dynamically from ETF scoring, allocation gap, "
+            "platform readiness, and executable budget after the crypto lane."
+        )
+    elif stock_fund_etf_asset and stock_fund_etf_asset in blocked_assets:
+        stock_lane_status = "DEFERRED_BY_PLATFORM_OR_MINIMUM"
+        stock_reason = blocked_assets[stock_fund_etf_asset]
+    else:
+        stock_lane_status = "DEFERRED_BY_NO_ELIGIBLE_STOCK_FUND_ETF"
+        stock_reason = (
+            "No stock/fund/ETF manual buy is recommended this week because no eligible "
+            "candidate passed scoring, target-gap, platform, and budget checks."
+        )
+
+    return {
+        "mandate": WEEKLY_DUAL_LANE_MANDATE,
+        "weekly_budget": euros(weekly_budget_cents),
+        "crypto_lane": {
+            "status": crypto_lane_status,
+            "asset": crypto_asset,
+            "amount": round(crypto_amount, 2),
+            "ideal_allocation": crypto_ideal,
+            "executable_allocation": crypto_executable,
+            "reason": crypto_reason,
+        },
+        "stock_fund_etf_lane": {
+            "status": stock_lane_status,
+            "asset": stock_fund_etf_asset,
+            "amount": round(stock_fund_etf_amount, 2),
+            "ideal_allocation": stock_fund_etf_ideal,
+            "executable_allocation": stock_fund_etf_executable,
+            "reason": stock_reason,
+        },
+        "risk_controls": {
+            "btc_max": crypto_status["btc_max"],
+            "total_crypto_hard_max": crypto_status["total_crypto_max"],
+            "btc_buy_room": euros(crypto_status["btc_room_cents"]),
+            "total_crypto_buy_room": euros(crypto_status["total_crypto_room_cents"]),
+            "weekly_btc_cap": euros(crypto_status["btc_fallback_weekly_cap_cents"]),
+            "weekly_total_crypto_cap": euros(
+                crypto_status["total_crypto_buy_weekly_cap_cents"]
+            ),
+        },
+        "manual_action_required": True,
+        "trades_executed": False,
+    }
+
 def build_approval_ticket(
     portfolio_state: dict[str, Any],
     result: dict[str, Any],
@@ -774,6 +979,7 @@ def build_approval_ticket(
         "executable_allocation": allocations_to_euros(
             result["executable_allocations_cents"]
         ),
+        "weekly_dual_lane_mandate": result["weekly_dual_lane_mandate"],
         "etf_scoring_verdict": result["etf_scoring_verdict"],
         "blocked_actions": blocked_actions,
         "fallback_actions": fallback_actions,
@@ -843,6 +1049,15 @@ def allocate_weekly_budget(
         ),
         "crypto_risk_status": crypto_risk_status(
             constitution, holdings, executable_allocations, weekly_budget_cents
+        ),
+        "weekly_dual_lane_mandate": build_weekly_dual_lane_mandate(
+            constitution=constitution,
+            holdings=holdings,
+            ideal_allocations=ideal_allocations,
+            executable_allocations=executable_allocations,
+            etf_scores=etf_scores,
+            warnings=warnings,
+            weekly_budget_cents=weekly_budget_cents,
         ),
         "transition_cash_warning": should_show_transition_cash_warning(
             constitution, portfolio_state, executable_projected_holdings
@@ -971,6 +1186,25 @@ def render_report(result: dict[str, Any]) -> str:
 
     if not any(amount > 0 for amount in executable_allocations.values()):
         lines.append("- No executable buys recommended this week.")
+
+    mandate = result.get("weekly_dual_lane_mandate", {})
+    if mandate:
+        crypto_lane = mandate.get("crypto_lane", {})
+        stock_lane = mandate.get("stock_fund_etf_lane", {})
+        lines.extend(
+            [
+                "",
+                "Weekly dual-lane mandate:",
+                f"- Crypto lane: {crypto_lane.get('status', 'unknown')}; "
+                f"asset {crypto_lane.get('asset') or 'none'}; "
+                f"amount {format_eur(cents(crypto_lane.get('amount', 0.0)))}; "
+                f"{crypto_lane.get('reason', '')}",
+                f"- Stock/Fund/ETF lane: {stock_lane.get('status', 'unknown')}; "
+                f"asset {stock_lane.get('asset') or 'none'}; "
+                f"amount {format_eur(cents(stock_lane.get('amount', 0.0)))}; "
+                f"{stock_lane.get('reason', '')}",
+            ]
+        )
 
     if result["etf_scores"]:
         lines.extend(["", "ETF scoring:"])
@@ -1190,11 +1424,12 @@ def self_check() -> None:
     assert any("kraken" in reason for reason in portfolio_mode["reasons"])
     assert any("legacy cleanup is not complete" in reason for reason in portfolio_mode["reasons"])
     assert any("Tactical reserve is above 10%" in reason for reason in portfolio_mode["reasons"])
-    assert ideal["quality_etf"] > 0
+    assert ideal["btc"] == cents(41.54)
+    assert ideal["quality_etf"] == cents(62.31)
     assert executable["global_core_etf"] == 0
     assert executable["growth_nasdaq_etf"] == 0
-    assert executable["quality_etf"] == cents(103.85)
-    assert executable["btc"] == 0
+    assert executable["quality_etf"] == cents(62.31)
+    assert executable["btc"] == cents(41.54)
     assert executable["tactical_reserve"] == 0
     assert warnings == []
     assert result["crypto_risk_status"]["btc_weight"] <= result["crypto_risk_status"]["btc_max"]
@@ -1205,13 +1440,19 @@ def self_check() -> None:
     assert ticket["as_of"] == "2026-06-04"
     assert ticket["portfolio_mode"] == "transition_mode"
     assert ticket["weekly_budget"] == 103.85
-    assert ticket["ideal_allocation"]["quality_etf"] == 103.85
+    assert ticket["ideal_allocation"]["quality_etf"] == 62.31
+    assert ticket["ideal_allocation"]["btc"] == 41.54
     assert verdict["selected_ideal_etf"] == "quality_etf"
     assert verdict["selected_label"] == "Selected ideal ETF sleeve: quality_etf"
     assert verdict["sleeves"][0]["rank"] == 1
     assert verdict["sleeves"][0]["sleeve"] == "quality_etf"
     assert "strongest eligible ETF score" in verdict["sleeves"][0]["reason"]
-    assert ticket["executable_allocation"]["quality_etf"] == 103.85
+    assert ticket["executable_allocation"]["quality_etf"] == 62.31
+    assert ticket["executable_allocation"]["btc"] == 41.54
+    assert ticket["weekly_dual_lane_mandate"]["crypto_lane"]["asset"] == "btc"
+    assert ticket["weekly_dual_lane_mandate"]["crypto_lane"]["amount"] == 41.54
+    assert ticket["weekly_dual_lane_mandate"]["stock_fund_etf_lane"]["asset"] == "quality_etf"
+    assert ticket["weekly_dual_lane_mandate"]["stock_fund_etf_lane"]["amount"] == 62.31
     assert ticket["blocked_actions"] == []
     assert ticket["fallback_actions"] == []
     assert ticket["reserve_actions"] == []
@@ -1223,7 +1464,8 @@ def self_check() -> None:
     assert record["ticket_id"] == ticket["ticket_id"]
     assert record["approval_status"] == "pending_manual_approval"
     assert record["trades_executed"] is False
-    assert record["executable_allocation"]["quality_etf"] == 103.85
+    assert record["executable_allocation"]["quality_etf"] == 62.31
+    assert record["executable_allocation"]["btc"] == 41.54
     assert len(record["main_warnings"]) == 0
     assert len(legacy_statuses) == 4
     assert all(not item["new_buys_allowed"] for item in legacy_statuses)
@@ -1247,3 +1489,4 @@ def self_check() -> None:
     }
     assert numeric_before["global_core_etf"] == cents(150.0)
     assert numeric_before["tactical_reserve"] == cents(29.9)
+

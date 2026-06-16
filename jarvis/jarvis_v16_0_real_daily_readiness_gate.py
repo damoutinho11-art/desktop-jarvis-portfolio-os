@@ -30,6 +30,7 @@ from .jarvis_v15_0_real_allocation_daily_bridge import (
     RealAllocationDailyBridgeResult,
     build_real_allocation_daily_bridge,
     build_safety_check_console_output,
+    _dual_lane_lines,
 )
 from .jarvis_v12_1_local_voice_io_shell import DEFAULT_COMMAND_SAMPLES
 
@@ -392,6 +393,7 @@ def build_real_daily_readiness_console_output(result: RealDailyReadinessGateResu
                 else "none"
             ),
             f"selected ideal sleeve: {allocation.selected_ideal_sleeve}",
+            *_dual_lane_lines(allocation.weekly_dual_lane_mandate),
             f"approval status: {allocation.approval_status}",
             f"approval ticket: {allocation.approval_ticket_path}",
             "manual approval required" if result.manual_approval_required else "manual approval missing",

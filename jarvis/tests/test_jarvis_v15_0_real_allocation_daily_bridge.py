@@ -1,4 +1,4 @@
-﻿import unittest
+﻿ï»¿import unittest
 
 from jarvis.jarvis_v15_0_real_allocation_daily_bridge import (
     STATUS_BLOCKED,
@@ -143,10 +143,14 @@ class JarvisV150RealAllocationDailyBridgeTests(unittest.TestCase):
         output = build_real_allocation_daily_console_output(result)
 
         self.assertEqual(result.status, STATUS_READY)
+        self.assertIn("Weekly dual-lane mandate:", output)
+        self.assertIn("Crypto lane:", output)
+        self.assertIn("Stock/Fund/ETF lane:", output)
         self.assertNotIn("btc_candidate", output)
         self.assertNotIn("crypto_core_btc", output)
 
 
 if __name__ == "__main__":
     unittest.main()
+
 

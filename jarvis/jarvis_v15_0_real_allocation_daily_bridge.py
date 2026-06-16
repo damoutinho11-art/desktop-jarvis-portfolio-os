@@ -1,4 +1,4 @@
-﻿"""J.A.R.V.I.S. v15.0 real allocation daily bridge.
+﻿ï»¿"""J.A.R.V.I.S. v15.0 real allocation daily bridge.
 
 This bridge connects the daily operator command to the existing root allocation
 engine instead of the staged/demo v10-v14 launcher surface.
@@ -69,6 +69,7 @@ class RealAllocationDailyBridgeResult:
     selected_ideal_sleeve: str
     executable_allocation: dict[str, float]
     ideal_allocation: dict[str, float]
+    weekly_dual_lane_mandate: dict[str, Any]
     approval_status: str
     approval_ticket_path: str
     ranked_candidates: tuple[RankedAllocationCandidate, ...]
@@ -96,6 +97,7 @@ class RealAllocationDailyBridgeResult:
             "selected_ideal_sleeve": self.selected_ideal_sleeve,
             "executable_allocation": dict(self.executable_allocation),
             "ideal_allocation": dict(self.ideal_allocation),
+            "weekly_dual_lane_mandate": self.weekly_dual_lane_mandate,
             "approval_status": self.approval_status,
             "approval_ticket_path": self.approval_ticket_path,
             "ranked_candidates": [candidate.to_dict() for candidate in self.ranked_candidates],
@@ -198,6 +200,7 @@ def build_real_allocation_daily_bridge(
     ideal_allocation = _positive_allocations(ticket.get("ideal_allocation", {}) or {})
     ranked_candidates = _ranked_candidates_from_ticket(ticket)
     selected_ideal_sleeve = _selected_sleeve_from_ticket(ticket)
+    weekly_dual_lane_mandate = ticket.get("weekly_dual_lane_mandate", {}) or {}
 
     approval_notice = str(ticket.get("approval_notice", ""))
     approval_status = str(ticket.get("approval_status", "unknown"))
@@ -246,6 +249,7 @@ def build_real_allocation_daily_bridge(
         selected_ideal_sleeve=selected_ideal_sleeve,
         executable_allocation=executable_allocation,
         ideal_allocation=ideal_allocation,
+        weekly_dual_lane_mandate=weekly_dual_lane_mandate,
         approval_status=approval_status,
         approval_ticket_path=str(approval_ticket_path),
         ranked_candidates=ranked_candidates,
@@ -264,6 +268,34 @@ def build_real_allocation_daily_bridge(
     )
 
 
+
+def _format_lane_amount(amount: Any) -> str:
+    try:
+        return _format_eur(float(amount))
+    except (TypeError, ValueError):
+        return "EUR 0.00"
+
+
+def _dual_lane_lines(mandate: dict[str, Any]) -> list[str]:
+    if not mandate:
+        return []
+    crypto_lane = mandate.get("crypto_lane", {}) or {}
+    stock_lane = mandate.get("stock_fund_etf_lane", {}) or {}
+    return [
+        "",
+        "Weekly dual-lane mandate:",
+        "- Crypto lane: "
+        f"{crypto_lane.get('status', 'unknown')}; "
+        f"asset {crypto_lane.get('asset') or 'none'}; "
+        f"amount {_format_lane_amount(crypto_lane.get('amount', 0.0))}; "
+        f"{crypto_lane.get('reason', '')}",
+        "- Stock/Fund/ETF lane: "
+        f"{stock_lane.get('status', 'unknown')}; "
+        f"asset {stock_lane.get('asset') or 'none'}; "
+        f"amount {_format_lane_amount(stock_lane.get('amount', 0.0))}; "
+        f"{stock_lane.get('reason', '')}",
+    ]
+
 def build_real_allocation_daily_console_output(result: RealAllocationDailyBridgeResult) -> str:
     lines = [
         "J.A.R.V.I.S. Real Allocation Daily Operator",
@@ -272,6 +304,7 @@ def build_real_allocation_daily_console_output(result: RealAllocationDailyBridge
         f"weekly budget: {_format_eur(result.weekly_budget)}",
         f"best current executable allocation: {_allocation_summary(result.executable_allocation)}",
         f"selected ideal sleeve: {result.selected_ideal_sleeve}",
+        *_dual_lane_lines(result.weekly_dual_lane_mandate),
         f"approval status: {result.approval_status}",
         f"approval ticket: {result.approval_ticket_path}",
         "manual approval required" if result.manual_approval_required else "manual approval missing",
@@ -331,4 +364,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
 
