@@ -1,4 +1,4 @@
-﻿import copy
+import copy
 import unittest
 
 import allocation_engine as engine

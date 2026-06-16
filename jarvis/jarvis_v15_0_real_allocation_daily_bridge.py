@@ -1,4 +1,4 @@
-﻿ï»¿"""J.A.R.V.I.S. v15.0 real allocation daily bridge.
+"""J.A.R.V.I.S. v15.0 real allocation daily bridge.
 
 This bridge connects the daily operator command to the existing root allocation
 engine instead of the staged/demo v10-v14 launcher surface.

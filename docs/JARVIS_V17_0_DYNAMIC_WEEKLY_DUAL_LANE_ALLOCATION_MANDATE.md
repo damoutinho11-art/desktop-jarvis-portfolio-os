@@ -1,4 +1,4 @@
-﻿# J.A.R.V.I.S. v17.0 Dynamic Weekly Dual-Lane Allocation Mandate
+# J.A.R.V.I.S. v17.0 Dynamic Weekly Dual-Lane Allocation Mandate
 
 ## Verdict
 

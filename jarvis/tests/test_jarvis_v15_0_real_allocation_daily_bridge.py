@@ -1,4 +1,4 @@
-﻿ï»¿import unittest
+import unittest
 
 from jarvis.jarvis_v15_0_real_allocation_daily_bridge import (
     STATUS_BLOCKED,

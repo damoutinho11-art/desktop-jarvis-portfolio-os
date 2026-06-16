@@ -1,4 +1,4 @@
-﻿import json
+import json
 import tempfile
 import unittest
 from datetime import date

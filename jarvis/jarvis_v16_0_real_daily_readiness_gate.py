@@ -1,4 +1,4 @@
-﻿"""J.A.R.V.I.S. v16.0 real daily readiness gate.
+"""J.A.R.V.I.S. v16.0 real daily readiness gate.
 
 This module keeps the v15 real allocation bridge as the active recommendation
 source, then adds the missing daily product check: whether the local data behind

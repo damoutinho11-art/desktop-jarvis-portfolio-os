@@ -1,4 +1,4 @@
-﻿"""Deterministic local allocation engine for J.A.R.V.I.S. Portfolio OS v0."""
+"""Deterministic local allocation engine for J.A.R.V.I.S. Portfolio OS v0."""
 
 from __future__ import annotations
 
