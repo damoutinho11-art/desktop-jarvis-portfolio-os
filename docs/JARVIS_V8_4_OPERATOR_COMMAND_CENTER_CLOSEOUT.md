@@ -41,8 +41,9 @@ The user's final real-world buy remains manual and outside J.A.R.V.I.S.
 
 ## Next Stage
 
-v9_0_public_market_data_source_selection_plan
+v9_0_public_market_data_enablement_decision_layer
 
 Reason:
 
 The v8 command-center product layer is complete. The next useful capability is selecting and planning public market data sources before any future controlled live-public-data work.
+

@@ -41,8 +41,9 @@ The user's final real-world buy remains manual and outside J.A.R.V.I.S.
 
 ## Next Stage
 
-v9_1_controlled_public_data_dry_run_enablement_plan
+v9_1_capability_map_and_roadmap_lock
 
 Reason:
 
 The decision layer allows dry-run planning only. The next non-redundant step is a controlled dry-run enablement plan that still does not make network calls or emit live adapter records.
+

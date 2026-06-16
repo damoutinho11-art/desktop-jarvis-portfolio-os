@@ -12,7 +12,7 @@ class JarvisV84OperatorCommandCenterCloseoutReportTests(unittest.TestCase):
         self.assertIn("J.A.R.V.I.S. v8.4 Operator Command Center Closeout", report)
         self.assertIn("status: JARVIS_V8_4_OPERATOR_COMMAND_CENTER_CLOSEOUT_READY_SAFE", report)
         self.assertIn("closeout status: OPERATOR_COMMAND_CENTER_PRODUCT_LAYER_CLOSED_OUT", report)
-        self.assertIn("recommended next stage: v9_0_public_market_data_source_selection_plan", report)
+        self.assertIn("recommended next stage: v9_0_public_market_data_enablement_decision_layer", report)
         self.assertIn("public_market_intelligence_operator_dashboard", report)
         self.assertIn("autonomous_research_cycle_status_panel", report)
         self.assertIn("weekly_recommendation_evidence_pack_integration", report)
@@ -29,3 +29,4 @@ class JarvisV84OperatorCommandCenterCloseoutReportTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

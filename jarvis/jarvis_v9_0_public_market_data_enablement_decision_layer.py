@@ -41,7 +41,7 @@ STATUS_BLOCKED = "JARVIS_V9_0_PUBLIC_MARKET_DATA_ENABLEMENT_DECISION_LAYER_BLOCK
 DECISION_LAYER_READY = "PUBLIC_MARKET_DATA_ENABLEMENT_DECISION_LAYER_READY"
 DECISION_LAYER_BLOCKED = "PUBLIC_MARKET_DATA_ENABLEMENT_DECISION_LAYER_BLOCKED"
 
-NEXT_STAGE = "v9_1_controlled_public_data_dry_run_enablement_plan"
+NEXT_STAGE = "v9_1_capability_map_and_roadmap_lock"
 
 DECISION_DRY_RUN_ALLOWED = "DRY_RUN_ONLY_ALLOWED"
 DECISION_LIVE_BLOCKED = "LIVE_MODE_BLOCKED"
@@ -449,3 +449,4 @@ def audit_v9_0_public_market_data_enablement_decision_layer(
         warnings=tuple(dict.fromkeys(warnings)),
         **{**safety_flags, "enablement_decision_layer_ready": ready},
     )
+

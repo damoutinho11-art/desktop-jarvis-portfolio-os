@@ -12,7 +12,7 @@ class JarvisV90PublicMarketDataEnablementDecisionLayerReportTests(unittest.TestC
         self.assertIn("J.A.R.V.I.S. v9.0 Public Market Data Enablement Decision Layer", report)
         self.assertIn("status: JARVIS_V9_0_PUBLIC_MARKET_DATA_ENABLEMENT_DECISION_LAYER_READY_SAFE", report)
         self.assertIn("decision layer status: PUBLIC_MARKET_DATA_ENABLEMENT_DECISION_LAYER_READY", report)
-        self.assertIn("recommended next stage: v9_1_controlled_public_data_dry_run_enablement_plan", report)
+        self.assertIn("recommended next stage: v9_1_capability_map_and_roadmap_lock", report)
         self.assertIn("source_selection_not_repeated", report)
         self.assertIn("dry_run_public_data_path_allowed", report)
         self.assertIn("live_public_fetch_blocked", report)
@@ -30,3 +30,4 @@ class JarvisV90PublicMarketDataEnablementDecisionLayerReportTests(unittest.TestC
 
 if __name__ == "__main__":
     unittest.main()
+

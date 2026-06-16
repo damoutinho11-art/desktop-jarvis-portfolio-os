@@ -49,7 +49,7 @@ STATUS_BLOCKED = "JARVIS_V8_4_OPERATOR_COMMAND_CENTER_CLOSEOUT_BLOCKED_SAFE"
 CLOSEOUT_STATUS_READY = "OPERATOR_COMMAND_CENTER_PRODUCT_LAYER_CLOSED_OUT"
 CLOSEOUT_STATUS_BLOCKED = "OPERATOR_COMMAND_CENTER_PRODUCT_LAYER_BLOCKED"
 
-NEXT_STAGE = "v9_0_public_market_data_source_selection_plan"
+NEXT_STAGE = "v9_0_public_market_data_enablement_decision_layer"
 
 
 @dataclass(frozen=True)
@@ -416,3 +416,4 @@ def audit_v8_4_operator_command_center_closeout(
         v8_3_ready=v8_3_ready,
         **{**safety_flags, "v8_product_layer_complete": ready},
     )
+

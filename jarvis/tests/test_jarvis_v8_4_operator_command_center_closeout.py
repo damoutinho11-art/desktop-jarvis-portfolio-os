@@ -15,7 +15,7 @@ class JarvisV84OperatorCommandCenterCloseoutTests(unittest.TestCase):
 
         self.assertEqual(result.status, STATUS_READY)
         self.assertEqual(result.closeout_status, CLOSEOUT_STATUS_READY)
-        self.assertEqual(result.recommended_next_stage, "v9_0_public_market_data_source_selection_plan")
+        self.assertEqual(result.recommended_next_stage, "v9_0_public_market_data_enablement_decision_layer")
         self.assertTrue(result.v8_product_layer_complete)
         self.assertTrue(result.v8_0_ready)
         self.assertTrue(result.v8_1_ready)
@@ -110,3 +110,4 @@ class JarvisV84OperatorCommandCenterCloseoutTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

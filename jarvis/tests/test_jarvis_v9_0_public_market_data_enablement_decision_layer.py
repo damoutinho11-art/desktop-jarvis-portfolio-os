@@ -15,7 +15,7 @@ class JarvisV90PublicMarketDataEnablementDecisionLayerTests(unittest.TestCase):
 
         self.assertEqual(result.status, STATUS_READY)
         self.assertEqual(result.decision_layer_status, DECISION_LAYER_READY)
-        self.assertEqual(result.recommended_next_stage, "v9_1_controlled_public_data_dry_run_enablement_plan")
+        self.assertEqual(result.recommended_next_stage, "v9_1_capability_map_and_roadmap_lock")
         self.assertTrue(result.enablement_decision_layer_ready)
         self.assertTrue(result.source_selection_not_repeated)
         self.assertTrue(result.dry_run_planning_allowed)
@@ -117,3 +117,4 @@ class JarvisV90PublicMarketDataEnablementDecisionLayerTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
