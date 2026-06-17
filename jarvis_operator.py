@@ -1,6 +1,6 @@
-"""Root shortcut for the J.A.R.V.I.S. autonomous dual-lane daily refresh."""
+"""Root shortcut for the J.A.R.V.I.S. individual stock public universe engine."""
 
-from jarvis.jarvis_v37_0_autonomous_dual_lane_daily_refresh import main
+from jarvis.jarvis_v38_0_individual_stock_public_universe_engine import main
 
 
 if __name__ == "__main__":
