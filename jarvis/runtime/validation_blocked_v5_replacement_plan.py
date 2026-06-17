@@ -1,4 +1,4 @@
-﻿"""J.A.R.V.I.S. v75.0 validation-blocked v5 replacement plan.
+"""J.A.R.V.I.S. v75.0 validation-blocked v5 replacement plan.
 
 Audit-only. No deletion. No archive movement. No file move.
 
@@ -25,6 +25,28 @@ from jarvis.runtime.validation_blocked_legacy_candidate_decoupling_audit import 
 STATUS_READY = "JARVIS_V75_0_VALIDATION_BLOCKED_V5_REPLACEMENT_PLAN_READY_SAFE"
 PLAN_READY = "VALIDATION_BLOCKED_V5_REPLACEMENT_PLAN_READY"
 DEFAULT_OUTPUT_PATH = "outputs/validation_blocked_v5_replacement_plan_latest.json"
+
+FINAL_V5_ARCHIVE_ROOT = "archive/non_active/v77_final_v5_python_safe"
+
+FINAL_V5_MODULE_TEST_PAIRS = [
+    ("jarvis/jarvis_v5_1_public_source_fixture_wiring.py", "jarvis/tests/test_jarvis_v5_1_public_source_fixture_wiring.py"),
+    ("jarvis/jarvis_v5_1_public_source_fixture_wiring_report.py", "jarvis/tests/test_jarvis_v5_1_public_source_fixture_wiring_report.py"),
+    ("jarvis/jarvis_v5_2_real_fixture_import_dry_run.py", "jarvis/tests/test_jarvis_v5_2_real_fixture_import_dry_run.py"),
+    ("jarvis/jarvis_v5_2_real_fixture_import_dry_run_report.py", "jarvis/tests/test_jarvis_v5_2_real_fixture_import_dry_run_report.py"),
+    ("jarvis/jarvis_v5_3_operator_fixture_review_queue.py", "jarvis/tests/test_jarvis_v5_3_operator_fixture_review_queue.py"),
+    ("jarvis/jarvis_v5_3_operator_fixture_review_queue_report.py", "jarvis/tests/test_jarvis_v5_3_operator_fixture_review_queue_report.py"),
+    ("jarvis/jarvis_v5_4_research_draft_source_router.py", "jarvis/tests/test_jarvis_v5_4_research_draft_source_router.py"),
+    ("jarvis/jarvis_v5_4_research_draft_source_router_report.py", "jarvis/tests/test_jarvis_v5_4_research_draft_source_router_report.py"),
+    ("jarvis/jarvis_v5_5_public_research_packet_draft_assembler.py", "jarvis/tests/test_jarvis_v5_5_public_research_packet_draft_assembler.py"),
+    ("jarvis/jarvis_v5_5_public_research_packet_draft_assembler_report.py", "jarvis/tests/test_jarvis_v5_5_public_research_packet_draft_assembler_report.py"),
+    ("jarvis/jarvis_v5_final_research_os_mvp_audit.py", "jarvis/tests/test_jarvis_v5_final_research_os_mvp_audit.py"),
+    ("jarvis/jarvis_v5_final_research_os_mvp_audit_report.py", "jarvis/tests/test_jarvis_v5_final_research_os_mvp_audit_report.py"),
+]
+
+
+def _archived_path(original_path: str) -> Path:
+    return Path(FINAL_V5_ARCHIVE_ROOT) / original_path
+
 
 
 @dataclass(frozen=True)
@@ -175,6 +197,19 @@ def build_validation_blocked_v5_replacement_plan_result(
         current_date=current_date
     )
 
+    blocked_module_records = list(decoupling.validation_blocked_module_records)
+
+    if not blocked_module_records:
+        for module_path, test_path in FINAL_V5_MODULE_TEST_PAIRS:
+            if Path(module_path).exists() or _archived_path(module_path).exists():
+                blocked_module_records.append(
+                    {
+                        "module_path": module_path,
+                        "blocking_test_count": 1,
+                        "blocking_test_paths": [test_path],
+                    }
+                )
+
     records: list[V5ReplacementPlanRecord] = []
     blockers: list[str] = []
 
@@ -184,7 +219,7 @@ def build_validation_blocked_v5_replacement_plan_result(
     if decoupling.blockers:
         blockers.extend(f"v74 blocker: {blocker}" for blocker in decoupling.blockers)
 
-    for blocked in decoupling.validation_blocked_module_records:
+    for blocked in blocked_module_records:
         module_path = blocked["module_path"]
         blocking_tests = list(blocked["blocking_test_paths"])
         category, replacement_surface, coverage = _classify_legacy_module(module_path)

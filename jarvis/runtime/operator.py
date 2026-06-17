@@ -56,9 +56,9 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v77.0"
+ACTIVE_RUNTIME_STAGE = "v78.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "final_v5_archive_execution_plan"
+CURRENT_OPERATOR_SURFACE = "final_v5_archive_execution"
 ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE = "jarvis.runtime.platform_data_completeness_gate"
 ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE = "jarvis.runtime.monthly_expenses_intake"
 
@@ -100,6 +100,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_validation_blocked_v5_replacement_plan_module": "jarvis.runtime.validation_blocked_v5_replacement_plan",
         "active_runtime_v5_replacement_coverage_module": "jarvis.runtime.active_runtime_v5_replacement_coverage",
         "active_final_v5_archive_execution_plan_module": "jarvis.runtime.final_v5_archive_execution_plan",
+        "active_final_v5_archive_execution_module": "jarvis.runtime.final_v5_archive_execution",
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
