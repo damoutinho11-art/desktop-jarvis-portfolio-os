@@ -72,3 +72,4 @@ outputs/product_mode_operator_latest.json
 outputs/correlation_risk_model_latest.json
 outputs/stock_specific_public_evidence_latest.json
 outputs/data_freshness_acquisition_gate_latest.json
+outputs/tradable_candidate_universe_gate_latest.json
