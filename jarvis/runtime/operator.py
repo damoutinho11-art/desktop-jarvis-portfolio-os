@@ -19,6 +19,7 @@ from jarvis.runtime.stock_specific_public_evidence import main as _stock_specifi
 from jarvis.runtime.data_freshness_acquisition_gate import main as _data_freshness_acquisition_gate_main
 from jarvis.runtime.tradable_candidate_universe_gate import main as _tradable_candidate_universe_gate_main
 from jarvis.runtime.stock_candidate_universe_expansion import main as _stock_candidate_universe_expansion_main
+from jarvis.runtime.cross_lane_dynamic_allocation_preflight import main as _cross_lane_dynamic_allocation_preflight_main
 
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
@@ -63,9 +64,9 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v85.0"
+ACTIVE_RUNTIME_STAGE = "v86.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "stock_candidate_universe_expansion"
+CURRENT_OPERATOR_SURFACE = "cross_lane_dynamic_allocation_preflight"
 ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE = "jarvis.runtime.platform_data_completeness_gate"
 ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE = "jarvis.runtime.monthly_expenses_intake"
 
@@ -114,6 +115,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_data_freshness_acquisition_gate_module": "jarvis.runtime.data_freshness_acquisition_gate",
         "active_tradable_candidate_universe_gate_module": "jarvis.runtime.tradable_candidate_universe_gate",
         "active_stock_candidate_universe_expansion_module": "jarvis.runtime.stock_candidate_universe_expansion",
+        "active_cross_lane_dynamic_allocation_preflight_module": "jarvis.runtime.cross_lane_dynamic_allocation_preflight",
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -138,6 +140,8 @@ def main(argv: list[str] | None = None) -> int:
     """Run the stable active J.A.R.V.I.S. operator surface."""
 
     args = list(sys.argv[1:] if argv is None else argv)
+    if "--cross-lane-dynamic-allocation-preflight" in args:
+        return _cross_lane_dynamic_allocation_preflight_main(args)
     if "--stock-candidate-universe-expansion" in args:
         return _stock_candidate_universe_expansion_main(args)
     if "--tradable-candidate-universe-gate" in args:
