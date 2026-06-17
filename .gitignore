@@ -61,3 +61,4 @@ outputs/active_runtime_surface_redundancy_audit_latest.json
 outputs/import_closure_safe_archive_plan_latest.json
 outputs/non_active_archive_candidate_report_latest.json
 outputs/reversible_archive_staging_plan_latest.json
+outputs/remaining_python_archive_risk_audit_latest.json

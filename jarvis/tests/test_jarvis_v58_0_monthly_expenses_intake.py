@@ -189,8 +189,8 @@ class JarvisV580MonthlyExpensesIntakeTests(unittest.TestCase):
     def test_runtime_surface_reports_v58_and_monthly_expenses_module(self) -> None:
         surface = runtime_operator.get_active_runtime_surface()
 
-        self.assertIn(surface["active_runtime_stage"], {"v58.0", "v59.0", "v60.0", "v61.0", "v62.0", "v63.0", "v64.0", "v65.0", "v66.0", "v67.0", "v68.0", "v69.0", "v70.0"})
-        self.assertIn(surface["current_operator_surface"], {"monthly_expenses_intake", "personal_finance_contribution_bridge", "manual_cost_basis_intake", "manual_cost_basis_bridge", "active_runtime_surface_redundancy_audit", "import_closure_safe_archive_plan", "stable_runtime_safety_facade", "import_closure_precision_hotfix", "import_closure_relative_import_precision", "non_active_archive_candidate_report", "reversible_archive_staging_plan", "reversible_report_archive_execution"})
+        self.assertIn(surface["active_runtime_stage"], {"v58.0", "v59.0", "v60.0", "v61.0", "v62.0", "v63.0", "v64.0", "v65.0", "v66.0", "v67.0", "v68.0", "v69.0", "v70.0", "v71.0"})
+        self.assertIn(surface["current_operator_surface"], {"monthly_expenses_intake", "personal_finance_contribution_bridge", "manual_cost_basis_intake", "manual_cost_basis_bridge", "active_runtime_surface_redundancy_audit", "import_closure_safe_archive_plan", "stable_runtime_safety_facade", "import_closure_precision_hotfix", "import_closure_relative_import_precision", "non_active_archive_candidate_report", "reversible_archive_staging_plan", "reversible_report_archive_execution", "remaining_python_archive_risk_audit"})
         self.assertEqual(
             surface["active_monthly_expenses_intake_module"],
             "jarvis.runtime.monthly_expenses_intake",

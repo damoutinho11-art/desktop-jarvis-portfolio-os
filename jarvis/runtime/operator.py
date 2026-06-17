@@ -56,9 +56,9 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v70.0"
+ACTIVE_RUNTIME_STAGE = "v71.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "reversible_report_archive_execution"
+CURRENT_OPERATOR_SURFACE = "remaining_python_archive_risk_audit"
 ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE = "jarvis.runtime.platform_data_completeness_gate"
 ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE = "jarvis.runtime.monthly_expenses_intake"
 
@@ -93,6 +93,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_non_active_archive_candidate_report_module": "jarvis.runtime.non_active_archive_candidate_report",
         "active_reversible_archive_staging_plan_module": "jarvis.runtime.reversible_archive_staging_plan",
         "active_reversible_report_archive_execution_archive_root": "archive/non_active/v70_report_only_python_safe",
+        "active_remaining_python_archive_risk_audit_module": "jarvis.runtime.remaining_python_archive_risk_audit",
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
