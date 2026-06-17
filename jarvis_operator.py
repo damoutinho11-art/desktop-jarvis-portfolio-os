@@ -1,6 +1,6 @@
-"""Root shortcut for the J.A.R.V.I.S. selected stock/fund/ETF instrument ticket bridge."""
+"""Root shortcut for the J.A.R.V.I.S. autonomous daily refresh action brief."""
 
-from jarvis.jarvis_v35_0_selected_stock_fund_etf_instrument_ticket_bridge import main
+from jarvis.jarvis_v36_0_autonomous_daily_refresh_action_brief import main
 
 
 if __name__ == "__main__":
