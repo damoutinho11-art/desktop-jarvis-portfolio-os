@@ -1,6 +1,6 @@
-"""Root shortcut for the J.A.R.V.I.S. free research cache evidence pack bridge."""
+"""Root shortcut for the stable J.A.R.V.I.S. runtime operator facade."""
 
-from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import main
+from jarvis.runtime.operator import main
 
 
 if __name__ == "__main__":

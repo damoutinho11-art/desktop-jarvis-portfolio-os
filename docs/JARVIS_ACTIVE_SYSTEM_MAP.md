@@ -15,7 +15,7 @@ jarvis_operator.py
 Current root target:
 
 ```text
-jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge
+jarvis.runtime.operator
 ```
 
 ## Current active command modes
@@ -92,3 +92,18 @@ Repository hygiene stages must not:
 - change approval-ticket semantics
 - create broker paths
 - create execution paths
+## Stable runtime facade
+
+As of v48, the root shortcut points to:
+
+```text
+jarvis.runtime.operator
+```
+
+The facade currently delegates to the validated v45 backend:
+
+```text
+jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge
+```
+
+This is a no-behavior-change cleanup step. Future slimline stages should migrate active behavior behind the stable facade before deleting legacy stage modules.

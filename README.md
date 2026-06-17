@@ -128,3 +128,12 @@ python -m unittest jarvis.tests.test_jarvis_v45_0_free_research_cache_evidence_p
 ```
 
 Older stage tests remain in the repository for historical coverage while the runtime dependency chain is being slimmed. Do not delete older `jarvis_v*.py` files blindly; the current operator still imports through earlier safety/source modules.
+## Stable runtime facade
+
+The root operator now points to the stable runtime facade:
+
+```text
+jarvis_operator.py -> jarvis.runtime.operator
+```
+
+The facade currently delegates to the validated v45 evidence-pack backend. This keeps future cleanup from forcing the root shortcut to chase every staged `jarvis_v*.py` file.
