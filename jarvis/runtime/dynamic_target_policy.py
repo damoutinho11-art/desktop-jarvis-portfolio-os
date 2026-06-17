@@ -16,7 +16,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Sequence
 
-from jarvis.jarvis_v16_0_real_daily_readiness_gate import build_safety_check_console_output
+from jarvis.runtime.safety import build_safety_check_console_output
 from jarvis.runtime.manual_portfolio_snapshot import DEFAULT_MANUAL_PORTFOLIO_SNAPSHOT_PATH
 from jarvis.runtime.portfolio_exposure_audit import (
     DEFAULT_IDEAL_EMERGENCY_MONTHS,

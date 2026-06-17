@@ -14,7 +14,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Mapping
 
-from jarvis.jarvis_v16_0_real_daily_readiness_gate import build_safety_check_console_output
+from jarvis.runtime.safety import build_safety_check_console_output
 
 STATUS_READY = "JARVIS_V61_0_MANUAL_COST_BASIS_INTAKE_READY_SAFE"
 STATUS_REVIEW_REQUIRED = "JARVIS_V61_0_MANUAL_COST_BASIS_INTAKE_REVIEW_REQUIRED_SAFE"

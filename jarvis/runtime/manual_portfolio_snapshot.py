@@ -16,7 +16,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
-from jarvis.jarvis_v16_0_real_daily_readiness_gate import build_safety_check_console_output
+from jarvis.runtime.safety import build_safety_check_console_output
 from jarvis.runtime.allocation_strategy_audit import DEFAULT_MANUAL_PORTFOLIO_SNAPSHOT_PATH
 
 STATUS_READY = "JARVIS_V52_0_MANUAL_PORTFOLIO_SNAPSHOT_INTAKE_READY_SAFE"

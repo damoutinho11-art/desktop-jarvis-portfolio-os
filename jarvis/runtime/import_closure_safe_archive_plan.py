@@ -16,7 +16,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Mapping
 
-from jarvis.jarvis_v16_0_real_daily_readiness_gate import build_safety_check_console_output
+from jarvis.runtime.safety import build_safety_check_console_output
 
 STATUS_READY = "JARVIS_V64_0_IMPORT_CLOSURE_SAFE_ARCHIVE_PLAN_READY_SAFE"
 AUDIT_READY = "IMPORT_CLOSURE_SAFE_ARCHIVE_PLAN_READY"
@@ -37,6 +37,7 @@ CURRENT_VALIDATION_COMMANDS = [
     "python -m unittest discover -s .\\jarvis\\tests -p \"test_jarvis_v62*.py\"",
     "python -m unittest discover -s .\\jarvis\\tests -p \"test_jarvis_v63*.py\"",
     "python -m unittest discover -s .\\jarvis\\tests -p \"test_jarvis_v64*.py\"",
+    "python -m unittest discover -s .\\jarvis\\tests -p \"test_jarvis_v65*.py\"",
 ]
 
 

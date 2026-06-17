@@ -16,7 +16,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Callable, Sequence
 
-from jarvis.jarvis_v16_0_real_daily_readiness_gate import build_safety_check_console_output
+from jarvis.runtime.safety import build_safety_check_console_output
 from jarvis.jarvis_v38_0_individual_stock_public_universe_engine import (
     DEFAULT_STOCK_SIGNALS_PATH,
     DEFAULT_STOCK_UNIVERSE_PATH,

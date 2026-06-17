@@ -17,7 +17,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-from jarvis.jarvis_v16_0_real_daily_readiness_gate import build_safety_check_console_output
+from jarvis.runtime.safety import build_safety_check_console_output
 from jarvis.runtime.dynamic_target_policy import (
     DynamicTargetPolicyResult,
     build_dynamic_target_policy_result,

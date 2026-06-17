@@ -15,7 +15,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
-from jarvis.jarvis_v16_0_real_daily_readiness_gate import build_safety_check_console_output
+from jarvis.runtime.safety import build_safety_check_console_output
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import DEFAULT_EVIDENCE_PACK_PATH
 from jarvis.runtime.dynamic_target_policy import DEFAULT_AGE_YEARS, build_dynamic_target_policy_result
 from jarvis.runtime.manual_portfolio_snapshot import DEFAULT_MANUAL_PORTFOLIO_SNAPSHOT_PATH
