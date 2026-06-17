@@ -1,6 +1,6 @@
-"""Root shortcut for the J.A.R.V.I.S. free research API fetcher adapters + local cache."""
+"""Root shortcut for the J.A.R.V.I.S. free research cache evidence pack bridge."""
 
-from jarvis.jarvis_v44_0_free_research_api_fetcher_adapters_local_cache import main
+from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import main
 
 
 if __name__ == "__main__":
