@@ -58,3 +58,4 @@ jarvis/local/legacy_migration_review.local.json
 jarvis/local/monthly_expenses.local.json
 jarvis/local/manual_cost_basis.local.json
 outputs/active_runtime_surface_redundancy_audit_latest.json
+outputs/import_closure_safe_archive_plan_latest.json

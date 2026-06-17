@@ -37,11 +37,13 @@ from jarvis.runtime.platform_data_completeness_gate import main as _platform_dat
 from jarvis.runtime.monthly_expenses_intake import main as _monthly_expenses_intake_main
 from jarvis.runtime.manual_cost_basis_intake import main as _manual_cost_basis_intake_main
 from jarvis.runtime.active_runtime_surface_redundancy_audit import main as _active_runtime_surface_redundancy_audit_main
+from jarvis.runtime.import_closure_safe_archive_plan import main as _import_closure_safe_archive_plan_main
 from jarvis.runtime.personal_finance_contribution_bridge import main as _personal_finance_contribution_bridge_main
 from jarvis.runtime.platform_data_completeness_gate import main as _platform_data_completeness_gate_main
 from jarvis.runtime.monthly_expenses_intake import main as _monthly_expenses_intake_main
 from jarvis.runtime.manual_cost_basis_intake import main as _manual_cost_basis_intake_main
 from jarvis.runtime.active_runtime_surface_redundancy_audit import main as _active_runtime_surface_redundancy_audit_main
+from jarvis.runtime.import_closure_safe_archive_plan import main as _import_closure_safe_archive_plan_main
 from jarvis.runtime.personal_finance_contribution_bridge import main as _personal_finance_contribution_bridge_main
 from jarvis.runtime.weekly_packet import (
     NEXT_STAGE as WEEKLY_PACKET_NEXT_STAGE,
@@ -54,9 +56,9 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v63.0"
+ACTIVE_RUNTIME_STAGE = "v64.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "active_runtime_surface_redundancy_audit"
+CURRENT_OPERATOR_SURFACE = "import_closure_safe_archive_plan"
 ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE = "jarvis.runtime.platform_data_completeness_gate"
 ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE = "jarvis.runtime.monthly_expenses_intake"
 
@@ -84,6 +86,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_manual_cost_basis_intake_module": "jarvis.runtime.manual_cost_basis_intake",
         "active_manual_cost_basis_bridge_module": "jarvis.runtime.personal_finance_contribution_bridge + jarvis.runtime.allocation_strategy_audit",
         "active_runtime_surface_redundancy_audit_module": "jarvis.runtime.active_runtime_surface_redundancy_audit",
+        "active_import_closure_safe_archive_plan_module": "jarvis.runtime.import_closure_safe_archive_plan",
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -125,6 +128,8 @@ def main(argv: list[str] | None = None) -> int:
         return _monthly_expenses_intake_main(args)
     if any(flag in args for flag in ("--platform-data-completeness-gate", "--write-platform-data-templates")):
         return _platform_data_completeness_gate_main(args)
+    if "--import-closure-safe-archive-plan" in args or "--write-import-closure-safe-archive-plan" in args:
+        return _import_closure_safe_archive_plan_main(args)
     if "--active-runtime-surface-redundancy-audit" in args or "--write-active-runtime-surface-audit" in args:
         return _active_runtime_surface_redundancy_audit_main(args)
     if "--manual-cost-basis-intake" in args or "--write-manual-cost-basis-template" in args:
