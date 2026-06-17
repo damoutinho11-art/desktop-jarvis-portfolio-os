@@ -68,3 +68,4 @@ outputs/validation_blocked_v5_replacement_plan_latest.json
 outputs/active_runtime_v5_replacement_coverage_latest.json
 outputs/final_v5_archive_execution_plan_latest.json
 outputs/final_v5_archive_execution_latest.json
+outputs/product_mode_operator_latest.json

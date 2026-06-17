@@ -13,6 +13,8 @@ from __future__ import annotations
 import sys
 from typing import Any
 
+from jarvis.runtime.product_mode_operator import main as _product_mode_operator_main
+
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
     EVIDENCE_BLOCKED,
@@ -56,9 +58,9 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v78.0"
+ACTIVE_RUNTIME_STAGE = "v79.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "final_v5_archive_execution"
+CURRENT_OPERATOR_SURFACE = "product_mode_operator"
 ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE = "jarvis.runtime.platform_data_completeness_gate"
 ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE = "jarvis.runtime.monthly_expenses_intake"
 
@@ -101,6 +103,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_runtime_v5_replacement_coverage_module": "jarvis.runtime.active_runtime_v5_replacement_coverage",
         "active_final_v5_archive_execution_plan_module": "jarvis.runtime.final_v5_archive_execution_plan",
         "active_final_v5_archive_execution_module": "jarvis.runtime.final_v5_archive_execution",
+        "active_product_mode_operator_module": "jarvis.runtime.product_mode_operator",
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -125,6 +128,8 @@ def main(argv: list[str] | None = None) -> int:
     """Run the stable active J.A.R.V.I.S. operator surface."""
 
     args = list(sys.argv[1:] if argv is None else argv)
+    if any(flag in args for flag in ("--today", "--week", "--status", "--product-mode")):
+        return _product_mode_operator_main(args)
     if any(
         flag in args
         for flag in (
