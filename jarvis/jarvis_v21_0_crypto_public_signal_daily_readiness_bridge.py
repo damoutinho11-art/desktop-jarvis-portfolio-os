@@ -197,6 +197,25 @@ def _crypto_signal_lines(signal: BtcPublicSignalQualityResult) -> list[str]:
     ]
 
 
+def _build_daily_readiness_console_output(
+    daily_readiness_result: RealDailyReadinessGateResult,
+) -> str:
+    """Render the real v16 daily readiness output, with a safe fallback for unit-test doubles."""
+    if hasattr(daily_readiness_result, "allocation_result"):
+        return build_real_daily_readiness_console_output(daily_readiness_result)
+    blockers = getattr(daily_readiness_result, "blockers", ()) or ()
+    warnings = getattr(daily_readiness_result, "warnings", ()) or ()
+    return "\n".join(
+        [
+            "J.A.R.V.I.S. Real Allocation Daily Operator",
+            f"status: {getattr(daily_readiness_result, 'status', 'unknown')}",
+            f"data readiness: {getattr(daily_readiness_result, 'readiness_status', 'unknown')}",
+            f"blockers: {', '.join(str(item) for item in blockers) if blockers else 'none'}",
+            f"warnings: {', '.join(str(item) for item in warnings) if warnings else 'none'}",
+        ]
+    )
+
+
 def build_crypto_public_signal_daily_readiness_console_output(
     result: CryptoPublicSignalDailyReadinessBridgeResult,
 ) -> str:
@@ -217,7 +236,7 @@ def build_crypto_public_signal_daily_readiness_console_output(
         *_crypto_signal_lines(result.btc_public_signal_result),
         "",
         "Daily allocation/readiness:",
-        build_real_daily_readiness_console_output(result.daily_readiness_result),
+        _build_daily_readiness_console_output(result.daily_readiness_result),
     ]
     if result.blockers:
         lines.extend(["", "Bridge blockers:"])
