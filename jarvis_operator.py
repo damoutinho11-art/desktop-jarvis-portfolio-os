@@ -1,6 +1,6 @@
-"""Root shortcut for the J.A.R.V.I.S. ranked individual stock candidate ticket bridge."""
+"""Root shortcut for the J.A.R.V.I.S. three-lane daily action brief."""
 
-from jarvis.jarvis_v41_0_ranked_individual_stock_candidate_ticket_bridge import main
+from jarvis.jarvis_v42_0_three_lane_daily_action_brief import main
 
 
 if __name__ == "__main__":
