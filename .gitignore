@@ -71,3 +71,4 @@ outputs/final_v5_archive_execution_latest.json
 outputs/product_mode_operator_latest.json
 outputs/correlation_risk_model_latest.json
 outputs/stock_specific_public_evidence_latest.json
+outputs/data_freshness_acquisition_gate_latest.json
