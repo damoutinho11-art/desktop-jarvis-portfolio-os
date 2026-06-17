@@ -164,3 +164,18 @@ python .\jarvis_operator.py --allocation-strategy-audit --current-date 2026-06-1
 ```
 
 The current implemented strategy is a weekly manual amount router. Full portfolio allocation remains blocked until required manual portfolio data and risk-policy coverage are complete.
+## Manual portfolio snapshot intake
+
+J.A.R.V.I.S. can create a local brokerless snapshot template:
+
+```powershell
+python .\jarvis_operator.py --write-manual-portfolio-snapshot-template --current-date 2026-06-17
+```
+
+Then audit it:
+
+```powershell
+python .\jarvis_operator.py --manual-portfolio-snapshot-intake --current-date 2026-06-17
+```
+
+The snapshot is local-only, ignored by git, and must not contain credentials, broker tokens, or API keys.

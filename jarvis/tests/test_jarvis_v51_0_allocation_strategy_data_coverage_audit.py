@@ -129,10 +129,10 @@ class JarvisV510AllocationStrategyDataCoverageAuditTests(unittest.TestCase):
         self.assertIn("full allocation allowed: False", output)
         self.assertIn("approval ticket mutation: False", output)
 
-    def test_runtime_surface_reports_v51_and_audit_module(self) -> None:
+    def test_runtime_surface_keeps_allocation_audit_module_after_later_stages(self) -> None:
         surface = runtime_operator.get_active_runtime_surface()
 
-        self.assertEqual(surface["active_runtime_stage"], "v51.0")
+        self.assertIn("active_runtime_stage", surface)
         self.assertEqual(
             surface["active_allocation_strategy_audit_module"],
             "jarvis.runtime.allocation_strategy_audit",

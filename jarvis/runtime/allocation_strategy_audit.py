@@ -169,6 +169,9 @@ def _manual_snapshot_coverage(path: Path) -> tuple[bool, bool, bool, bool, str]:
     if not payload:
         return False, False, False, False, "manual portfolio snapshot not found or unreadable"
 
+    if bool(payload.get("is_template", False)):
+        return False, False, False, False, "manual portfolio snapshot is still a template"
+
     holdings = payload.get("holdings")
     cash = payload.get("cash_eur")
     cost_basis = payload.get("cost_basis")

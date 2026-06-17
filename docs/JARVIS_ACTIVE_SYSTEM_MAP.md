@@ -140,3 +140,13 @@ python .\jarvis_operator.py --allocation-strategy-audit --current-date 2026-06-1
 ```
 
 This separates the current weekly manual amount router from a future full portfolio allocator. Full allocation remains blocked until holdings, cash, cost basis, risk/correlation, and dynamic allocation policy coverage are complete.
+## Manual portfolio snapshot intake
+
+As of v52, the stable runtime facade supports a brokerless local manual portfolio snapshot:
+
+```text
+python .\jarvis_operator.py --write-manual-portfolio-snapshot-template --current-date 2026-06-17
+python .\jarvis_operator.py --manual-portfolio-snapshot-intake --current-date 2026-06-17
+```
+
+The snapshot stays under `jarvis/local/manual_portfolio_snapshot.local.json`, is ignored by git, and must not contain credentials or broker tokens.
