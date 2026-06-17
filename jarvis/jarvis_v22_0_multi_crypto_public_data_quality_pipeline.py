@@ -221,14 +221,27 @@ def _safe_source_id(value: str) -> str:
     return safe or "unknown_source"
 
 
+def _candidate_jarvis_local_roots(path: Path, root: Path) -> tuple[Path, ...]:
+    """Return acceptable jarvis/local roots for relative and absolute local cache paths."""
+    resolved = path.resolve()
+    roots: list[Path] = [(root / "jarvis" / "local").resolve()]
+    parts = resolved.parts
+    lowered = [part.lower() for part in parts]
+    for index in range(len(lowered) - 1):
+        if lowered[index] == "jarvis" and lowered[index + 1] == "local":
+            roots.append(Path(*parts[: index + 2]).resolve())
+    return tuple(dict.fromkeys(roots))
+
+
 def _is_under_jarvis_local(path: Path, root: Path) -> bool:
     resolved = path.resolve()
-    local_root = (root / "jarvis" / "local").resolve()
-    try:
-        resolved.relative_to(local_root)
-        return True
-    except ValueError:
-        return False
+    for local_root in _candidate_jarvis_local_roots(path, root):
+        try:
+            resolved.relative_to(local_root)
+            return True
+        except ValueError:
+            continue
+    return False
 
 
 def _dedupe(items: list[str]) -> tuple[str, ...]:

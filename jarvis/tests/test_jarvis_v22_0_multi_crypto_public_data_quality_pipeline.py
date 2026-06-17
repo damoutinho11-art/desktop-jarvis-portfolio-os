@@ -129,6 +129,22 @@ class JarvisV220MultiCryptoPublicDataQualityPipelineTests(unittest.TestCase):
             self.assertEqual(result.status, STATUS_REVIEW_REQUIRED)
             self.assertIn("raw_directory must be under ignored jarvis/local", " ".join(result.blockers))
 
+    def test_absolute_directories_are_allowed_when_under_jarvis_local(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for config in DEFAULT_CANDIDATES:
+                price = 56000.0 if config.candidate_id == "btc" else 50.0
+                _write_raw(root, config.source_id, config.coingecko_key, price=price)
+
+            result = build_multi_crypto_public_data_quality_pipeline_result(
+                raw_directory=root / "jarvis" / "local" / "public_data" / "v10_raw",
+                normalized_directory=root / "jarvis" / "local" / "public_data" / "v22_multi_crypto_normalized",
+                current_date="2026-06-17",
+            )
+
+            self.assertEqual(result.status, STATUS_READY)
+            self.assertEqual(result.source_quality_ready_count, 3)
+
     def test_console_output_summarizes_multi_crypto_signals(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
