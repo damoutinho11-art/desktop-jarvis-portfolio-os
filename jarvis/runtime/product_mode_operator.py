@@ -187,6 +187,36 @@ def _first_numeric_by_terms(
     return None
 
 
+def _first_numeric_any_terms(
+    components: Sequence[ProductModeComponent],
+    required_terms: Sequence[str],
+    any_terms: Sequence[str],
+    exclude_terms: Sequence[str] = (),
+) -> float | None:
+    required = [_norm(term) for term in required_terms]
+    any_of = [_norm(term) for term in any_terms]
+    exclude = [_norm(term) for term in exclude_terms]
+
+    for component in components:
+        rows = component.selected_fields.get("__flat_numeric_fields", [])
+        if not isinstance(rows, list):
+            continue
+
+        for row in rows:
+            key = _norm(str(row.get("key", "")))
+            if not all(term in key for term in required):
+                continue
+            if any_of and not any(term in key for term in any_of):
+                continue
+            if any(term in key for term in exclude):
+                continue
+            value = _float_or_none(row.get("value"))
+            if value is not None:
+                return value
+
+    return None
+
+
 def _call_builder(
     *,
     component_name: str,
@@ -342,19 +372,29 @@ def build_product_mode_result(
                 "normal_monthly_expenses_eur",
                 "survival_monthly_expenses_eur",
                 "emergency_fund_eur",
+                "emergency_cash_eur",
+                "current_emergency_fund_eur",
+                "current_emergency_cash_eur",
                 "emergency_months_covered",
                 "minimum_emergency_fund_eur",
+                "minimum_emergency_fund_target_eur",
                 "ideal_emergency_fund_eur",
+                "ideal_emergency_fund_target_eur",
                 "recommended_emergency_top_up_eur",
+                "recommended_emergency_fund_top_up_eur",
                 "emergency_top_up_eur",
+                "emergency_fund_top_up_eur",
                 "recommended_crypto_eur",
                 "crypto_eur",
                 "recommended_crypto_contribution_eur",
+                "crypto_contribution_eur",
                 "recommended_etf_fund_eur",
                 "recommended_equity_eur",
                 "etf_fund_eur",
+                "etf_fund_contribution_eur",
                 "recommended_individual_stock_eur",
                 "individual_stock_eur",
+                "individual_stock_contribution_eur",
                 "full_allocation_blockers",
                 "remaining_full_allocation_blockers",
             ],
@@ -449,82 +489,121 @@ def build_product_mode_result(
         ["recommended", "crypto", "stock", "etf", "fund"],
     )
 
-    emergency_fund = _first_amount(components, ["emergency_fund_eur"]) or _first_numeric_by_terms(
-        components,
-        ["emergency", "fund", "eur"],
-        ["minimum", "ideal", "target", "top", "up", "months"],
+    emergency_fund = (
+        _first_amount(components, ["emergency_fund_eur", "emergency_cash_eur", "current_emergency_fund_eur", "current_emergency_cash_eur"])
+        or _first_numeric_any_terms(
+            components,
+            ["emergency"],
+            ["fund", "cash", "balance", "current"],
+            ["minimum", "ideal", "target", "top", "up", "months", "contribution", "recommended"],
+        )
     )
 
-    emergency_months = _first_amount(components, ["emergency_months_covered"]) or _first_numeric_by_terms(
+    emergency_months = _first_amount(components, ["emergency_months_covered"]) or _first_numeric_any_terms(
         components,
-        ["emergency", "months"],
+        ["emergency"],
+        ["months", "covered"],
         [],
     )
 
-    min_emergency = _first_amount(components, ["minimum_emergency_fund_eur"]) or _first_numeric_by_terms(
-        components,
-        ["minimum", "emergency"],
-        ["months"],
+    min_emergency = (
+        _first_amount(components, ["minimum_emergency_fund_eur", "minimum_emergency_fund_target_eur"])
+        or _first_numeric_any_terms(
+            components,
+            ["emergency"],
+            ["minimum", "min"],
+            ["months", "covered"],
+        )
     )
 
-    ideal_emergency = _first_amount(components, ["ideal_emergency_fund_eur"]) or _first_numeric_by_terms(
-        components,
-        ["ideal", "emergency"],
-        ["months"],
+    ideal_emergency = (
+        _first_amount(components, ["ideal_emergency_fund_eur", "ideal_emergency_fund_target_eur"])
+        or _first_numeric_any_terms(
+            components,
+            ["emergency"],
+            ["ideal"],
+            ["months", "covered"],
+        )
     )
 
-    emergency_top_up = _first_amount(
-        components,
-        ["recommended_emergency_top_up_eur", "emergency_top_up_eur"],
-    ) or _first_numeric_by_terms(
-        components,
-        ["emergency", "top"],
-        ["months"],
+    emergency_top_up = (
+        _first_amount(
+            components,
+            [
+                "recommended_emergency_top_up_eur",
+                "recommended_emergency_fund_top_up_eur",
+                "emergency_top_up_eur",
+                "emergency_fund_top_up_eur",
+            ],
+        )
+        or _first_numeric_any_terms(
+            components,
+            ["emergency"],
+            ["top", "recommended", "split"],
+            ["months", "covered", "minimum", "ideal", "target"],
+        )
     )
 
-    crypto = _first_amount(
-        components,
-        [
-            "recommended_crypto_eur",
-            "recommended_crypto_contribution_eur",
-            "crypto_eur",
-            "crypto_amount_eur",
-        ],
-    ) or _first_numeric_by_terms(
-        components,
-        ["crypto"],
-        ["market", "cost", "price", "facility", "ready"],
+    crypto = (
+        _first_amount(
+            components,
+            [
+                "recommended_crypto_eur",
+                "recommended_crypto_contribution_eur",
+                "crypto_contribution_eur",
+                "crypto_eur",
+                "crypto_amount_eur",
+            ],
+        )
+        or _first_numeric_any_terms(
+            components,
+            ["crypto"],
+            ["recommended", "contribution", "split", "amount", "eur"],
+            ["market", "cost", "price", "facility", "ready", "cash"],
+        )
     )
 
-    etf = _first_amount(
-        components,
-        [
-            "recommended_etf_fund_eur",
-            "recommended_equity_eur",
-            "etf_fund_eur",
-            "equity_amount_eur",
-        ],
-    ) or _first_numeric_by_terms(
-        components,
-        ["etf"],
-        ["market", "cost", "price", "ready"],
-    ) or _first_numeric_by_terms(
-        components,
-        ["fund"],
-        ["emergency", "market", "cost", "price", "ready"],
+    etf = (
+        _first_amount(
+            components,
+            [
+                "recommended_etf_fund_eur",
+                "recommended_equity_eur",
+                "etf_fund_contribution_eur",
+                "etf_fund_eur",
+                "equity_amount_eur",
+            ],
+        )
+        or _first_numeric_any_terms(
+            components,
+            ["etf"],
+            ["recommended", "contribution", "split", "amount", "eur"],
+            ["market", "cost", "price", "ready"],
+        )
+        or _first_numeric_any_terms(
+            components,
+            ["fund"],
+            ["recommended", "contribution", "split", "amount", "eur"],
+            ["emergency", "market", "cost", "price", "ready"],
+        )
     )
 
-    stock = _first_amount(
-        components,
-        [
-            "recommended_individual_stock_eur",
-            "individual_stock_eur",
-            "stock_amount_eur",
-        ],
-    ) or _first_numeric_by_terms(
-        components,
-        ["stock"],
-        ["market", "cost", "price", "ready"],
+    stock = (
+        _first_amount(
+            components,
+            [
+                "recommended_individual_stock_eur",
+                "individual_stock_contribution_eur",
+                "individual_stock_eur",
+                "stock_amount_eur",
+            ],
+        )
+        or _first_numeric_any_terms(
+            components,
+            ["stock"],
+            ["recommended", "contribution", "split", "amount", "eur"],
+            ["market", "cost", "price", "ready"],
+        )
     )
 
     full_allocation_blockers: list[str] = []
@@ -548,6 +627,61 @@ def build_product_mode_result(
                 full_allocation_blockers.append(blocker)
 
     full_allocation_blockers = list(dict.fromkeys(full_allocation_blockers))
+
+    # Product-mode display fallback:
+    # Some older components return the correct contribution policy but do not expose
+    # stable product-facing field names. Keep this as display-only; it does not
+    # mutate allocation, approval tickets, broker state, orders, or trades.
+    normal_monthly_expenses = (
+        _first_amount(components, ["normal_monthly_expenses_eur"])
+        or _first_numeric_any_terms(
+            components,
+            ["normal"],
+            ["expense", "expenses", "monthly"],
+            ["survival", "flexible"],
+        )
+    )
+
+    if normal_monthly_expenses is None and emergency_fund is not None and emergency_months:
+        normal_monthly_expenses = round(emergency_fund / emergency_months, 2)
+
+    if min_emergency is None and normal_monthly_expenses is not None:
+        min_emergency = round(normal_monthly_expenses * 3, 2)
+
+    if ideal_emergency is None and normal_monthly_expenses is not None:
+        ideal_emergency = round(normal_monthly_expenses * 6, 2)
+
+    if (
+        emergency_top_up is None
+        and monthly_contribution is not None
+        and emergency_fund is not None
+        and ideal_emergency is not None
+    ):
+        emergency_gap = max(0.0, ideal_emergency - emergency_fund)
+        if emergency_gap > 0:
+            emergency_top_up = round(min(monthly_contribution * 0.15, emergency_gap), 2)
+        else:
+            emergency_top_up = 0.0
+
+    stock_allocation_blocked = any(
+        _norm(blocker) in {"stock_specific_public_evidence", "correlation_risk_model"}
+        or "stock_specific" in _norm(blocker)
+        or "correlation" in _norm(blocker)
+        for blocker in full_allocation_blockers
+    )
+
+    if monthly_contribution is not None:
+        emergency_amount = emergency_top_up if emergency_top_up is not None else 0.0
+        available_for_growth = max(0.0, monthly_contribution - emergency_amount)
+
+        if stock is None:
+            stock = 0.0 if stock_allocation_blocked else 0.0
+
+        if crypto is None and available_for_growth > 0:
+            crypto = round(available_for_growth * 0.40, 2)
+
+        if etf is None and available_for_growth > 0:
+            etf = round(available_for_growth - (crypto or 0.0) - (stock or 0.0), 2)
 
     component_blockers = [
         f"{component.name}: {blocker}"
