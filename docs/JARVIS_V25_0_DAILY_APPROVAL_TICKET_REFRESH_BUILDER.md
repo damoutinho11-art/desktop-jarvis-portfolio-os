@@ -30,3 +30,10 @@ Excluded:
 ## Safety note
 
 This stage intentionally mutates the local approval ticket when `--write-ticket` is used. That is not a broker action and not a buy request. It is only a local manual-review artifact.
+
+## v25.1 as-of basis hotfix
+
+The approval ticket must not claim a fresher `as_of` date than the allocation engine basis. If the allocation result is still based on an older portfolio state, the ticket uses that allocation `as_of` and stores the actual build date separately as `generated_at` / `ticket_generated_at`.
+
+This prevents the daily readiness gate from blocking on an approval-ticket/allocation as-of mismatch while still keeping stale portfolio review warnings visible.
+

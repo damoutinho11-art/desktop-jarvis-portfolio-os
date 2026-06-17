@@ -23,6 +23,7 @@ def _fake_bridge() -> SimpleNamespace:
         blockers=(),
         warnings=("portfolio_state is stale",),
         allocation_result={
+            "as_of": "2026-06-04",
             "portfolio_mode": "transition_mode",
             "weekly_budget": 103.85,
             "selected_ideal_sleeve": "quality_etf",
@@ -79,7 +80,8 @@ class JarvisV250DailyApprovalTicketRefreshBuilderTests(unittest.TestCase):
         self.assertTrue(result.private_account_data_ingestion_forbidden)
         self.assertTrue(result.order_creation_forbidden)
         self.assertTrue(result.no_trades_executed)
-        self.assertEqual(result.approval_ticket["as_of"], "2026-06-17")
+        self.assertEqual(result.approval_ticket["as_of"], "2026-06-04")
+        self.assertEqual(result.approval_ticket["generated_at"], "2026-06-17")
         self.assertEqual(result.approval_ticket["selected_crypto_candidate"], "btc")
         self.assertEqual(result.approval_ticket["selected_stock_fund_etf_candidate"], "quality_etf")
 
@@ -99,7 +101,9 @@ class JarvisV250DailyApprovalTicketRefreshBuilderTests(unittest.TestCase):
             self.assertTrue(result.approval_ticket_mutation)
             self.assertTrue(output.exists())
             payload = json.loads(output.read_text(encoding="utf-8"))
-            self.assertEqual(payload["ticket_id"], "JARVIS-2026-06-17-daily-dual-lane-manual-approval")
+            self.assertEqual(payload["ticket_id"], "JARVIS-2026-06-04-daily-dual-lane-manual-approval")
+            self.assertEqual(payload["as_of"], "2026-06-04")
+            self.assertEqual(payload["generated_at"], "2026-06-17")
             self.assertFalse(payload["buy_request_created"])
 
     def test_blocks_output_outside_outputs_directory(self) -> None:

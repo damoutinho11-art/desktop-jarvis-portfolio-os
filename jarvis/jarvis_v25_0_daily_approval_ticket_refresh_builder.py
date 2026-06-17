@@ -163,10 +163,14 @@ def build_daily_approval_ticket(
     warnings = _dedupe(list(getattr(bridge_result, "warnings", ())) + list(daily.get("warnings") or []))
     blockers = _dedupe(list(getattr(bridge_result, "blockers", ())) + list(daily.get("blockers") or []))
     stale_review_required = bool(daily.get("stale_data_review_required"))
+    allocation_basis_as_of = str(allocation_result.get("as_of") or current_date)
 
     return {
-        "ticket_id": f"JARVIS-{current_date}-daily-dual-lane-manual-approval",
-        "as_of": current_date,
+        "ticket_id": f"JARVIS-{allocation_basis_as_of}-daily-dual-lane-manual-approval",
+        "as_of": allocation_basis_as_of,
+        "allocation_basis_as_of": allocation_basis_as_of,
+        "generated_at": current_date,
+        "ticket_generated_at": current_date,
         "timestamp": current_date,
         "approval_notice": APPROVAL_NOTICE,
         "approval_status": "pending_manual_approval",
@@ -310,6 +314,8 @@ def format_daily_approval_ticket_refresh_builder(
         f"status: {result.status}",
         f"builder status: {result.builder_status}",
         f"current date: {result.current_date}",
+        f"ticket as_of: {result.approval_ticket.get('as_of', 'none') if result.approval_ticket else 'none'}",
+        f"ticket generated_at: {result.approval_ticket.get('generated_at', 'none') if result.approval_ticket else 'none'}",
         f"output path: {result.output_path}",
         f"approval ticket written: {result.approval_ticket_written}",
         f"selected crypto candidate: {result.selected_crypto_candidate or 'none'}",
