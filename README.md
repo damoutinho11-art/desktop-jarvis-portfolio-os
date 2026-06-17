@@ -146,3 +146,12 @@ python .\jarvis_operator.py --weekly-buy-prep --current-date 2026-06-17 --refres
 ```
 
 The packet summarizes the crypto action, ETF/fund action, individual-stock review, evidence, risk notes, and safety state. It remains manual-only: no broker, no buy request, no order, and no trade.
+## Manual weekly amount router
+
+Weekly buy-prep mode accepts a budget and proposes manual review amounts:
+
+```powershell
+python .\jarvis_operator.py --weekly-buy-prep --current-date 2026-06-17 --weekly-budget-eur 100 --refresh-free-research-cache --write-evidence-pack
+```
+
+The router is evidence-aware and manual-only. It does not mutate allocation, approve buys, create buy requests, connect to brokers, create orders, or execute trades.

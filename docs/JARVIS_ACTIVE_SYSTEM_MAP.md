@@ -122,3 +122,12 @@ jarvis.runtime.weekly_packet
 ```
 
 Daily mode still delegates to the validated v45 evidence-pack backend.
+## Manual weekly amount router
+
+As of v50, weekly buy-prep mode can route a provided weekly budget into manual review amounts:
+
+```text
+python .\jarvis_operator.py --weekly-buy-prep --current-date 2026-06-17 --weekly-budget-eur 100 --refresh-free-research-cache --write-evidence-pack
+```
+
+This is not execution and not allocation mutation. It is a review proposal inside the manual packet.

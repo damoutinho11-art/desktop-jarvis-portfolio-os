@@ -100,17 +100,22 @@ class JarvisV490WeeklyManualBuyPacketTests(unittest.TestCase):
         stock_evidence = "\n".join(result.stock_review_action.evidence_summary)
         self.assertIn("sec_edgar_official", stock_evidence)
         self.assertIn("fmp_free_optional", stock_evidence)
-    def test_budget_can_be_displayed_but_not_allocated(self) -> None:
+    def test_budget_can_be_displayed_and_routed_without_allocation_mutation(self) -> None:
+        evidence_items = (
+            _evidence("coingecko_free_or_demo", "crypto", "PUBLIC_CRYPTO_SOURCE_READY"),
+            _evidence("ecb_fx_official", "fx", "OFFICIAL_FREE_SOURCE_READY"),
+        )
         result = build_weekly_manual_buy_packet_result(
             current_date="2026-06-17",
             weekly_budget_eur="100",
-            upstream_result=_upstream(),
+            upstream_result=_upstream(evidence_items=evidence_items),
         )
 
         self.assertEqual(result.weekly_budget_eur, 100.0)
         self.assertFalse(result.manual_budget_required)
-        self.assertIsNone(result.crypto_action.amount_eur)
-        self.assertTrue(result.crypto_action.manual_amount_required)
+        self.assertEqual(result.crypto_action.amount_eur, 40.0)
+        self.assertEqual(result.equity_action.amount_eur, 60.0)
+        self.assertEqual(result.stock_review_action.amount_eur, 0.0)
         self.assertFalse(result.allocation_mutation)
 
     def test_format_contains_user_facing_packet_and_safety(self) -> None:

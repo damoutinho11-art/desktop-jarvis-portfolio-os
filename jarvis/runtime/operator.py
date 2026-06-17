@@ -35,9 +35,9 @@ from jarvis.runtime.weekly_packet import (
 
 ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge"
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
-ACTIVE_RUNTIME_STAGE = "v49.0"
+ACTIVE_RUNTIME_STAGE = "v50.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "weekly_manual_buy_packet_with_v45_daily_backend"
+CURRENT_OPERATOR_SURFACE = "manual_weekly_amount_router_with_v45_daily_backend"
 
 
 def get_active_runtime_surface() -> dict[str, str]:
