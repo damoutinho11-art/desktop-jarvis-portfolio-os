@@ -107,3 +107,18 @@ jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge
 ```
 
 This is a no-behavior-change cleanup step. Future slimline stages should migrate active behavior behind the stable facade before deleting legacy stage modules.
+## Weekly manual buy packet
+
+As of v49, weekly buy-prep mode is user-facing:
+
+```text
+python .\jarvis_operator.py --weekly-buy-prep --current-date 2026-06-17 --refresh-free-research-cache --write-evidence-pack
+```
+
+The stable runtime facade routes weekly mode to:
+
+```text
+jarvis.runtime.weekly_packet
+```
+
+Daily mode still delegates to the validated v45 evidence-pack backend.

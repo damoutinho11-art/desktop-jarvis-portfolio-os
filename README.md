@@ -137,3 +137,12 @@ jarvis_operator.py -> jarvis.runtime.operator
 ```
 
 The facade currently delegates to the validated v45 evidence-pack backend. This keeps future cleanup from forcing the root shortcut to chase every staged `jarvis_v*.py` file.
+## Weekly manual buy packet
+
+Weekly buy-prep mode now produces a user-facing manual packet:
+
+```powershell
+python .\jarvis_operator.py --weekly-buy-prep --current-date 2026-06-17 --refresh-free-research-cache --write-evidence-pack
+```
+
+The packet summarizes the crypto action, ETF/fund action, individual-stock review, evidence, risk notes, and safety state. It remains manual-only: no broker, no buy request, no order, and no trade.
