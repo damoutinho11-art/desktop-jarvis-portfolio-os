@@ -43,3 +43,5 @@ jarvis/local/free_research_api_cache.local.json
 jarvis/local/free_research_api_cache.*.json
 outputs/free_research_evidence_pack_latest.json
 outputs/free_research_evidence_pack_*.json
+outputs/runtime_dependency_slimline_audit_latest.json
+outputs/runtime_dependency_slimline_audit_*.json
