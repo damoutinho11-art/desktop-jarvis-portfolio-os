@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Mapping
@@ -20,7 +21,7 @@ STATUS_REVIEW_REQUIRED = "JARVIS_V84_0_TRADABLE_CANDIDATE_UNIVERSE_GATE_REVIEW_R
 
 MIN_CRYPTO = 5
 MIN_ETF = 3
-MIN_STOCK = 5
+MIN_STOCK = 15
 
 DEFAULT_PATHS = [
     "outputs/approval_ticket_latest.json",
@@ -98,6 +99,11 @@ def _dedupe(items: list[str]) -> list[str]:
     return out
 
 
+def _contains_known_token(text: str, token: str) -> bool:
+    pattern = rf"(?<![A-Z0-9_.:-]){re.escape(token.upper())}(?![A-Z0-9_.:-])"
+    return re.search(pattern, text.upper()) is not None
+
+
 def _candidates(rows: list[dict[str, Any]], lane: str) -> list[str]:
     crypto_known = [
         "BTC", "ETH", "SOL", "HYPE", "LINK", "AVAX", "NEAR", "INJ", "RENDER", "TAO",
@@ -111,7 +117,9 @@ def _candidates(rows: list[dict[str, Any]], lane: str) -> list[str]:
     ]
 
     stock_known = [
-        "MSFT", "META", "AAPL", "NVDA", "GOOGL", "AMZN", "TSLA", "AVGO", "ASML", "AMD",
+        "MSFT", "META", "AAPL", "NVDA", "GOOGL", "AMZN", "AVGO", "ASML", "AMD",
+        "JPM", "V", "MA", "UNH", "LLY", "JNJ", "COST", "HD", "PG", "KO", "PEP",
+        "XOM", "CVX", "CAT", "CRM", "NFLX",
     ]
 
     known = {
@@ -122,9 +130,9 @@ def _candidates(rows: list[dict[str, Any]], lane: str) -> list[str]:
 
     found: list[str] = []
     for row in rows:
-        text = _txt(row)
+        text = json.dumps(row, sort_keys=True, default=str).upper()
         for token in known:
-            if token.lower() in text:
+            if _contains_known_token(text, token):
                 found.append(token)
 
     return _dedupe(found)

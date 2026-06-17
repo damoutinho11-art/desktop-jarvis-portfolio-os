@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 import tempfile
@@ -42,9 +42,9 @@ class JarvisV840TradableCandidateUniverseGateTests(unittest.TestCase):
         self.assertGreaterEqual(result.crypto_candidate_count, gate.MIN_CRYPTO)
         self.assertGreaterEqual(result.etf_candidate_count, gate.MIN_ETF)
         self.assertLess(result.stock_candidate_count, gate.MIN_STOCK)
-        self.assertIn("stock_candidates_2_of_5", result.missing_breadth)
+        self.assertIn("stock_candidates_2_of_15", result.missing_breadth)
         self.assertIn("stock_data_freshness_with_as_of", result.missing_freshness)
-        self.assertIn("stock_candidates_2_of_5", result.blockers)
+        self.assertIn("stock_candidates_2_of_15", result.blockers)
 
     def test_allows_dynamic_allocator_when_breadth_and_freshness_pass(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -55,7 +55,7 @@ class JarvisV840TradableCandidateUniverseGateTests(unittest.TestCase):
                 {
                     "crypto": ["BTC", "ETH", "SOL", "HYPE", "LINK"],
                     "etfs": ["QUALITY_ETF", "GLOBAL_CORE_ETF", "SXR8"],
-                    "stocks": ["MSFT", "META", "AAPL", "NVDA", "GOOGL"],
+                    "stocks": ["MSFT", "META", "AAPL", "NVDA", "GOOGL", "AMZN", "AVGO", "ASML", "AMD", "JPM", "V", "MA", "UNH", "LLY", "JNJ"],
                 },
             )
 

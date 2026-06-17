@@ -39,7 +39,7 @@ class JarvisV850StockCandidateUniverseExpansionTests(unittest.TestCase):
             ):
                 result = build_stock_candidate_universe_expansion_result(
                     current_date="2026-06-18",
-                    symbols=["MSFT", "META", "AAPL", "NVDA", "GOOGL"],
+                    symbols=["MSFT", "META", "AAPL", "NVDA", "GOOGL", "AMZN", "AVGO", "ASML", "AMD", "JPM", "V", "MA", "UNH", "LLY", "JNJ"],
                     write_candidates=True,
                     output_path=str(output),
                 )
@@ -48,7 +48,7 @@ class JarvisV850StockCandidateUniverseExpansionTests(unittest.TestCase):
 
         self.assertEqual(result.status, STATUS_READY)
         self.assertTrue(result.stock_universe_ready)
-        self.assertEqual(result.fresh_candidate_count, 5)
+        self.assertEqual(result.fresh_candidate_count, 15)
         self.assertTrue(result.output_written)
         self.assertEqual(result.blockers, [])
 
@@ -60,12 +60,12 @@ class JarvisV850StockCandidateUniverseExpansionTests(unittest.TestCase):
             result = build_stock_candidate_universe_expansion_result(
                 current_date="2026-06-18",
                 symbols=["MSFT", "META"],
-                min_required_candidates=5,
+                min_required_candidates=15,
             )
 
         self.assertEqual(result.status, STATUS_REVIEW_REQUIRED)
         self.assertFalse(result.stock_universe_ready)
-        self.assertIn("fresh_stock_candidates_2_of_5", result.blockers)
+        self.assertIn("fresh_stock_candidates_2_of_15", result.blockers)
 
     def test_safety_flags_remain_manual_only(self) -> None:
         with patch(
@@ -73,7 +73,7 @@ class JarvisV850StockCandidateUniverseExpansionTests(unittest.TestCase):
             side_effect=fake_quote,
         ):
             result = build_stock_candidate_universe_expansion_result(
-                symbols=["MSFT", "META", "AAPL", "NVDA", "GOOGL"],
+                symbols=["MSFT", "META", "AAPL", "NVDA", "GOOGL", "AMZN", "AVGO", "ASML", "AMD", "JPM", "V", "MA", "UNH", "LLY", "JNJ"],
             )
 
         self.assertTrue(result.safety_check_blocked_execution)

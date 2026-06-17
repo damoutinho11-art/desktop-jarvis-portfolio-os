@@ -14,19 +14,9 @@ STATUS_READY = "JARVIS_V85_0_STOCK_CANDIDATE_UNIVERSE_EXPANSION_READY_SAFE"
 STATUS_REVIEW_REQUIRED = "JARVIS_V85_0_STOCK_CANDIDATE_UNIVERSE_EXPANSION_REVIEW_REQUIRED_SAFE"
 
 DEFAULT_OUTPUT_PATH = "jarvis/local/individual_stock_ranked_candidates.local.json"
-DEFAULT_SYMBOLS = ["MSFT", "META", "AAPL", "NVDA", "GOOGL", "AMZN", "AVGO", "ASML", "AMD"]
+DEFAULT_SYMBOLS = ['MSFT', 'META', 'AAPL', 'NVDA', 'GOOGL', 'AMZN', 'AVGO', 'ASML', 'AMD', 'JPM', 'V', 'MA', 'UNH', 'LLY', 'JNJ', 'COST', 'HD', 'PG', 'KO', 'PEP', 'XOM', 'CVX', 'CAT', 'CRM', 'NFLX']
 
-NAMES = {
-    "MSFT": "Microsoft Corporation",
-    "META": "Meta Platforms Inc.",
-    "AAPL": "Apple Inc.",
-    "NVDA": "NVIDIA Corporation",
-    "GOOGL": "Alphabet Inc.",
-    "AMZN": "Amazon.com Inc.",
-    "AVGO": "Broadcom Inc.",
-    "ASML": "ASML Holding N.V.",
-    "AMD": "Advanced Micro Devices Inc.",
-}
+NAMES = {'MSFT': 'Microsoft Corporation', 'META': 'Meta Platforms Inc.', 'AAPL': 'Apple Inc.', 'NVDA': 'NVIDIA Corporation', 'GOOGL': 'Alphabet Inc.', 'AMZN': 'Amazon.com Inc.', 'AVGO': 'Broadcom Inc.', 'ASML': 'ASML Holding N.V.', 'AMD': 'Advanced Micro Devices Inc.', 'JPM': 'JPMorgan Chase & Co.', 'V': 'Visa Inc.', 'MA': 'Mastercard Inc.', 'UNH': 'UnitedHealth Group Inc.', 'LLY': 'Eli Lilly and Company', 'JNJ': 'Johnson & Johnson', 'COST': 'Costco Wholesale Corporation', 'HD': 'The Home Depot Inc.', 'PG': 'Procter & Gamble Co.', 'KO': 'The Coca-Cola Company', 'PEP': 'PepsiCo Inc.', 'XOM': 'Exxon Mobil Corporation', 'CVX': 'Chevron Corporation', 'CAT': 'Caterpillar Inc.', 'CRM': 'Salesforce Inc.', 'NFLX': 'Netflix Inc.'}
 
 
 @dataclass(frozen=True)
@@ -99,7 +89,7 @@ def fetch_yahoo_chart_quote(symbol: str) -> dict[str, Any] | None:
 def build_stock_candidate_universe_expansion_result(
     current_date: str = "2026-06-18",
     symbols: list[str] | None = None,
-    min_required_candidates: int = 5,
+    min_required_candidates: int = 15,
     write_candidates: bool = False,
     output_path: str = DEFAULT_OUTPUT_PATH,
 ) -> StockCandidateUniverseExpansionResult:
@@ -209,7 +199,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--stock-candidate-universe-expansion", action="store_true")
     parser.add_argument("--current-date", default="2026-06-18")
     parser.add_argument("--symbols", nargs="*", default=None)
-    parser.add_argument("--min-required-candidates", type=int, default=5)
+    parser.add_argument("--min-required-candidates", type=int, default=15)
     parser.add_argument("--write-candidates", action="store_true")
     parser.add_argument("--output-path", default=DEFAULT_OUTPUT_PATH)
     args = parser.parse_args(argv)
