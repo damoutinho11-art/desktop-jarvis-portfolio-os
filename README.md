@@ -155,3 +155,12 @@ python .\jarvis_operator.py --weekly-buy-prep --current-date 2026-06-17 --weekly
 ```
 
 The router is evidence-aware and manual-only. It does not mutate allocation, approve buys, create buy requests, connect to brokers, create orders, or execute trades.
+## Allocation strategy data coverage audit
+
+J.A.R.V.I.S. can audit whether the current data is enough for weekly routing or full allocation:
+
+```powershell
+python .\jarvis_operator.py --allocation-strategy-audit --current-date 2026-06-17 --refresh-free-research-cache --write-evidence-pack
+```
+
+The current implemented strategy is a weekly manual amount router. Full portfolio allocation remains blocked until required manual portfolio data and risk-policy coverage are complete.

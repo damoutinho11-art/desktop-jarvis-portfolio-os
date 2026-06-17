@@ -45,3 +45,6 @@ outputs/free_research_evidence_pack_latest.json
 outputs/free_research_evidence_pack_*.json
 outputs/runtime_dependency_slimline_audit_latest.json
 outputs/runtime_dependency_slimline_audit_*.json
+outputs/allocation_strategy_data_coverage_audit_latest.json
+outputs/allocation_strategy_data_coverage_audit_*.json
+jarvis/local/manual_portfolio_snapshot.local.json

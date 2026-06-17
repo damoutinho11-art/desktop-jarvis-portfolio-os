@@ -26,6 +26,7 @@ from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     format_free_research_cache_evidence_pack_bridge,
     main as _v45_main,
 )
+from jarvis.runtime.allocation_strategy_audit import main as _allocation_strategy_audit_main
 from jarvis.runtime.weekly_packet import (
     NEXT_STAGE as WEEKLY_PACKET_NEXT_STAGE,
     build_weekly_manual_buy_packet_result,
@@ -35,9 +36,9 @@ from jarvis.runtime.weekly_packet import (
 
 ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge"
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
-ACTIVE_RUNTIME_STAGE = "v50.0"
+ACTIVE_RUNTIME_STAGE = "v51.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "manual_weekly_amount_router_with_v45_daily_backend"
+CURRENT_OPERATOR_SURFACE = "allocation_strategy_audit_and_manual_weekly_amount_router"
 
 
 def get_active_runtime_surface() -> dict[str, str]:
@@ -47,6 +48,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "stable_runtime_facade": STABLE_RUNTIME_FACADE,
         "active_runtime_module": ACTIVE_RUNTIME_MODULE,
         "active_weekly_packet_module": ACTIVE_WEEKLY_PACKET_MODULE,
+        "active_allocation_strategy_audit_module": "jarvis.runtime.allocation_strategy_audit",
         "active_runtime_stage": ACTIVE_RUNTIME_STAGE,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
         "default_evidence_pack_path": DEFAULT_EVIDENCE_PACK_PATH,
@@ -70,6 +72,8 @@ def main(argv: list[str] | None = None) -> int:
     """Run the stable active J.A.R.V.I.S. operator surface."""
 
     args = list(sys.argv[1:] if argv is None else argv)
+    if "--allocation-strategy-audit" in args:
+        return _allocation_strategy_audit_main(args)
     if "--weekly-buy-prep" in args:
         return _weekly_packet_main(args)
     return _v45_main(args)

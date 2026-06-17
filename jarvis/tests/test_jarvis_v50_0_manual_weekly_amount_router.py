@@ -152,10 +152,10 @@ class JarvisV500ManualWeeklyAmountRouterTests(unittest.TestCase):
         self.assertIn("weekly budget EUR: 100.0", output)
         self.assertIn("no broker connection", output)
 
-    def test_runtime_surface_reports_v50(self) -> None:
+    def test_runtime_surface_keeps_weekly_packet_module_after_later_stages(self) -> None:
         surface = runtime_operator.get_active_runtime_surface()
 
-        self.assertEqual(surface["active_runtime_stage"], "v50.0")
+        self.assertIn("active_runtime_stage", surface)
         self.assertEqual(surface["active_weekly_packet_module"], "jarvis.runtime.weekly_packet")
 
 

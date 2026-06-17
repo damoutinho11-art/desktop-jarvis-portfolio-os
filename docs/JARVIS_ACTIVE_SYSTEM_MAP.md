@@ -131,3 +131,12 @@ python .\jarvis_operator.py --weekly-buy-prep --current-date 2026-06-17 --weekly
 ```
 
 This is not execution and not allocation mutation. It is a review proposal inside the manual packet.
+## Allocation strategy data coverage audit
+
+As of v51, the stable runtime facade supports:
+
+```text
+python .\jarvis_operator.py --allocation-strategy-audit --current-date 2026-06-17 --refresh-free-research-cache --write-evidence-pack
+```
+
+This separates the current weekly manual amount router from a future full portfolio allocator. Full allocation remains blocked until holdings, cash, cost basis, risk/correlation, and dynamic allocation policy coverage are complete.
