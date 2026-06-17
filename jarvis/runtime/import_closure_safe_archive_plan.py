@@ -38,6 +38,7 @@ CURRENT_VALIDATION_COMMANDS = [
     "python -m unittest discover -s .\\jarvis\\tests -p \"test_jarvis_v63*.py\"",
     "python -m unittest discover -s .\\jarvis\\tests -p \"test_jarvis_v64*.py\"",
     "python -m unittest discover -s .\\jarvis\\tests -p \"test_jarvis_v65*.py\"",
+    "python -m unittest discover -s .\\jarvis\\tests -p \"test_jarvis_v66*.py\"",
 ]
 
 
@@ -94,7 +95,7 @@ def _parse_local_imports(path: Path) -> set[str]:
     if not path.exists() or not path.is_file():
         return set()
     try:
-        tree = ast.parse(path.read_text(encoding="utf-8"))
+        tree = ast.parse(path.read_text(encoding="utf-8-sig"))
     except (SyntaxError, UnicodeDecodeError, OSError):
         return set()
 

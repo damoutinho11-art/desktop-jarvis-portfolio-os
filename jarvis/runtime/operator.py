@@ -56,9 +56,9 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v65.0"
+ACTIVE_RUNTIME_STAGE = "v66.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "stable_runtime_safety_facade"
+CURRENT_OPERATOR_SURFACE = "import_closure_precision_hotfix"
 ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE = "jarvis.runtime.platform_data_completeness_gate"
 ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE = "jarvis.runtime.monthly_expenses_intake"
 
@@ -88,6 +88,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_runtime_surface_redundancy_audit_module": "jarvis.runtime.active_runtime_surface_redundancy_audit",
         "active_import_closure_safe_archive_plan_module": "jarvis.runtime.import_closure_safe_archive_plan",
         "active_stable_runtime_safety_module": "jarvis.runtime.safety",
+        "active_import_closure_precision_hotfix": "utf-8-sig import parser support",
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
