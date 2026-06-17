@@ -192,3 +192,5 @@ Without monthly expenses, J.A.R.V.I.S. refuses to decide how much should go to e
 - v54.0 Dynamic Target Policy Engine: converts the real manual snapshot, expense-based emergency policy, and monthly contribution into a dynamic target policy layer. It remains manual-review-only and does not execute trades.
 
 - v55.0 Platform Lane Policy Engine: maps new money by platform: LHV for cash/emergency/crypto, Lightyear for ETF/stock/fund investing, and legacy holdings as observed-only until migration review.
+
+- v56.0 Platform-Aware Weekly Action Packet: prints the exact weekly manual checklist by platform: LHV emergency, LHV crypto, Lightyear ETF/fund, Lightyear stock review-only, and legacy observe-only. It is read-only and does not mutate tickets/cache/state.

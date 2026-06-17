@@ -167,3 +167,7 @@ Adds `jarvis.runtime.dynamic_target_policy` as the active policy layer. It marks
 ## v55.0 Platform Lane Policy Engine
 
 Adds `jarvis.runtime.platform_lane_policy` as the active platform routing layer. New crypto money routes to LHV, ETF/stock/fund money routes to Lightyear, and existing non-Lightyear positions remain legacy observed positions. No selling, broker, order, or trade path is added.
+
+## v56.0 Platform-Aware Weekly Action Packet
+
+Adds `jarvis.runtime.platform_weekly_action_packet` as the active user-facing weekly checklist layer. It maps v55 platform policy into a clean manual plan by platform while keeping legacy holdings observe-only and preserving the no-execution safety invariant.

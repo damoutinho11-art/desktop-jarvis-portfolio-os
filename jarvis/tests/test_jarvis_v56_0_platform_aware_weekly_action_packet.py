@@ -8,11 +8,10 @@ from contextlib import redirect_stdout
 from pathlib import Path
 
 from jarvis.runtime import operator as runtime_operator
-from jarvis.runtime.platform_lane_policy import (
-    DEFAULT_LEGACY_MODE,
+from jarvis.runtime.platform_weekly_action_packet import (
     STATUS_REVIEW_REQUIRED,
-    build_platform_lane_policy_result,
-    format_platform_lane_policy,
+    build_platform_aware_weekly_action_packet_result,
+    format_platform_aware_weekly_action_packet,
 )
 
 
@@ -49,13 +48,13 @@ def _write_snapshot(path: Path) -> None:
     path.write_text(json.dumps(_snapshot()), encoding="utf-8")
 
 
-class JarvisV550PlatformLanePolicyEngineTests(unittest.TestCase):
-    def test_platform_policy_routes_crypto_to_lhv_and_core_to_lightyear(self) -> None:
+class JarvisV560PlatformAwareWeeklyActionPacketTests(unittest.TestCase):
+    def test_weekly_packet_maps_real_amounts_to_lhv_and_lightyear(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             snapshot_path = Path(tmp) / "manual_portfolio_snapshot.local.json"
             _write_snapshot(snapshot_path)
 
-            result = build_platform_lane_policy_result(
+            result = build_platform_aware_weekly_action_packet_result(
                 current_date="2026-06-17",
                 snapshot_path=snapshot_path,
                 monthly_contribution_eur=500,
@@ -63,57 +62,60 @@ class JarvisV550PlatformLanePolicyEngineTests(unittest.TestCase):
             )
 
         self.assertEqual(result.status, STATUS_REVIEW_REQUIRED)
-        actions = {(item.platform, item.lane): item.amount_eur for item in result.platform_actions}
+        actions = {(item.platform, item.lane): item.amount_eur for item in result.weekly_actions}
         self.assertEqual(actions[("LHV", "cash_reserve")], 75.0)
         self.assertEqual(actions[("LHV", "crypto")], 170.0)
         self.assertEqual(actions[("Lightyear", "stock_fund_etf")], 255.0)
         self.assertEqual(actions[("Lightyear", "individual_stock")], 0.0)
-        self.assertIn("ETF_STOCK_FUND_NEW_MONEY_TO_LIGHTYEAR", result.platform_policy_flags)
-        self.assertIn("CRYPTO_NEW_MONEY_TO_LHV", result.platform_policy_flags)
+        self.assertEqual(actions[("legacy_observed", "legacy_positions")], 0.0)
+        self.assertEqual(result.total_manual_action_amount_eur, 500.0)
 
-    def test_legacy_positions_are_observed_only_and_selling_is_blocked_by_default(self) -> None:
+    def test_legacy_positions_are_observe_only_in_weekly_packet(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             snapshot_path = Path(tmp) / "manual_portfolio_snapshot.local.json"
             _write_snapshot(snapshot_path)
 
-            result = build_platform_lane_policy_result(
+            result = build_platform_aware_weekly_action_packet_result(
                 current_date="2026-06-17",
                 snapshot_path=snapshot_path,
                 monthly_contribution_eur=500,
                 monthly_expenses_eur=1200,
             )
 
-        self.assertEqual(result.legacy_positions_mode, DEFAULT_LEGACY_MODE)
-        self.assertFalse(result.legacy_sell_allowed)
-        legacy = [item for item in result.platform_actions if item.lane == "legacy_positions"]
+        legacy = [item for item in result.weekly_actions if item.lane == "legacy_positions"]
         self.assertEqual(len(legacy), 1)
         self.assertEqual(legacy[0].amount_eur, 0.0)
         self.assertTrue(legacy[0].review_only)
-        self.assertIn("LEGACY_SELL_BLOCKED_BY_DEFAULT", result.platform_policy_flags)
+        self.assertFalse(legacy[0].action_allowed_by_policy)
+        self.assertFalse(result.legacy_sell_allowed)
+        self.assertIn("NO_LEGACY_SELL_WITHOUT_MIGRATION_REVIEW", result.policy_flags)
 
-    def test_legacy_sell_allowed_blocks_until_migration_review_exists(self) -> None:
+    def test_packet_is_read_only_and_does_not_mutate_tickets_or_cache(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             snapshot_path = Path(tmp) / "manual_portfolio_snapshot.local.json"
             _write_snapshot(snapshot_path)
 
-            result = build_platform_lane_policy_result(
+            result = build_platform_aware_weekly_action_packet_result(
                 current_date="2026-06-17",
                 snapshot_path=snapshot_path,
                 monthly_contribution_eur=500,
                 monthly_expenses_eur=1200,
-                legacy_sell_allowed=True,
             )
 
-        self.assertIn("legacy_sell_requires_separate_manual_migration_review", result.blockers)
+        self.assertFalse(result.allocation_mutation)
+        self.assertFalse(result.approval_ticket_mutation)
+        self.assertFalse(result.evidence_pack_mutation)
+        self.assertFalse(result.local_cache_mutation)
+        self.assertFalse(result.portfolio_state_mutation)
         self.assertFalse(result.buy_request_created)
         self.assertTrue(result.no_trades_executed)
 
-    def test_missing_expenses_blocks_platform_policy_instead_of_guessing(self) -> None:
+    def test_missing_expenses_blocks_packet_instead_of_guessing(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             snapshot_path = Path(tmp) / "manual_portfolio_snapshot.local.json"
             _write_snapshot(snapshot_path)
 
-            result = build_platform_lane_policy_result(
+            result = build_platform_aware_weekly_action_packet_result(
                 current_date="2026-06-17",
                 snapshot_path=snapshot_path,
                 monthly_contribution_eur=500,
@@ -121,30 +123,30 @@ class JarvisV550PlatformLanePolicyEngineTests(unittest.TestCase):
             )
 
         self.assertIn("monthly_expenses_required_for_dynamic_target_policy", result.blockers)
-        self.assertFalse(result.allocation_mutation)
+        self.assertEqual(result.packet_status, "PLATFORM_AWARE_WEEKLY_ACTION_PACKET_BLOCKED")
         self.assertTrue(result.no_trades_executed)
 
-    def test_format_shows_platform_map_and_safety(self) -> None:
+    def test_format_is_a_clear_weekly_action_packet(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             snapshot_path = Path(tmp) / "manual_portfolio_snapshot.local.json"
             _write_snapshot(snapshot_path)
 
-            result = build_platform_lane_policy_result(
+            result = build_platform_aware_weekly_action_packet_result(
                 current_date="2026-06-17",
                 snapshot_path=snapshot_path,
                 monthly_contribution_eur=500,
                 monthly_expenses_eur=1200,
             )
 
-        output = format_platform_lane_policy(result)
-        self.assertIn("J.A.R.V.I.S. PLATFORM LANE POLICY ENGINE", output)
-        self.assertIn("crypto platform: LHV", output)
-        self.assertIn("ETF/stock/fund new investing platform: Lightyear", output)
+        output = format_platform_aware_weekly_action_packet(result)
+        self.assertIn("J.A.R.V.I.S. WEEKLY PLATFORM ACTION PACKET", output)
+        self.assertIn("LHV / cash_reserve: 75.0 EUR", output)
         self.assertIn("LHV / crypto: 170.0 EUR", output)
         self.assertIn("Lightyear / stock_fund_etf: 255.0 EUR", output)
+        self.assertIn("legacy_observed / legacy_positions: 0.0 EUR", output)
         self.assertIn("no trades executed", output)
 
-    def test_runtime_facade_routes_platform_lane_policy(self) -> None:
+    def test_runtime_facade_routes_weekly_platform_action_packet(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             snapshot_path = Path(tmp) / "manual_portfolio_snapshot.local.json"
             _write_snapshot(snapshot_path)
@@ -153,7 +155,7 @@ class JarvisV550PlatformLanePolicyEngineTests(unittest.TestCase):
             with redirect_stdout(stdout):
                 exit_code = runtime_operator.main(
                     [
-                        "--platform-lane-policy",
+                        "--weekly-platform-action-packet",
                         "--current-date",
                         "2026-06-17",
                         "--manual-portfolio-snapshot-path",
@@ -166,19 +168,17 @@ class JarvisV550PlatformLanePolicyEngineTests(unittest.TestCase):
                 )
 
         self.assertEqual(exit_code, 0)
-        self.assertIn("PLATFORM LANE POLICY ENGINE", stdout.getvalue())
+        self.assertIn("WEEKLY PLATFORM ACTION PACKET", stdout.getvalue())
         self.assertIn("LHV / crypto: 170.0 EUR", stdout.getvalue())
         self.assertIn("Lightyear / stock_fund_etf: 255.0 EUR", stdout.getvalue())
 
-    def test_runtime_surface_reports_v55_and_platform_lane_module(self) -> None:
+    def test_runtime_surface_reports_v56_and_weekly_packet_module(self) -> None:
         surface = runtime_operator.get_active_runtime_surface()
 
-        active_stage = str(surface["active_runtime_stage"])
-        self.assertTrue(active_stage.startswith("v"))
-        self.assertGreaterEqual(int(active_stage.split(".")[0].lstrip("v")), 55)
+        self.assertEqual(surface["active_runtime_stage"], "v56.0")
         self.assertEqual(
-            surface["active_platform_lane_policy_module"],
-            "jarvis.runtime.platform_lane_policy",
+            surface["active_platform_weekly_action_packet_module"],
+            "jarvis.runtime.platform_weekly_action_packet",
         )
         self.assertTrue(surface["execution_forbidden"])
         self.assertTrue(surface["manual_approval_required"])
