@@ -1,11 +1,14 @@
 {
+  "allocation_basis_as_of": "2026-06-04",
   "allocation_mutation": false,
   "approval_notice": "Manual approval required. No trades executed.",
   "approval_status": "pending_manual_approval",
   "approval_ticket_written_by_v25": true,
-  "as_of": "2026-06-17",
-  "blocked_actions": [],
-  "bridge_status": "CRYPTO_LANE_SELECTION_DAILY_OPERATOR_BRIDGE_REVIEW_REQUIRED",
+  "as_of": "2026-06-04",
+  "blocked_actions": [
+    "Approval ticket file as_of does not match current allocation engine result (2026-06-17 vs 2026-06-04)."
+  ],
+  "bridge_status": "CRYPTO_LANE_SELECTION_DAILY_OPERATOR_BRIDGE_BLOCKED",
   "broker_connection_forbidden": true,
   "buy_request_created": false,
   "credentials_forbidden": true,
@@ -90,8 +93,8 @@
     "status": "JARVIS_V23_0_CRYPTO_LANE_PUBLIC_SIGNAL_SELECTION_GATE_READY_SAFE",
     "warnings": []
   },
-  "daily_operator_status": "JARVIS_V24_0_CRYPTO_LANE_SELECTION_DAILY_OPERATOR_BRIDGE_REVIEW_REQUIRED_SAFE",
-  "data_readiness": "STALE_REVIEW_REQUIRED",
+  "daily_operator_status": "JARVIS_V24_0_CRYPTO_LANE_SELECTION_DAILY_OPERATOR_BRIDGE_BLOCKED_SAFE",
+  "data_readiness": "READINESS_BLOCKED",
   "etf_scoring_verdict": {
     "selected_ideal_etf": "quality_etf",
     "sleeves": [
@@ -160,28 +163,29 @@
       "status": "STALE"
     },
     {
-      "age_days": 13,
-      "as_of": "2026-06-04",
+      "age_days": 0,
+      "as_of": "2026-06-17",
       "current_date": "2026-06-17",
       "max_age_days": 7,
-      "message": "approval_ticket_latest is 13 days old; refresh required before manual action.",
+      "message": "approval_ticket_latest is 0 days old and within the 7-day freshness window.",
       "name": "approval_ticket_latest",
       "source_path": "outputs/approval_ticket_latest.json",
-      "status": "STALE"
+      "status": "FRESH"
     }
   ],
+  "generated_at": "2026-06-17",
   "ideal_allocation": {
     "btc": 41.54,
     "quality_etf": 62.31
   },
-  "manual_action_guidance": "Refresh local portfolio data and approval ticket before any manual buy.",
+  "manual_action_guidance": "Do not use this recommendation for a manual buy until blockers are resolved.",
   "manual_approval_required": true,
   "order_creation_forbidden": true,
-  "portfolio_data_stale_review_required": true,
+  "portfolio_data_stale_review_required": false,
   "portfolio_mode": "transition_mode",
   "private_account_data_ingestion_forbidden": true,
   "recommendation_quality_current_data": false,
-  "recommendation_trust": "refresh_required_before_manual_action",
+  "recommendation_trust": "blocked_until_local_data_and_safety_checks_pass",
   "safety_checks": [
     "Manual approval required. No trades executed.",
     "No broker connection.",
@@ -198,8 +202,10 @@
   "source_bridge_result": {
     "allocation_mutation": false,
     "approval_ticket_mutation": false,
-    "blockers": [],
-    "bridge_status": "CRYPTO_LANE_SELECTION_DAILY_OPERATOR_BRIDGE_REVIEW_REQUIRED",
+    "blockers": [
+      "Approval ticket file as_of does not match current allocation engine result (2026-06-17 vs 2026-06-04)."
+    ],
+    "bridge_status": "CRYPTO_LANE_SELECTION_DAILY_OPERATOR_BRIDGE_BLOCKED",
     "broker_connection_forbidden": true,
     "buy_request_created": false,
     "credentials_forbidden": true,
@@ -404,7 +410,9 @@
         }
       },
       "approval_ticket_file_checked": true,
-      "blockers": [],
+      "blockers": [
+        "Approval ticket file as_of does not match current allocation engine result (2026-06-17 vs 2026-06-04)."
+      ],
       "broker_connection_forbidden": true,
       "current_date": "2026-06-17",
       "data_ready_for_manual_review": false,
@@ -422,32 +430,31 @@
           "status": "STALE"
         },
         {
-          "age_days": 13,
-          "as_of": "2026-06-04",
+          "age_days": 0,
+          "as_of": "2026-06-17",
           "current_date": "2026-06-17",
           "max_age_days": 7,
-          "message": "approval_ticket_latest is 13 days old; refresh required before manual action.",
+          "message": "approval_ticket_latest is 0 days old and within the 7-day freshness window.",
           "name": "approval_ticket_latest",
           "source_path": "outputs/approval_ticket_latest.json",
-          "status": "STALE"
+          "status": "FRESH"
         }
       ],
-      "manual_action_guidance": "Refresh local portfolio data and approval ticket before any manual buy.",
+      "manual_action_guidance": "Do not use this recommendation for a manual buy until blockers are resolved.",
       "manual_approval_required": true,
       "max_fresh_age_days": 7,
       "no_trades_executed": true,
       "order_creation_forbidden": true,
       "portfolio_state_file_checked": true,
-      "readiness_status": "STALE_REVIEW_REQUIRED",
+      "readiness_status": "READINESS_BLOCKED",
       "real_allocation_engine_used": true,
-      "recommendation_trust": "refresh_required_before_manual_action",
+      "recommendation_trust": "blocked_until_local_data_and_safety_checks_pass",
       "recommended_next_stage": "real_manual_action_brief",
-      "stale_data_review_required": true,
-      "status": "JARVIS_V16_0_REAL_DAILY_READINESS_GATE_REVIEW_REQUIRED_SAFE",
+      "stale_data_review_required": false,
+      "status": "JARVIS_V16_0_REAL_DAILY_READINESS_GATE_BLOCKED_SAFE",
       "warnings": [
         "ETF universe has no as_of/updated_at metadata; scoring inputs are treated as manually maintained local scores.",
-        "portfolio_state is 13 days old; refresh required before manual action.",
-        "approval_ticket_latest is 13 days old; refresh required before manual action."
+        "portfolio_state is 13 days old; refresh required before manual action."
       ]
     },
     "final_user_buy_action_required": true,
@@ -458,20 +465,19 @@
     "recommended_next_stage": "crypto_lane_scoring_and_approval_ticket_integration",
     "selected_crypto_amount_eur": 41.54,
     "selected_crypto_candidate": "btc",
-    "status": "JARVIS_V24_0_CRYPTO_LANE_SELECTION_DAILY_OPERATOR_BRIDGE_REVIEW_REQUIRED_SAFE",
+    "status": "JARVIS_V24_0_CRYPTO_LANE_SELECTION_DAILY_OPERATOR_BRIDGE_BLOCKED_SAFE",
     "warnings": [
       "ETF universe has no as_of/updated_at metadata; scoring inputs are treated as manually maintained local scores.",
-      "portfolio_state is 13 days old; refresh required before manual action.",
-      "approval_ticket_latest is 13 days old; refresh required before manual action."
+      "portfolio_state is 13 days old; refresh required before manual action."
     ]
   },
-  "ticket_id": "JARVIS-2026-06-17-daily-dual-lane-manual-approval",
+  "ticket_generated_at": "2026-06-17",
+  "ticket_id": "JARVIS-2026-06-04-daily-dual-lane-manual-approval",
   "timestamp": "2026-06-17",
   "trades_executed": false,
   "warnings": [
     "ETF universe has no as_of/updated_at metadata; scoring inputs are treated as manually maintained local scores.",
-    "portfolio_state is 13 days old; refresh required before manual action.",
-    "approval_ticket_latest is 13 days old; refresh required before manual action."
+    "portfolio_state is 13 days old; refresh required before manual action."
   ],
   "weekly_budget": 103.85,
   "weekly_dual_lane_mandate": {

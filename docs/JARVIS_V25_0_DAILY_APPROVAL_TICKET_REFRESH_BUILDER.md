@@ -37,3 +37,9 @@ The approval ticket must not claim a fresher `as_of` date than the allocation en
 
 This prevents the daily readiness gate from blocking on an approval-ticket/allocation as-of mismatch while still keeping stale portfolio review warnings visible.
 
+## v25.2 approval-ticket replacement deadlock hotfix
+
+v25.1 correctly changed the new ticket basis, but the existing stale local ticket could still block the builder before the corrected replacement was written. v25.2 allows the builder to replace exactly that existing approval-ticket/allocation as-of mismatch when the new ticket uses the allocation basis as `as_of` and stores the build date separately as `generated_at`.
+
+This exception is narrow: it only clears the existing-ticket mismatch blocker. It does not clear portfolio stale warnings, does not create a buy request, and does not permit broker/order/trade actions.
+

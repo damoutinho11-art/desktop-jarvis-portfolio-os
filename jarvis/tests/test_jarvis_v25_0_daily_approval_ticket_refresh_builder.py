@@ -13,14 +13,14 @@ from jarvis.jarvis_v25_0_daily_approval_ticket_refresh_builder import (
 )
 
 
-def _fake_bridge() -> SimpleNamespace:
+def _fake_bridge(blockers: tuple[str, ...] = ()) -> SimpleNamespace:
     daily = SimpleNamespace(
         status="JARVIS_V16_0_REAL_DAILY_READINESS_GATE_REVIEW_REQUIRED_SAFE",
         readiness_status="STALE_REVIEW_REQUIRED",
         recommendation_trust="refresh_required_before_manual_action",
         stale_data_review_required=True,
         manual_action_guidance="Refresh local portfolio data before any manual buy.",
-        blockers=(),
+        blockers=blockers,
         warnings=("portfolio_state is stale",),
         allocation_result={
             "as_of": "2026-06-04",
@@ -105,6 +105,31 @@ class JarvisV250DailyApprovalTicketRefreshBuilderTests(unittest.TestCase):
             self.assertEqual(payload["as_of"], "2026-06-04")
             self.assertEqual(payload["generated_at"], "2026-06-17")
             self.assertFalse(payload["buy_request_created"])
+
+    def test_write_ticket_can_replace_existing_asof_mismatch_when_new_ticket_uses_allocation_basis(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            result = build_daily_approval_ticket_refresh_builder_result(
+                current_date="2026-06-17",
+                root=root,
+                output_path="outputs/approval_ticket_latest.json",
+                write_ticket=True,
+                bridge_result=_fake_bridge(
+                    blockers=(
+                        "Approval ticket file as_of does not match current allocation engine result (2026-06-17 vs 2026-06-04).",
+                    )
+                ),
+            )
+
+            output = root / "outputs" / "approval_ticket_latest.json"
+            self.assertTrue(result.approval_ticket_written)
+            self.assertTrue(output.exists())
+            self.assertNotIn("Approval ticket file as_of does not match", " ".join(result.blockers))
+            payload = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(payload["as_of"], "2026-06-04")
+            self.assertEqual(payload["generated_at"], "2026-06-17")
+            self.assertFalse(payload["buy_request_created"])
+
 
     def test_blocks_output_outside_outputs_directory(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

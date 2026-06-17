@@ -104,6 +104,31 @@ def _dedupe(items: list[str] | tuple[str, ...]) -> tuple[str, ...]:
     return tuple(dict.fromkeys(str(item) for item in items if str(item)))
 
 
+def _is_existing_approval_ticket_asof_mismatch_blocker(message: str) -> bool:
+    return "Approval ticket file as_of does not match current allocation engine result" in str(message)
+
+
+def _ticket_uses_allocation_basis_asof(ticket: dict[str, Any]) -> bool:
+    as_of = str(ticket.get("as_of") or "")
+    allocation_basis = str(ticket.get("allocation_basis_as_of") or "")
+    return bool(as_of and allocation_basis and as_of == allocation_basis)
+
+
+def _filter_resolved_existing_ticket_blockers(
+    blockers: list[str],
+    *,
+    ticket: dict[str, Any],
+    write_ticket: bool,
+) -> list[str]:
+    if not write_ticket or not _ticket_uses_allocation_basis_asof(ticket):
+        return blockers
+    return [
+        blocker
+        for blocker in blockers
+        if not _is_existing_approval_ticket_asof_mismatch_blocker(blocker)
+    ]
+
+
 def _parse_date(value: str | None) -> date | None:
     if not value:
         return None
@@ -253,6 +278,13 @@ def build_daily_approval_ticket_refresh_builder_result(
         blockers.extend(getattr(bridge, "blockers", ()) or ())
         warnings.extend(getattr(bridge, "warnings", ()) or ())
         ticket = build_daily_approval_ticket(current_date=current_date_text, bridge_result=bridge)
+
+    if ticket:
+        blockers = _filter_resolved_existing_ticket_blockers(
+            blockers,
+            ticket=ticket,
+            write_ticket=write_ticket,
+        )
 
     unique_blockers = _dedupe(blockers)
     unique_warnings = _dedupe(warnings)
