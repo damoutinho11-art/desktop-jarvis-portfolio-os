@@ -189,8 +189,8 @@ class JarvisV580MonthlyExpensesIntakeTests(unittest.TestCase):
     def test_runtime_surface_reports_v58_and_monthly_expenses_module(self) -> None:
         surface = runtime_operator.get_active_runtime_surface()
 
-        self.assertIn(surface["active_runtime_stage"], {"v58.0", "v59.0", "v60.0"})
-        self.assertIn(surface["current_operator_surface"], {"monthly_expenses_intake", "personal_finance_contribution_bridge"})
+        self.assertIn(surface["active_runtime_stage"], {"v58.0", "v59.0", "v60.0", "v61.0"})
+        self.assertIn(surface["current_operator_surface"], {"monthly_expenses_intake", "personal_finance_contribution_bridge", "manual_cost_basis_intake"})
         self.assertEqual(
             surface["active_monthly_expenses_intake_module"],
             "jarvis.runtime.monthly_expenses_intake",

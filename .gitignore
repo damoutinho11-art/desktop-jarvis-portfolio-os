@@ -56,3 +56,4 @@ jarvis/local/legacy_migration_review.local.json
 
 # v58 local monthly expenses intake
 jarvis/local/monthly_expenses.local.json
+jarvis/local/manual_cost_basis.local.json
