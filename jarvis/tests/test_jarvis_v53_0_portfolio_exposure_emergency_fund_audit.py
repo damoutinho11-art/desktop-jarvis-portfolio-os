@@ -175,7 +175,9 @@ class JarvisV530PortfolioExposureDynamicEmergencyFundAuditTests(unittest.TestCas
     def test_runtime_surface_reports_v53_and_exposure_module(self) -> None:
         surface = runtime_operator.get_active_runtime_surface()
 
-        self.assertEqual(surface["active_runtime_stage"], "v53.0")
+        active_stage = str(surface["active_runtime_stage"])
+        self.assertTrue(active_stage.startswith("v"))
+        self.assertGreaterEqual(int(active_stage.split(".")[0].lstrip("v")), 53)
         self.assertEqual(
             surface["active_portfolio_exposure_audit_module"],
             "jarvis.runtime.portfolio_exposure_audit",

@@ -159,3 +159,7 @@ python .\jarvis_operator.py --portfolio-exposure-audit --current-date 2026-06-17
 ```
 
 The emergency fund target is derived from monthly expenses, not from a fixed arbitrary EUR target.
+
+## v54.0 Dynamic Target Policy Engine
+
+Adds `jarvis.runtime.dynamic_target_policy` as the active policy layer. It marks the dynamic target policy data gate covered while leaving full allocation blocked until stock-specific public evidence and a correlation/risk model exist. No execution path is added.

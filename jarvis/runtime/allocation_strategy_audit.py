@@ -319,9 +319,12 @@ def _build_coverage_items(
             label="Dynamic target allocation policy",
             weekly=False,
             full=True,
-            available=False,
-            source="not implemented",
-            notes=("needed before replacing v50 manual router with allocation brain",),
+            available=True,
+            source="jarvis.runtime.dynamic_target_policy",
+            notes=(
+                "v54 dynamic target policy engine implemented",
+                "still requires stock-specific evidence and correlation/risk model before full allocation",
+            ),
         ),
     )
 

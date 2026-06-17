@@ -30,6 +30,7 @@ from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
 from jarvis.runtime.allocation_strategy_audit import main as _allocation_strategy_audit_main
 from jarvis.runtime.manual_portfolio_snapshot import main as _manual_portfolio_snapshot_main
 from jarvis.runtime.portfolio_exposure_audit import main as _portfolio_exposure_audit_main
+from jarvis.runtime.dynamic_target_policy import main as _dynamic_target_policy_main
 from jarvis.runtime.weekly_packet import (
     NEXT_STAGE as WEEKLY_PACKET_NEXT_STAGE,
     build_weekly_manual_buy_packet_result,
@@ -41,9 +42,9 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v53.0"
+ACTIVE_RUNTIME_STAGE = "v54.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "portfolio_exposure_dynamic_emergency_fund_audit"
+CURRENT_OPERATOR_SURFACE = "dynamic_target_policy_engine"
 
 
 def get_active_runtime_surface() -> dict[str, str]:
@@ -57,6 +58,9 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_manual_portfolio_snapshot_module": ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE,
         "active_runtime_stage": ACTIVE_RUNTIME_STAGE,
         "active_portfolio_exposure_audit_module": "jarvis.runtime.portfolio_exposure_audit",
+        "active_dynamic_target_policy_module": "jarvis.runtime.dynamic_target_policy",
+        "execution_forbidden": True,
+        "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
         "default_evidence_pack_path": DEFAULT_EVIDENCE_PACK_PATH,
         "recommended_next_stage": WEEKLY_PACKET_NEXT_STAGE,
@@ -88,6 +92,8 @@ def main(argv: list[str] | None = None) -> int:
         )
     ):
         return _manual_portfolio_snapshot_main(args)
+    if "--dynamic-target-policy" in args:
+        return _dynamic_target_policy_main(args)
     if "--portfolio-exposure-audit" in args:
         return _portfolio_exposure_audit_main(args)
     if "--allocation-strategy-audit" in args:
