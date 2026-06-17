@@ -59,3 +59,4 @@ jarvis/local/monthly_expenses.local.json
 jarvis/local/manual_cost_basis.local.json
 outputs/active_runtime_surface_redundancy_audit_latest.json
 outputs/import_closure_safe_archive_plan_latest.json
+outputs/non_active_archive_candidate_report_latest.json
