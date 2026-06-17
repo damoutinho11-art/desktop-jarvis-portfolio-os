@@ -256,6 +256,48 @@ def _confirmation_record(
     }
 
 
+def _iter_confirmation_records(path: str | Path) -> list[dict[str, Any]]:
+    output = Path(path)
+    if not output.exists():
+        return []
+    records: list[dict[str, Any]] = []
+    for line in output.read_text(encoding="utf-8-sig").splitlines():
+        if not line.strip():
+            continue
+        try:
+            payload = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(payload, dict):
+            records.append(payload)
+    return records
+
+
+def _confirmation_already_recorded(
+    log_path: str | Path,
+    *,
+    approval_ticket: dict[str, Any],
+    asset: str,
+    lane: str,
+    amount_eur: float,
+    execution_date: str,
+) -> bool:
+    approval_ticket_id = str(approval_ticket.get("ticket_id") or "")
+    for record in _iter_confirmation_records(log_path):
+        if str(record.get("approval_ticket_id") or "") != approval_ticket_id:
+            continue
+        if str(record.get("asset") or "") != asset:
+            continue
+        if str(record.get("lane") or "") != lane:
+            continue
+        if str(record.get("execution_date") or "") != execution_date:
+            continue
+        if not _same_amount(float(record.get("amount_eur") or 0.0), amount_eur):
+            continue
+        return True
+    return False
+
+
 def build_manual_buy_outcome_portfolio_state_recorder_result(
     *,
     asset: str,
@@ -315,6 +357,18 @@ def build_manual_buy_outcome_portfolio_state_recorder_result(
             amount_eur=amount,
         )
         blockers.extend(ticket_blockers)
+
+    if approval_ticket_loaded and not blockers and _confirmation_already_recorded(
+        confirmation_log_path,
+        approval_ticket=ticket,
+        asset=asset_text,
+        lane=lane_text,
+        amount_eur=amount,
+        execution_date=execution_date_text,
+    ):
+        blockers.append(
+            "manual buy confirmation is already recorded for this approval ticket, asset, lane, amount, and execution date."
+        )
 
     previous_as_of = str(portfolio_state.get("as_of", "")) if portfolio_state_loaded else ""
     updated_as_of = execution_date_text

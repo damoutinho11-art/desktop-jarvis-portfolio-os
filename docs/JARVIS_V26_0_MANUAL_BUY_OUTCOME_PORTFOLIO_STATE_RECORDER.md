@@ -29,3 +29,10 @@ Excluded:
 ## Product rule
 
 J.A.R.V.I.S. may update local state only after Diogo confirms a completed real-world manual buy. It must not assume the buy happened from an approval ticket alone.
+
+## v26.1 idempotency hotfix
+
+A manual buy confirmation must be recorded at most once for the same approval ticket, asset, lane, amount, and execution date. This prevents accidental double-counting if the recorder command is pasted or run twice.
+
+The duplicate guard checks `outputs/manual_buy_confirmations.jsonl` before writing local portfolio state. It does not connect to brokers, does not create orders, and does not execute trades.
+

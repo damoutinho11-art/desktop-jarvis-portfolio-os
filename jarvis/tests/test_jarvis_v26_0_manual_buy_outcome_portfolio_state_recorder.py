@@ -120,6 +120,50 @@ class JarvisV260ManualBuyOutcomePortfolioStateRecorderTests(unittest.TestCase):
             self.assertEqual(updated["holdings"]["btc"], 61.54)
             self.assertTrue(log_path.exists())
 
+    def test_blocks_duplicate_manual_buy_confirmation_for_same_ticket_asset_amount_and_date(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            ticket_path = root / "outputs" / "approval_ticket_latest.json"
+            state_path = root / "portfolio_state.json"
+            log_path = root / "outputs" / "manual_buy_confirmations.jsonl"
+            _write_json(ticket_path, _ticket())
+            _write_json(state_path, _portfolio())
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            log_path.write_text(
+                json.dumps(
+                    {
+                        "record_type": "manual_buy_confirmation",
+                        "approval_ticket_id": "JARVIS-2026-06-04-daily-dual-lane-manual-approval",
+                        "asset": "btc",
+                        "lane": "crypto",
+                        "amount_eur": 41.54,
+                        "execution_date": "2026-06-17",
+                    },
+                    sort_keys=True,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            result = build_manual_buy_outcome_portfolio_state_recorder_result(
+                asset="btc",
+                lane="crypto",
+                amount_eur=41.54,
+                execution_date="2026-06-17",
+                confirmation_phrase=CONFIRMATION_PHRASE,
+                approval_ticket_path=ticket_path,
+                portfolio_state_path=state_path,
+                confirmation_log_path=log_path,
+                write_state=True,
+            )
+
+            self.assertEqual(result.status, STATUS_BLOCKED)
+            self.assertFalse(result.portfolio_state_written)
+            self.assertIn("already recorded", " ".join(result.blockers))
+            updated = json.loads(state_path.read_text(encoding="utf-8"))
+            self.assertEqual(updated["holdings"]["btc"], 20.0)
+
+
     def test_blocks_amount_that_does_not_match_ticket(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
