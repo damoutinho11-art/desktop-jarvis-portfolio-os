@@ -179,3 +179,12 @@ python .\jarvis_operator.py --manual-portfolio-snapshot-intake --current-date 20
 ```
 
 The snapshot is local-only, ignored by git, and must not contain credentials, broker tokens, or API keys.
+## Dynamic emergency fund audit
+
+J.A.R.V.I.S. can audit the local manual snapshot and a planned monthly contribution using monthly expenses rather than a fixed arbitrary emergency fund target:
+
+```powershell
+python .\jarvis_operator.py --portfolio-exposure-audit --current-date 2026-06-17 --monthly-contribution-eur 400 --monthly-expenses-eur 1000 --minimum-emergency-months 3 --ideal-emergency-months 6
+```
+
+Without monthly expenses, J.A.R.V.I.S. refuses to decide how much should go to emergency fund versus investing. Once minimum emergency coverage is met, J.A.R.V.I.S. uses a small capped maintenance top-up rather than overfunding cash.

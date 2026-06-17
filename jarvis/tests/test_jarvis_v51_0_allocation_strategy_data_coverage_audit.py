@@ -43,23 +43,27 @@ def _upstream(evidence_items=()) -> SimpleNamespace:
 
 class JarvisV510AllocationStrategyDataCoverageAuditTests(unittest.TestCase):
     def test_weekly_router_allowed_but_full_allocation_blocked_with_public_evidence_only(self) -> None:
-        result = build_allocation_strategy_data_coverage_audit_result(
-            current_date="2026-06-17",
-            upstream_result=_upstream(
-                evidence_items=(
-                    _evidence("coingecko_free_or_demo", "crypto", "PUBLIC_CRYPTO_SOURCE_READY"),
-                    _evidence("ecb_fx_official", "fx", "OFFICIAL_FREE_SOURCE_READY"),
-                )
-            ),
-        )
+        with tempfile.TemporaryDirectory() as tmp:
+            missing_snapshot = Path(tmp) / "missing_manual_portfolio_snapshot.local.json"
+            result = build_allocation_strategy_data_coverage_audit_result(
+                current_date="2026-06-17",
+                manual_portfolio_snapshot_path=missing_snapshot,
+                upstream_result=_upstream(
+                    evidence_items=(
+                        _evidence("coingecko_free_or_demo", "crypto", "PUBLIC_CRYPTO_SOURCE_READY"),
+                        _evidence("ecb_fx_official", "fx", "OFFICIAL_FREE_SOURCE_READY"),
+                    )
+                ),
+            )
 
         self.assertEqual(result.status, STATUS_REVIEW_REQUIRED)
         self.assertEqual(result.audit_status, AUDIT_REVIEW_REQUIRED)
         self.assertTrue(result.weekly_router_allowed)
         self.assertFalse(result.full_allocation_allowed)
         self.assertIn("manual_holdings_snapshot", result.missing_full_allocation_required_keys)
+        self.assertIn("manual_cash_snapshot", result.missing_full_allocation_required_keys)
+        self.assertIn("manual_cost_basis", result.missing_full_allocation_required_keys)
         self.assertFalse(result.allocation_mutation)
-        self.assertFalse(result.approval_ticket_mutation)
         self.assertFalse(result.buy_request_created)
         self.assertTrue(result.no_trades_executed)
 

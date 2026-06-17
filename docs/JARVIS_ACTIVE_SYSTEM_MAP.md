@@ -150,3 +150,12 @@ python .\jarvis_operator.py --manual-portfolio-snapshot-intake --current-date 20
 ```
 
 The snapshot stays under `jarvis/local/manual_portfolio_snapshot.local.json`, is ignored by git, and must not contain credentials or broker tokens.
+## Dynamic emergency fund audit
+
+As of v53, the stable runtime facade supports:
+
+```text
+python .\jarvis_operator.py --portfolio-exposure-audit --current-date 2026-06-17 --monthly-contribution-eur 400 --monthly-expenses-eur 1000
+```
+
+The emergency fund target is derived from monthly expenses, not from a fixed arbitrary EUR target.

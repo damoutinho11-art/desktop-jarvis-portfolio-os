@@ -167,10 +167,10 @@ class JarvisV520ManualPortfolioSnapshotIntakeTests(unittest.TestCase):
             if path.exists():
                 path.unlink()
 
-    def test_runtime_surface_reports_v52_and_snapshot_module(self) -> None:
+    def test_runtime_surface_keeps_snapshot_module_after_later_stages(self) -> None:
         surface = runtime_operator.get_active_runtime_surface()
 
-        self.assertEqual(surface["active_runtime_stage"], "v52.0")
+        self.assertIn("active_runtime_stage", surface)
         self.assertEqual(
             surface["active_manual_portfolio_snapshot_module"],
             "jarvis.runtime.manual_portfolio_snapshot",
