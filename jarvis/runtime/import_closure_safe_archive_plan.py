@@ -1,4 +1,4 @@
-﻿"""J.A.R.V.I.S. v64.0 import closure + safe archive plan.
+"""J.A.R.V.I.S. v64.0 import closure + safe archive plan.
 
 Audit-only module. It maps the active import closure from the current operator
 surface and separates actively imported files from legacy archive candidates.
@@ -39,6 +39,7 @@ CURRENT_VALIDATION_COMMANDS = [
     "python -m unittest discover -s .\\jarvis\\tests -p \"test_jarvis_v64*.py\"",
     "python -m unittest discover -s .\\jarvis\\tests -p \"test_jarvis_v65*.py\"",
     "python -m unittest discover -s .\\jarvis\\tests -p \"test_jarvis_v66*.py\"",
+    "python -m unittest discover -s .\\jarvis\\tests -p \"test_jarvis_v67*.py\"",
 ]
 
 
@@ -91,28 +92,81 @@ def _is_data_fixture(path: str) -> bool:
     return path.startswith("jarvis/data/") and "jarvis_v" in Path(path).name
 
 
-def _parse_local_imports(path: Path) -> set[str]:
-    if not path.exists() or not path.is_file():
-        return set()
-    try:
-        tree = ast.parse(path.read_text(encoding="utf-8-sig"))
-    except (SyntaxError, UnicodeDecodeError, OSError):
-        return set()
+def _parse_local_imports(path: Path) -> list[str]:
+    """Parse local jarvis imports, including relative imports.
+
+    Supports:
+    - import jarvis.foo
+    - from jarvis.foo import bar
+    - from .foo import bar
+    - from ..foo import bar
+
+    Returns repository-style Python file paths such as:
+    jarvis/runtime/safety.py
+    """
+
+    def _normalised_parts(source_path: Path) -> list[str]:
+        source = Path(source_path)
+        try:
+            source = source.relative_to(Path.cwd())
+        except ValueError:
+            pass
+        return [part for part in source.with_suffix("").parts if part not in ("", ".")]
+
+    def _module_to_path(module_name: str) -> str | None:
+        if not module_name.startswith("jarvis"):
+            return None
+        return module_name.replace(".", "/") + ".py"
+
+    def _relative_module_to_name(source_path: Path, level: int, module: str | None) -> str | None:
+        parts = _normalised_parts(source_path)
+        if not parts:
+            return None
+
+        # A normal module file belongs to its parent package. __init__ belongs to itself.
+        package_parts = parts if parts[-1] == "__init__" else parts[:-1]
+        if level <= 0:
+            return module
+
+        keep = len(package_parts) - (level - 1)
+        if keep <= 0:
+            return None
+
+        base_parts = package_parts[:keep]
+        module_parts = module.split(".") if module else []
+        resolved = base_parts + module_parts
+        if not resolved or resolved[0] != "jarvis":
+            return None
+        return ".".join(resolved)
 
     imports: set[str] = set()
+
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8-sig"))
+    except SyntaxError:
+        return []
+
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
-                candidate = _module_to_path(alias.name)
-                if candidate:
-                    imports.add(candidate)
+                module_path = _module_to_path(alias.name)
+                if module_path:
+                    imports.add(module_path)
+
         elif isinstance(node, ast.ImportFrom):
-            if not node.module:
+            if node.level:
+                module_name = _relative_module_to_name(path, node.level, node.module)
+            else:
+                module_name = node.module
+
+            if not module_name:
                 continue
-            candidate = _module_to_path(node.module)
-            if candidate:
-                imports.add(candidate)
-    return imports
+
+            module_path = _module_to_path(module_name)
+            if module_path:
+                imports.add(module_path)
+
+    return sorted(imports)
 
 
 def _active_runtime_roots(files: list[str]) -> list[str]:
