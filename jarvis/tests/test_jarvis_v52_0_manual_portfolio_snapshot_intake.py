@@ -203,7 +203,8 @@ class JarvisV520ManualPortfolioSnapshotIntakeTests(unittest.TestCase):
                         "warnings": (),
                     },
                 )(),
-            )
+            
+                manual_cost_basis_path=Path("jarvis/local/__test_missing_manual_cost_basis.local.json"),)
 
             covered = {item.key for item in audit.coverage_items if item.available}
             self.assertNotIn("manual_holdings_snapshot", covered)
@@ -248,7 +249,8 @@ class JarvisV520ManualPortfolioSnapshotIntakeTests(unittest.TestCase):
                         "warnings": (),
                     },
                 )(),
-            )
+            
+                manual_cost_basis_path=Path("jarvis/local/__test_missing_manual_cost_basis.local.json"),)
 
             covered = {item.key for item in audit.coverage_items if item.available}
             self.assertIn("manual_holdings_snapshot", covered)

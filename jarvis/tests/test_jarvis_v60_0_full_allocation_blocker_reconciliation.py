@@ -48,6 +48,7 @@ class JarvisV600FullAllocationBlockerReconciliationTests(unittest.TestCase):
                 lightyear_instrument_universe_path=paths["lightyear"],
                 crypto_facility_terms_path=paths["crypto"],
                 legacy_migration_review_path=paths["legacy"],
+                manual_cost_basis_path=Path(tmp) / "jarvis" / "local" / "missing_manual_cost_basis.local.json",
             )
 
             self.assertTrue(result["trusted_monthly_contribution_decision_allowed"])
@@ -71,6 +72,7 @@ class JarvisV600FullAllocationBlockerReconciliationTests(unittest.TestCase):
                 lightyear_instrument_universe_path=paths["lightyear"],
                 crypto_facility_terms_path=paths["crypto"],
                 legacy_migration_review_path=paths["legacy"],
+                manual_cost_basis_path=Path(tmp) / "jarvis" / "local" / "missing_manual_cost_basis.local.json",
             )
 
             self.assertIn("legacy_migration_review", result["full_allocation_still_requires"])

@@ -54,7 +54,8 @@ class JarvisV510AllocationStrategyDataCoverageAuditTests(unittest.TestCase):
                         _evidence("ecb_fx_official", "fx", "OFFICIAL_FREE_SOURCE_READY"),
                     )
                 ),
-            )
+            
+                manual_cost_basis_path=Path("jarvis/local/__test_missing_manual_cost_basis.local.json"),)
 
         self.assertEqual(result.status, STATUS_REVIEW_REQUIRED)
         self.assertEqual(result.audit_status, AUDIT_REVIEW_REQUIRED)
@@ -71,7 +72,8 @@ class JarvisV510AllocationStrategyDataCoverageAuditTests(unittest.TestCase):
         result = build_allocation_strategy_data_coverage_audit_result(
             current_date="2026-06-17",
             upstream_result=_upstream(evidence_items=()),
-        )
+        
+                manual_cost_basis_path=Path("jarvis/local/__test_missing_manual_cost_basis.local.json"),)
 
         self.assertFalse(result.weekly_router_allowed)
         self.assertFalse(result.full_allocation_allowed)
@@ -94,7 +96,8 @@ class JarvisV510AllocationStrategyDataCoverageAuditTests(unittest.TestCase):
                         _evidence("ecb_fx_official", "fx", "OFFICIAL_FREE_SOURCE_READY"),
                     )
                 ),
-            )
+            
+                manual_cost_basis_path=Path("jarvis/local/__test_missing_manual_cost_basis.local.json"),)
 
             covered_keys = {item.key for item in result.coverage_items if item.available}
             self.assertIn("manual_holdings_snapshot", covered_keys)
@@ -112,7 +115,8 @@ class JarvisV510AllocationStrategyDataCoverageAuditTests(unittest.TestCase):
                     _evidence("ecb_fx_official", "fx", "OFFICIAL_FREE_SOURCE_READY"),
                 )
             ),
-        )
+        
+                manual_cost_basis_path=Path("jarvis/local/__test_missing_manual_cost_basis.local.json"),)
         output = format_allocation_strategy_data_coverage_audit(result)
 
         self.assertIn("ALLOCATION STRATEGY + DATA COVERAGE AUDIT", output)

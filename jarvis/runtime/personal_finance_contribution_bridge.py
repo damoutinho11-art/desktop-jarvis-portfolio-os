@@ -19,11 +19,12 @@ from jarvis.jarvis_v16_0_real_daily_readiness_gate import build_safety_check_con
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import DEFAULT_EVIDENCE_PACK_PATH
 from jarvis.runtime.dynamic_target_policy import DEFAULT_AGE_YEARS, build_dynamic_target_policy_result
 from jarvis.runtime.manual_portfolio_snapshot import DEFAULT_MANUAL_PORTFOLIO_SNAPSHOT_PATH
+from jarvis.runtime.manual_cost_basis_intake import DEFAULT_MANUAL_COST_BASIS_PATH, build_manual_cost_basis_intake_result
 from jarvis.runtime.portfolio_exposure_audit import DEFAULT_IDEAL_EMERGENCY_MONTHS, DEFAULT_MIN_EMERGENCY_MONTHS
 
-STATUS_READY = "JARVIS_V60_0_FULL_ALLOCATION_BLOCKER_RECONCILIATION_READY_SAFE"
-STATUS_REVIEW_REQUIRED = "JARVIS_V60_0_FULL_ALLOCATION_BLOCKER_RECONCILIATION_REVIEW_REQUIRED_SAFE"
-STATUS_BLOCKED = "JARVIS_V60_0_FULL_ALLOCATION_BLOCKER_RECONCILIATION_BLOCKED_SAFE"
+STATUS_READY = "JARVIS_V62_0_MANUAL_COST_BASIS_BRIDGE_READY_SAFE"
+STATUS_REVIEW_REQUIRED = "JARVIS_V62_0_MANUAL_COST_BASIS_BRIDGE_REVIEW_REQUIRED_SAFE"
+STATUS_BLOCKED = "JARVIS_V62_0_MANUAL_COST_BASIS_BRIDGE_BLOCKED_SAFE"
 BRIDGE_READY = "PERSONAL_FINANCE_CONTRIBUTION_BRIDGE_READY"
 BRIDGE_REVIEW_REQUIRED = "PERSONAL_FINANCE_CONTRIBUTION_BRIDGE_REVIEW_REQUIRED"
 BRIDGE_BLOCKED = "PERSONAL_FINANCE_CONTRIBUTION_BRIDGE_BLOCKED"
@@ -185,6 +186,7 @@ def build_personal_finance_contribution_bridge_result(
     lightyear_instrument_universe_path: str | Path = DEFAULT_LIGHTYEAR_INSTRUMENT_UNIVERSE_PATH,
     crypto_facility_terms_path: str | Path = DEFAULT_CRYPTO_FACILITY_TERMS_PATH,
     legacy_migration_review_path: str | Path = DEFAULT_LEGACY_MIGRATION_REVIEW_PATH,
+    manual_cost_basis_path: str | Path = DEFAULT_MANUAL_COST_BASIS_PATH,
     age_years: int | None = DEFAULT_AGE_YEARS,
     new_investing_platform: str = "Lightyear",
     crypto_platform: str = "LHV",
@@ -261,11 +263,21 @@ def build_personal_finance_contribution_bridge_result(
     if facility_crypto_cap is not None and dynamic_crypto_ceiling is not None and facility_crypto_cap != dynamic_crypto_ceiling:
         warnings.append("crypto facility cap differs from dynamic target ceiling; using stricter v54 target policy until risk model reconciliation")
 
+    manual_cost_basis = build_manual_cost_basis_intake_result(
+        current_date=effective_date,
+        manual_cost_basis_path=manual_cost_basis_path,
+        write_template=False,
+    )
+    manual_cost_basis_ready = bool(manual_cost_basis.get("cost_basis_ready_for_full_allocation_data_gate"))
+    if manual_cost_basis_ready:
+        warnings.append("manual cost basis confirmed locally; still no selling, migration, orders, or trades")
+
     full_allocation_requirements = [
         "correlation_risk_model",
         "stock_specific_public_evidence",
-        "manual_cost_basis",
     ]
+    if not manual_cost_basis_ready:
+        full_allocation_requirements.append("manual_cost_basis")
     if not legacy["confirmed"]:
         full_allocation_requirements.insert(0, "legacy_migration_review")
 
@@ -303,6 +315,12 @@ def build_personal_finance_contribution_bridge_result(
         "evidence_pack_path": str(evidence_pack_path),
         "evidence_pack_present": evidence_present,
         "evidence_pack_loaded": evidence_loaded,
+        "manual_cost_basis_path": str(manual_cost_basis_path),
+        "manual_cost_basis_ready": manual_cost_basis_ready,
+        "manual_cost_basis_confirmed_positions_count": manual_cost_basis.get("confirmed_positions_count"),
+        "manual_cost_basis_total_market_value_eur": manual_cost_basis.get("total_market_value_eur"),
+        "manual_cost_basis_total_cost_basis_eur": manual_cost_basis.get("total_cost_basis_eur"),
+        "manual_cost_basis_total_unrealized_gain_loss_eur": manual_cost_basis.get("total_unrealized_gain_loss_eur"),
         "crypto_public_evidence_covered": crypto_evidence,
         "etf_fx_public_evidence_covered": etf_fx_evidence,
         "manual_actions": _manual_actions(allowed=trusted_allowed, cash_platform=cash_emergency_platform, crypto_platform=crypto_platform, investment_platform=new_investing_platform, emergency=emergency_top_up, crypto=crypto_amount, etf=etf_amount, stock=stock_amount),
@@ -371,6 +389,14 @@ def format_personal_finance_contribution_bridge(result: Mapping[str, Any]) -> st
         f"- crypto public evidence covered: {result['crypto_public_evidence_covered']}",
         f"- ETF/FX public evidence covered: {result['etf_fx_public_evidence_covered']}",
         "",
+        "Manual cost basis readiness:",
+        f"- manual cost basis path: {result['manual_cost_basis_path']}",
+        f"- manual cost basis ready: {result['manual_cost_basis_ready']}",
+        f"- confirmed positions count: {result['manual_cost_basis_confirmed_positions_count']}",
+        f"- total market value EUR: {result['manual_cost_basis_total_market_value_eur']}",
+        f"- total cost basis EUR: {result['manual_cost_basis_total_cost_basis_eur']}",
+        f"- total unrealized gain/loss EUR: {result['manual_cost_basis_total_unrealized_gain_loss_eur']}",
+        "",
         "Manual contribution actions:",
     ])
     for action in result["manual_actions"]:
@@ -420,6 +446,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--lightyear-instrument-universe-path", default=DEFAULT_LIGHTYEAR_INSTRUMENT_UNIVERSE_PATH)
     parser.add_argument("--crypto-facility-terms-path", default=DEFAULT_CRYPTO_FACILITY_TERMS_PATH)
     parser.add_argument("--legacy-migration-review-path", default=DEFAULT_LEGACY_MIGRATION_REVIEW_PATH)
+    parser.add_argument("--manual-cost-basis-path", default=DEFAULT_MANUAL_COST_BASIS_PATH)
     parser.add_argument("--age-years", type=int, default=DEFAULT_AGE_YEARS)
     parser.add_argument("--new-investing-platform", default="Lightyear")
     parser.add_argument("--crypto-platform", default="LHV")
@@ -437,6 +464,7 @@ def main(argv: list[str] | None = None) -> int:
         lightyear_instrument_universe_path=args.lightyear_instrument_universe_path,
         crypto_facility_terms_path=args.crypto_facility_terms_path,
         legacy_migration_review_path=args.legacy_migration_review_path,
+        manual_cost_basis_path=args.manual_cost_basis_path,
         age_years=args.age_years,
         new_investing_platform=args.new_investing_platform,
         crypto_platform=args.crypto_platform,

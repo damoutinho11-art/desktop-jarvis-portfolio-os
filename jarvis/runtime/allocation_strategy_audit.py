@@ -30,6 +30,10 @@ from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     FreeResearchCacheEvidencePackBridgeResult,
     build_free_research_cache_evidence_pack_bridge_result,
 )
+from jarvis.runtime.manual_cost_basis_intake import (
+    DEFAULT_MANUAL_COST_BASIS_PATH,
+    build_manual_cost_basis_intake_result,
+)
 
 STATUS_READY = "JARVIS_V51_0_ALLOCATION_STRATEGY_DATA_COVERAGE_AUDIT_READY_SAFE"
 STATUS_REVIEW_REQUIRED = "JARVIS_V51_0_ALLOCATION_STRATEGY_DATA_COVERAGE_AUDIT_REVIEW_REQUIRED_SAFE"
@@ -185,6 +189,20 @@ def _manual_snapshot_coverage(path: Path) -> tuple[bool, bool, bool, bool, str]:
     return holdings_ready, cash_ready, cost_basis_ready, brokerless_ready, "manual portfolio snapshot file present"
 
 
+def _manual_cost_basis_coverage(path: Path, *, current_date: str | None = None) -> tuple[bool, str]:
+    result = build_manual_cost_basis_intake_result(
+        current_date=current_date,
+        manual_cost_basis_path=path,
+        write_template=False,
+    )
+    if bool(result.get("cost_basis_ready_for_full_allocation_data_gate")):
+        return True, "manual cost basis file confirmed and complete"
+    blockers = result.get("blockers") or []
+    if blockers:
+        return False, "manual cost basis not ready: " + ", ".join(str(item) for item in blockers)
+    return False, "manual cost basis not ready"
+
+
 def _evidence_items(upstream: Any) -> tuple[Any, ...]:
     return tuple(getattr(upstream, "evidence_items", ()) or ())
 
@@ -234,9 +252,18 @@ def _build_coverage_items(
     *,
     upstream: Any,
     manual_snapshot_path: Path,
+    manual_cost_basis_path: Path,
+    current_date: str | None,
 ) -> tuple[DataCoverageItem, ...]:
     evidence = _evidence_items(upstream)
-    holdings_ready, cash_ready, cost_basis_ready, brokerless_ready, snapshot_note = _manual_snapshot_coverage(manual_snapshot_path)
+    holdings_ready, cash_ready, snapshot_cost_basis_ready, brokerless_ready, snapshot_note = _manual_snapshot_coverage(manual_snapshot_path)
+    manual_cost_basis_ready, manual_cost_basis_note = _manual_cost_basis_coverage(
+        manual_cost_basis_path,
+        current_date=current_date,
+    )
+    cost_basis_ready = manual_cost_basis_ready or snapshot_cost_basis_ready
+    cost_basis_source = str(manual_cost_basis_path) if manual_cost_basis_ready else str(manual_snapshot_path)
+    cost_basis_note = manual_cost_basis_note if manual_cost_basis_ready else snapshot_note
     crypto_evidence_ready = _has_usable_lane(evidence, {"crypto"})
     etf_fx_evidence_ready = _has_usable_lane(evidence, {"fx", "stocks_etfs", "etf_quote"})
     stock_evidence_ready = _has_stock_specific_evidence(evidence)
@@ -293,8 +320,8 @@ def _build_coverage_items(
             weekly=False,
             full=True,
             available=cost_basis_ready,
-            source=str(manual_snapshot_path),
-            notes=(snapshot_note, "needed for tax/realized-risk aware allocation"),
+            source=cost_basis_source,
+            notes=(cost_basis_note, "needed for tax/realized-risk aware allocation"),
         ),
         _item(
             key="brokerless_manual_snapshot_policy",
@@ -341,6 +368,7 @@ def build_allocation_strategy_data_coverage_audit_result(
     free_research_cache_path: str | Path = DEFAULT_FREE_RESEARCH_CACHE_PATH,
     evidence_pack_path: str | Path = DEFAULT_EVIDENCE_PACK_PATH,
     manual_portfolio_snapshot_path: str | Path = DEFAULT_MANUAL_PORTFOLIO_SNAPSHOT_PATH,
+    manual_cost_basis_path: str | Path = DEFAULT_MANUAL_COST_BASIS_PATH,
     max_age_days: int = 7,
     include_fmp: bool = False,
     include_sec: bool = False,
@@ -387,6 +415,8 @@ def build_allocation_strategy_data_coverage_audit_result(
     coverage_items = _build_coverage_items(
         upstream=upstream,
         manual_snapshot_path=Path(manual_portfolio_snapshot_path),
+        manual_cost_basis_path=Path(manual_cost_basis_path),
+        current_date=current_date_text,
     )
     weekly_missing = tuple(item for item in coverage_items if item.required_for_weekly_router and not item.available)
     full_missing = tuple(item for item in coverage_items if item.required_for_full_allocation and not item.available)
@@ -567,6 +597,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--free-research-cache-path", default=DEFAULT_FREE_RESEARCH_CACHE_PATH)
     parser.add_argument("--evidence-pack-path", default=DEFAULT_EVIDENCE_PACK_PATH)
     parser.add_argument("--manual-portfolio-snapshot-path", default=DEFAULT_MANUAL_PORTFOLIO_SNAPSHOT_PATH)
+    parser.add_argument("--manual-cost-basis-path", default=DEFAULT_MANUAL_COST_BASIS_PATH)
     parser.add_argument("--output-path", default=DEFAULT_OUTPUT_PATH)
     parser.add_argument("--write-output", action="store_true")
     parser.add_argument("--max-age-days", type=int, default=7)
@@ -595,6 +626,7 @@ def main(argv: list[str] | None = None) -> int:
         free_research_cache_path=args.free_research_cache_path,
         evidence_pack_path=args.evidence_pack_path,
         manual_portfolio_snapshot_path=args.manual_portfolio_snapshot_path,
+        manual_cost_basis_path=args.manual_cost_basis_path,
         max_age_days=args.max_age_days,
         include_fmp=args.include_fmp,
         include_sec=args.include_sec,
