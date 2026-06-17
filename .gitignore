@@ -53,3 +53,6 @@ jarvis/local/manual_portfolio_snapshot.local.json
 jarvis/local/lightyear_instrument_universe.local.json
 jarvis/local/crypto_facility_terms.local.json
 jarvis/local/legacy_migration_review.local.json
+
+# v58 local monthly expenses intake
+jarvis/local/monthly_expenses.local.json

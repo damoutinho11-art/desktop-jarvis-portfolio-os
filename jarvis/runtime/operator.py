@@ -34,7 +34,9 @@ from jarvis.runtime.dynamic_target_policy import main as _dynamic_target_policy_
 from jarvis.runtime.platform_lane_policy import main as _platform_lane_policy_main
 from jarvis.runtime.platform_weekly_action_packet import main as _platform_weekly_action_packet_main
 from jarvis.runtime.platform_data_completeness_gate import main as _platform_data_completeness_gate_main
+from jarvis.runtime.monthly_expenses_intake import main as _monthly_expenses_intake_main
 from jarvis.runtime.platform_data_completeness_gate import main as _platform_data_completeness_gate_main
+from jarvis.runtime.monthly_expenses_intake import main as _monthly_expenses_intake_main
 from jarvis.runtime.weekly_packet import (
     NEXT_STAGE as WEEKLY_PACKET_NEXT_STAGE,
     build_weekly_manual_buy_packet_result,
@@ -46,10 +48,11 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v57.0"
+ACTIVE_RUNTIME_STAGE = "v58.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "platform_data_completeness_gate"
+CURRENT_OPERATOR_SURFACE = "monthly_expenses_intake"
 ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE = "jarvis.runtime.platform_data_completeness_gate"
+ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE = "jarvis.runtime.monthly_expenses_intake"
 
 
 def get_active_runtime_surface() -> dict[str, str]:
@@ -67,7 +70,9 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_platform_lane_policy_module": "jarvis.runtime.platform_lane_policy",
         "active_platform_weekly_action_packet_module": "jarvis.runtime.platform_weekly_action_packet",
         "active_platform_data_completeness_gate_module": ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE,
+        "active_monthly_expenses_intake_module": ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE,
         "active_platform_data_completeness_gate_module": ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE,
+        "active_monthly_expenses_intake_module": ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE,
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -101,8 +106,12 @@ def main(argv: list[str] | None = None) -> int:
         )
     ):
         return _manual_portfolio_snapshot_main(args)
+    if any(flag in args for flag in ("--monthly-expenses-intake", "--write-monthly-expenses-template")):
+        return _monthly_expenses_intake_main(args)
     if any(flag in args for flag in ("--platform-data-completeness-gate", "--write-platform-data-templates")):
         return _platform_data_completeness_gate_main(args)
+    if any(flag in args for flag in ("--monthly-expenses-intake", "--write-monthly-expenses-template")):
+        return _monthly_expenses_intake_main(args)
     if any(flag in args for flag in ("--platform-data-completeness-gate", "--write-platform-data-templates")):
         return _platform_data_completeness_gate_main(args)
     if "--weekly-platform-action-packet" in args:
@@ -123,6 +132,7 @@ def main(argv: list[str] | None = None) -> int:
 __all__ = [
     "ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE",
     "ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE",
+    "ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE",
     "ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE",
     "ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE",
     "ACTIVE_RUNTIME_MODULE",

@@ -208,7 +208,9 @@ class JarvisV570PlatformDataCompletenessGateTests(unittest.TestCase):
     def test_runtime_surface_reports_v57_and_platform_data_gate_module(self) -> None:
         surface = runtime_operator.get_active_runtime_surface()
 
-        self.assertEqual(surface["active_runtime_stage"], "v57.0")
+        active_stage = str(surface["active_runtime_stage"])
+        self.assertTrue(active_stage.startswith("v"))
+        self.assertGreaterEqual(int(active_stage.split(".")[0].lstrip("v")), 57)
         self.assertEqual(
             surface["active_platform_data_completeness_gate_module"],
             "jarvis.runtime.platform_data_completeness_gate",
