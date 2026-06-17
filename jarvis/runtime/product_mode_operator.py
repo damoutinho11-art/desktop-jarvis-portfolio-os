@@ -441,6 +441,19 @@ def build_product_mode_result(
             ],
         ),
         _call_builder(
+            component_name="stock_specific_public_evidence",
+            module_name="jarvis.runtime.stock_specific_public_evidence",
+            builder_names=["build_stock_specific_public_evidence_result"],
+            kwargs=common_kwargs,
+            selected_keys=[
+                "stock_specific_public_evidence_ready",
+                "evidence_status",
+                "top_stock_symbol",
+                "public_price",
+                "remaining_full_allocation_blockers",
+            ],
+        ),
+        _call_builder(
             component_name="correlation_risk_model",
             module_name="jarvis.runtime.correlation_risk_model",
             builder_names=["build_correlation_risk_model_result"],
@@ -623,6 +636,11 @@ def build_product_mode_result(
         and bool(_find_first(component.selected_fields, ["correlation_model_ready"]))
         for component in components
     )
+    stock_specific_public_evidence_ready = any(
+        component.name == "stock_specific_public_evidence"
+        and bool(_find_first(component.selected_fields, ["stock_specific_public_evidence_ready"]))
+        for component in components
+    )
 
     full_allocation_blockers: list[str] = []
     for component in components:
@@ -641,7 +659,8 @@ def build_product_mode_result(
                 if not correlation_model_ready:
                     full_allocation_blockers.append(blocker)
             elif "stock_specific" in key or "stock_specific_public_evidence" in key:
-                full_allocation_blockers.append(blocker)
+                if not stock_specific_public_evidence_ready:
+                    full_allocation_blockers.append(blocker)
 
     full_allocation_blockers = list(dict.fromkeys(full_allocation_blockers))
 
@@ -754,7 +773,7 @@ def build_product_mode_result(
         f"3) ETF/fund lane: {_money(etf)}",
         f"4) Individual stock lane: {_money(stock)}",
         f"Total monthly contribution: {_money(monthly_contribution)}",
-        "Reason stock is zero: stock-specific public evidence is still missing.",
+        "Reason stock is zero: v83 dynamic allocator has not assigned stock sizing yet.",
         "Execution rule: this is a manual checklist only; J.A.R.V.I.S. creates no orders.",
     ]
 

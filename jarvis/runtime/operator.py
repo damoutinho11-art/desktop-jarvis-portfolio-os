@@ -15,6 +15,7 @@ from typing import Any
 
 from jarvis.runtime.product_mode_operator import main as _product_mode_operator_main
 from jarvis.runtime.correlation_risk_model import main as _correlation_risk_model_main
+from jarvis.runtime.stock_specific_public_evidence import main as _stock_specific_public_evidence_main
 
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
@@ -59,9 +60,9 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v81.0"
+ACTIVE_RUNTIME_STAGE = "v82.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "correlation_risk_model"
+CURRENT_OPERATOR_SURFACE = "stock_specific_public_evidence"
 ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE = "jarvis.runtime.platform_data_completeness_gate"
 ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE = "jarvis.runtime.monthly_expenses_intake"
 
@@ -106,6 +107,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_final_v5_archive_execution_module": "jarvis.runtime.final_v5_archive_execution",
         "active_product_mode_operator_module": "jarvis.runtime.product_mode_operator",
         "active_correlation_risk_model_module": "jarvis.runtime.correlation_risk_model",
+        "active_stock_specific_public_evidence_module": "jarvis.runtime.stock_specific_public_evidence",
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -130,6 +132,8 @@ def main(argv: list[str] | None = None) -> int:
     """Run the stable active J.A.R.V.I.S. operator surface."""
 
     args = list(sys.argv[1:] if argv is None else argv)
+    if "--stock-specific-public-evidence" in args:
+        return _stock_specific_public_evidence_main(args)
     if "--correlation-risk-model" in args:
         return _correlation_risk_model_main(args)
     if any(flag in args for flag in ("--today", "--week", "--status", "--product-mode")):

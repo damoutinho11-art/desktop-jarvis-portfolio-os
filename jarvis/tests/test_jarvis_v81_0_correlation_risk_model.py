@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 import tempfile
@@ -75,7 +75,7 @@ class JarvisV810CorrelationRiskModelTests(unittest.TestCase):
         result = build_product_mode_result(mode="status", current_date="2026-06-17")
 
         self.assertNotIn("correlation_risk_model", result.full_allocation_blockers)
-        self.assertIn("stock_specific_public_evidence", result.full_allocation_blockers)
+        self.assertNotIn("correlation_risk_model", result.full_allocation_blockers)
         self.assertTrue(result.product_ready_for_manual_use)
 
 

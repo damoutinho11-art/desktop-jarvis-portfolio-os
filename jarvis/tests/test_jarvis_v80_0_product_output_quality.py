@@ -49,7 +49,7 @@ class JarvisV800ProductOutputQualityTests(unittest.TestCase):
         self.assertIn("Product readiness: READY_FOR_MANUAL_USE", text)
         self.assertIn("Unresolved local imports: 0", text)
         self.assertIn("Legacy module archive candidates: 0", text)
-        self.assertIn("Full allocation blockers: stock_specific_public_evidence", text)
+        self.assertIn("Full allocation blockers: none", text)
         self.assertIn("Product-mode blockers: none", text)
         self.assertNotIn("monthly_expenses_required_for_dynamic_target_policy", text)
         self.assertNotIn("monthly_contribution_required_for_dynamic_target_policy", text)
