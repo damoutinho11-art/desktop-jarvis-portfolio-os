@@ -1,4 +1,4 @@
-﻿"""J.A.R.V.I.S. v10.0 autonomous public data refresh runtime.
+"""J.A.R.V.I.S. v10.0 autonomous public data refresh runtime.
 
 This stage orchestrates existing public-data components. It does not introduce a
 new fetcher, source-selection plan, provider registry, dry-run planner, broker
@@ -160,7 +160,7 @@ def build_demo_public_data_source_manifest() -> dict[str, Any]:
 
 
 def load_public_data_source_manifest(path: str | Path) -> dict[str, Any]:
-    raw = json.loads(Path(path).read_text(encoding="utf-8"))
+    raw = json.loads(Path(path).read_text(encoding="utf-8-sig"))
     if not isinstance(raw, dict):
         raise ValueError("public data source manifest must be a JSON object.")
     return raw

@@ -1,4 +1,5 @@
-﻿import tempfile
+import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -134,6 +135,48 @@ class JarvisV100AutonomousPublicDataRefreshRuntimeTests(unittest.TestCase):
         self.assertTrue(payload["live_adapter_record_emission_deferred"])
         self.assertTrue(payload["private_account_data_ingestion_forbidden"])
         self.assertTrue(payload["credentials_forbidden"])
+
+    def test_local_manifest_with_utf8_bom_loads_safely(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manifest_path = Path(temp_dir) / "public_data_sources.local.json"
+            manifest_path.write_text("\ufeff" + json.dumps(_valid_manifest()), encoding="utf-8")
+
+            result = audit_v10_0_autonomous_public_data_refresh_runtime(
+                manifest_path=manifest_path,
+                root=temp_dir,
+            )
+
+            self.assertEqual(result.status, STATUS_READY)
+            self.assertTrue(result.source_manifest_loaded)
+            self.assertFalse(result.demo_manifest_used)
+            self.assertEqual(result.valid_source_count, 1)
+            self.assertFalse(result.blockers)
+
+    def test_public_fetch_failure_is_reported_without_traceback(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            def failing_fetch(url: str) -> bytes:
+                raise RuntimeError("HTTP 404 synthetic failure")
+
+            result = audit_v10_0_autonomous_public_data_refresh_runtime(
+                manifest=_valid_manifest(),
+                execute_fetch=True,
+                authorization_phrase=AUTHORIZATION_PHRASE,
+                fetch_date="2026-06-17",
+                fetch_func=failing_fetch,
+                root=temp_dir,
+            )
+
+            self.assertEqual(result.status, STATUS_BLOCKED)
+            self.assertEqual(result.fetcher_overall_status, "PUBLIC_DATA_FETCHER_FETCH_FAILED_SAFE")
+            self.assertEqual(result.fetched_file_count, 0)
+            self.assertFalse(result.raw_public_data_refreshed)
+            self.assertFalse(result.ready_for_downstream_source_quality_gate)
+            self.assertTrue(any("public fetch failed" in blocker.lower() for blocker in result.blockers))
+            self.assertTrue(result.local_cache_only)
+            self.assertTrue(result.raw_data_unverified)
+            self.assertTrue(result.broker_connection_forbidden)
+            self.assertTrue(result.order_placement_forbidden)
+            self.assertTrue(result.no_trades_executed)
 
 
 if __name__ == "__main__":

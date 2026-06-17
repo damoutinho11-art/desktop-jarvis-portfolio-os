@@ -152,7 +152,7 @@ def _is_under_jarvis_local(path: Path, root: Path) -> bool:
 
 
 def load_json(path: str | Path) -> dict[str, Any]:
-    return json.loads(Path(path).read_text(encoding="utf-8"))
+    return json.loads(Path(path).read_text(encoding="utf-8-sig"))
 
 
 def validate_fetcher_config(config: dict[str, Any]) -> tuple[str, ...]:
@@ -322,6 +322,7 @@ def fetch_public_sources(
     output_directory.mkdir(parents=True, exist_ok=True)
     fetch_date = _text(config.get("fetch_date")) or "1970-01-01"
     fetched_files: list[str] = []
+    fetch_failures: list[str] = []
     sources = sorted(_sources_from_config_or_manifest(config, manifest), key=lambda source: _text(source.get("source_id")))
     for source in sources:
         source_id = _safe_source_id(_text(source.get("source_id")))
@@ -332,7 +333,30 @@ def fetch_public_sources(
         elif "csv" in expected:
             suffix = ".csv.raw"
         path = output_directory / f"{fetch_date}_{source_id}{suffix}"
-        path.write_bytes(fetch(_text(source.get("source_url"))))
+        try:
+            path.write_bytes(fetch(_text(source.get("source_url"))))
+        except Exception as exc:  # noqa: BLE001 - public source failures must not crash operator reports.
+            fetch_failures.append(
+                f"{source_id}: public fetch failed: {exc.__class__.__name__}: {_text(exc)}"
+            )
+            continue
         fetched_files.append(str(path))
 
-    return evaluate_public_data_fetcher(config, manifest, tuple(fetched_files))
+    result = evaluate_public_data_fetcher(config, manifest, tuple(fetched_files))
+    if fetch_failures:
+        status = (
+            "PUBLIC_DATA_FETCHER_PARTIAL_FETCH_FAILED_SAFE"
+            if fetched_files
+            else "PUBLIC_DATA_FETCHER_FETCH_FAILED_SAFE"
+        )
+        return PublicDataFetcherEvaluation(
+            **{
+                **result.__dict__,
+                "overall_status": status,
+                "blocked_reasons": tuple(
+                    dict.fromkeys((*result.blocked_reasons, *fetch_failures))
+                ),
+            }
+        )
+
+    return result
