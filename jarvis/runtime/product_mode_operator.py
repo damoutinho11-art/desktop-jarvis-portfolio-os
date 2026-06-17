@@ -19,8 +19,8 @@ from typing import Any, Mapping, Sequence
 
 from jarvis.runtime.safety import build_safety_check_console_output
 
-STATUS_READY = "JARVIS_V79_0_PRODUCT_MODE_OPERATOR_READY_SAFE"
-STATUS_REVIEW_REQUIRED = "JARVIS_V79_0_PRODUCT_MODE_OPERATOR_REVIEW_REQUIRED_SAFE"
+STATUS_READY = "JARVIS_V80_0_PRODUCT_OUTPUT_QUALITY_READY_SAFE"
+STATUS_REVIEW_REQUIRED = "JARVIS_V80_0_PRODUCT_OUTPUT_QUALITY_REVIEW_REQUIRED_SAFE"
 DEFAULT_OUTPUT_PATH = "outputs/product_mode_operator_latest.json"
 
 
@@ -711,39 +711,73 @@ def build_product_mode_result(
         else "REVIEW_REQUIRED_BEFORE_MANUAL_USE"
     )
 
+    full_blocker_text = ", ".join(full_allocation_blockers) if full_allocation_blockers else "none"
+
     today_lines = [
-        f"Product verdict: {product_verdict}",
-        f"Safety: {'execution blocked' if safety_blocked else 'REVIEW REQUIRED'}",
+        f"Readiness: {product_verdict}",
+        f"Safety: {'execution blocked; manual action only' if safety_blocked else 'REVIEW REQUIRED'}",
         f"Emergency fund: {_money(emergency_fund)}"
-        + (f" ({emergency_months:.2f} months)" if emergency_months is not None else ""),
-        f"Minimum emergency target: {_money(min_emergency)}",
-        f"Ideal emergency target: {_money(ideal_emergency)}",
-        f"Monthly contribution detected: {_money(monthly_contribution)}",
-        "Manual action today: review the week packet; do not execute inside J.A.R.V.I.S.",
+        + (f" ({emergency_months:.2f} months covered)" if emergency_months is not None else ""),
+        f"Emergency target range: minimum {_money(min_emergency)} / ideal {_money(ideal_emergency)}",
+        f"Contribution available: {_money(monthly_contribution)}",
+        (
+            "Manual plan for this period: "
+            f"{_money(emergency_top_up)} emergency top-up, "
+            f"{_money(crypto)} crypto, "
+            f"{_money(etf)} ETF/fund, "
+            f"{_money(stock)} individual stock."
+        ),
+        "Action rule: review, approve manually, then buy outside J.A.R.V.I.S.; no execution happens here.",
     ]
 
     week_lines = [
-        f"Monthly contribution: {_money(monthly_contribution)}",
-        f"Emergency top-up: {_money(emergency_top_up)}",
-        f"Crypto lane: {_money(crypto)}",
-        f"ETF/fund lane: {_money(etf)}",
-        f"Individual stock lane: {_money(stock)}",
-        "Execution: manual-only outside J.A.R.V.I.S.",
+        "Manual buy plan:",
+        f"1) Emergency top-up: {_money(emergency_top_up)}",
+        f"2) Crypto lane: {_money(crypto)}",
+        f"3) ETF/fund lane: {_money(etf)}",
+        f"4) Individual stock lane: {_money(stock)}",
+        f"Total monthly contribution: {_money(monthly_contribution)}",
+        "Reason stock is zero: full allocation still waits for correlation risk and stock-specific public evidence.",
+        "Execution rule: this is a manual checklist only; J.A.R.V.I.S. creates no orders.",
     ]
 
     if full_allocation_blockers:
-        week_lines.append("Full allocation still blocked by: " + ", ".join(full_allocation_blockers))
+        week_lines.append("Full allocation still blocked by: " + full_blocker_text)
     else:
         week_lines.append("Full allocation blockers: none reported by active components")
 
+    product_relevant_component_blockers = []
+    non_blocking_notes = []
+
+    for blocker in component_blockers:
+        normalized = _norm(blocker)
+
+        if "legacy_migration_review" in normalized:
+            note = "legacy migration review is separate from new manual contributions"
+            if note not in non_blocking_notes:
+                non_blocking_notes.append(note)
+            continue
+
+        if "monthly_expenses_required_for_dynamic_target_policy" in normalized:
+            continue
+
+        if "monthly_contribution_required_for_dynamic_target_policy" in normalized:
+            continue
+
+        if "correlation" in normalized or "stock_specific" in normalized:
+            continue
+
+        product_relevant_component_blockers.append(blocker)
+
     status_lines = [
-        f"Active product mode: {mode}",
+        f"Product readiness: {product_verdict}",
         f"Safety-check blocked execution: {safety_blocked}",
         f"Unresolved local imports: {unresolved_import_count}",
         f"Legacy module archive candidates: {legacy_module_archive_candidate_count}",
         f"Components available: {sum(1 for component in components if component.available)} / {len(components)}",
-        f"Full allocation blockers: {', '.join(full_allocation_blockers) if full_allocation_blockers else 'none reported'}",
-        f"Component blockers: {', '.join(component_blockers) if component_blockers else 'none'}",
+        f"Full allocation blockers: {full_blocker_text}",
+        f"Product-mode blockers: {', '.join(product_relevant_component_blockers) if product_relevant_component_blockers else 'none'}",
+        f"Non-blocking notes: {', '.join(non_blocking_notes) if non_blocking_notes else 'none'}",
     ]
 
     result = ProductModeResult(
