@@ -21,9 +21,9 @@ from jarvis.runtime.dynamic_target_policy import DEFAULT_AGE_YEARS, build_dynami
 from jarvis.runtime.manual_portfolio_snapshot import DEFAULT_MANUAL_PORTFOLIO_SNAPSHOT_PATH
 from jarvis.runtime.portfolio_exposure_audit import DEFAULT_IDEAL_EMERGENCY_MONTHS, DEFAULT_MIN_EMERGENCY_MONTHS
 
-STATUS_READY = "JARVIS_V59_0_PERSONAL_FINANCE_CONTRIBUTION_BRIDGE_READY_SAFE"
-STATUS_REVIEW_REQUIRED = "JARVIS_V59_0_PERSONAL_FINANCE_CONTRIBUTION_BRIDGE_REVIEW_REQUIRED_SAFE"
-STATUS_BLOCKED = "JARVIS_V59_0_PERSONAL_FINANCE_CONTRIBUTION_BRIDGE_BLOCKED_SAFE"
+STATUS_READY = "JARVIS_V60_0_FULL_ALLOCATION_BLOCKER_RECONCILIATION_READY_SAFE"
+STATUS_REVIEW_REQUIRED = "JARVIS_V60_0_FULL_ALLOCATION_BLOCKER_RECONCILIATION_REVIEW_REQUIRED_SAFE"
+STATUS_BLOCKED = "JARVIS_V60_0_FULL_ALLOCATION_BLOCKER_RECONCILIATION_BLOCKED_SAFE"
 BRIDGE_READY = "PERSONAL_FINANCE_CONTRIBUTION_BRIDGE_READY"
 BRIDGE_REVIEW_REQUIRED = "PERSONAL_FINANCE_CONTRIBUTION_BRIDGE_REVIEW_REQUIRED"
 BRIDGE_BLOCKED = "PERSONAL_FINANCE_CONTRIBUTION_BRIDGE_BLOCKED"
@@ -261,6 +261,14 @@ def build_personal_finance_contribution_bridge_result(
     if facility_crypto_cap is not None and dynamic_crypto_ceiling is not None and facility_crypto_cap != dynamic_crypto_ceiling:
         warnings.append("crypto facility cap differs from dynamic target ceiling; using stricter v54 target policy until risk model reconciliation")
 
+    full_allocation_requirements = [
+        "correlation_risk_model",
+        "stock_specific_public_evidence",
+        "manual_cost_basis",
+    ]
+    if not legacy["confirmed"]:
+        full_allocation_requirements.insert(0, "legacy_migration_review")
+
     unique_blockers = _dedupe(blockers)
     trusted_allowed = not unique_blockers
     status = STATUS_BLOCKED if unique_blockers else STATUS_REVIEW_REQUIRED if warnings or flags else STATUS_READY
@@ -299,7 +307,7 @@ def build_personal_finance_contribution_bridge_result(
         "etf_fx_public_evidence_covered": etf_fx_evidence,
         "manual_actions": _manual_actions(allowed=trusted_allowed, cash_platform=cash_emergency_platform, crypto_platform=crypto_platform, investment_platform=new_investing_platform, emergency=emergency_top_up, crypto=crypto_amount, etf=etf_amount, stock=stock_amount),
         "policy_flags": _dedupe(flags),
-        "full_allocation_still_requires": ["legacy_migration_review", "correlation_risk_model", "stock_specific_public_evidence", "manual_cost_basis"],
+        "full_allocation_still_requires": full_allocation_requirements,
         "blockers": unique_blockers,
         "warnings": _dedupe(warnings),
         "allocation_mutation": False,
