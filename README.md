@@ -190,3 +190,5 @@ python .\jarvis_operator.py --portfolio-exposure-audit --current-date 2026-06-17
 Without monthly expenses, J.A.R.V.I.S. refuses to decide how much should go to emergency fund versus investing. Once minimum emergency coverage is met, J.A.R.V.I.S. uses a small capped maintenance top-up rather than overfunding cash.
 
 - v54.0 Dynamic Target Policy Engine: converts the real manual snapshot, expense-based emergency policy, and monthly contribution into a dynamic target policy layer. It remains manual-review-only and does not execute trades.
+
+- v55.0 Platform Lane Policy Engine: maps new money by platform: LHV for cash/emergency/crypto, Lightyear for ETF/stock/fund investing, and legacy holdings as observed-only until migration review.

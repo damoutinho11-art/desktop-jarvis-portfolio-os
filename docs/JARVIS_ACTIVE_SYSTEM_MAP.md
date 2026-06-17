@@ -163,3 +163,7 @@ The emergency fund target is derived from monthly expenses, not from a fixed arb
 ## v54.0 Dynamic Target Policy Engine
 
 Adds `jarvis.runtime.dynamic_target_policy` as the active policy layer. It marks the dynamic target policy data gate covered while leaving full allocation blocked until stock-specific public evidence and a correlation/risk model exist. No execution path is added.
+
+## v55.0 Platform Lane Policy Engine
+
+Adds `jarvis.runtime.platform_lane_policy` as the active platform routing layer. New crypto money routes to LHV, ETF/stock/fund money routes to Lightyear, and existing non-Lightyear positions remain legacy observed positions. No selling, broker, order, or trade path is added.
