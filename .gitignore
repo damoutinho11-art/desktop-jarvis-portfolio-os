@@ -48,3 +48,8 @@ outputs/runtime_dependency_slimline_audit_*.json
 outputs/allocation_strategy_data_coverage_audit_latest.json
 outputs/allocation_strategy_data_coverage_audit_*.json
 jarvis/local/manual_portfolio_snapshot.local.json
+
+# v57 local platform intake templates
+jarvis/local/lightyear_instrument_universe.local.json
+jarvis/local/crypto_facility_terms.local.json
+jarvis/local/legacy_migration_review.local.json

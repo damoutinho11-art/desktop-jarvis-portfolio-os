@@ -175,7 +175,9 @@ class JarvisV560PlatformAwareWeeklyActionPacketTests(unittest.TestCase):
     def test_runtime_surface_reports_v56_and_weekly_packet_module(self) -> None:
         surface = runtime_operator.get_active_runtime_surface()
 
-        self.assertEqual(surface["active_runtime_stage"], "v56.0")
+        active_stage = str(surface["active_runtime_stage"])
+        self.assertTrue(active_stage.startswith("v"))
+        self.assertGreaterEqual(int(active_stage.split(".")[0].lstrip("v")), 56)
         self.assertEqual(
             surface["active_platform_weekly_action_packet_module"],
             "jarvis.runtime.platform_weekly_action_packet",
