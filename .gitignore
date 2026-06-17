@@ -36,3 +36,10 @@ jarvis/local/data_cache/
 jarvis/local/public_data_sources.local.json
 jarvis/local/public_data_fetch_reports/
 jarvis/local/public_data_snapshots/
+# Generated J.A.R.V.I.S. patch/application scripts
+apply_v*.ps1
+# Generated free-research cache and evidence artifacts
+jarvis/local/free_research_api_cache.local.json
+jarvis/local/free_research_api_cache.*.json
+outputs/free_research_evidence_pack_latest.json
+outputs/free_research_evidence_pack_*.json

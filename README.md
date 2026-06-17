@@ -1,196 +1,130 @@
-# J.A.R.V.I.S. Portfolio OS v0
+# J.A.R.V.I.S. Portfolio OS
 
-A safe, local, manual-approval portfolio allocation engine.
+J.A.R.V.I.S. Portfolio OS is a local, safety-first portfolio research and manual-buy preparation system.
 
-This project recommends weekly investment allocations against a fixed portfolio target. It does not connect to brokers, does not execute trades, does not use API keys, and does not make network calls.
+The current active operator is the v45 free-research cache evidence-pack bridge. It supports a daily read-only check-in flow and a weekly manual-buy preparation flow. It can refresh public/free research data into a local cache and write an evidence pack when explicitly requested.
 
-## Safety Constitution
+## Current operating model
 
-J.A.R.V.I.S. Portfolio OS v0 follows these rules:
+J.A.R.V.I.S. is not an auto-trader.
 
-- Manual approval required.
-- No auto-trading.
-- No leverage.
-- No options.
-- No futures.
-- No staking yet.
-- No use of emergency fund.
-- No automatic selling.
-- No random new assets.
-- Emergency fund is tracked but excluded from allocation calculations.
+It can:
 
-Every report includes:
+- prepare research data
+- refresh public/free source cache records
+- build evidence packs
+- select or display candidates across crypto, ETF/fund, and individual-stock lanes
+- prepare manual review tickets and weekly manual-buy packets in later stages
+- summarize risk/source status
 
-> Manual approval required. No trades executed.
+It cannot and must not:
 
-## Files
+- connect to brokers
+- request or store broker credentials
+- ingest private account data automatically
+- create buy requests
+- create orders
+- execute trades
+- approve a real-world purchase automatically
 
-- `jarvis_constitution.json` - fixed rules, target weights, and minimum efficient buy sizes.
-- `portfolio_state.json` - current local portfolio state and weekly budget.
-- `allocation_engine.py` - deterministic allocation logic.
-- `etf_universe.json` - offline manual ETF scoring inputs.
-- `etf_scoring.py` - ETF sleeve scoring formula.
-- `voice_adapter.py` - optional local voice output via `pyttsx3`, with print fallback.
-- `run_weekly_allocation.py` - command-line runner.
-- `review_ticket.py` - manual approval ticket review and decision logger.
-- `update_state.py` - safe portfolio state updater with backup creation.
-- `status.py` - read-only portfolio status command.
+The final real-world buy remains manual outside J.A.R.V.I.S.
 
-## Readiness Gates
+## Daily mode
 
-The engine reports two allocation views:
+Daily mode is for read-only check-ins, source quality, drift/risk review, and finance analysis.
 
-- Ideal allocation: target-weight recommendation before platform readiness gates.
-- Executable allocation: current-week recommendation after platform readiness and minimum efficient buy checks.
-
-If a route is not ready, or a suggested buy is below its minimum efficient buy size, the amount enters an executable fallback pool. The pool is reallocated to ready, underweight sleeves where minimum buy sizes and risk limits allow it. If no valid executable sleeve is available, the remainder goes to `tactical_reserve`.
-
-Crypto fallback follows hard caps:
-
-- BTC target: 10%
-- BTC max: 15%
-- Total crypto hard max: 22.5%
-- HYPE + TAO combined max: 7.5%
-- BTC fallback max: 40% of the weekly budget
-- Total crypto-like buys max: 50% of the weekly budget
-- No automatic selling
-
-## Portfolio Modes
-
-Each weekly report includes a portfolio mode:
-
-- `construction_mode` for small or mostly empty portfolios.
-- `transition_mode` while platform routes, legacy holdings, or legacy cash cleanup are incomplete.
-- `normal_weekly_mode` when platforms are ready, cleanup is complete, and sleeves are within bands.
-- `rebalance_watch_mode` when risk bands are breached, while still blocking automatic sells.
-
-## Legacy Holdings
-
-Old LHV Growth Account positions are tracked separately under `legacy_holdings`.
-Known numeric values are included in investable value by mapping them into the closest current sleeve. Unknown or pending values should stay `null`; they are shown as `unknown/pending` and excluded from calculations.
-
-J.A.R.V.I.S. does not recommend new buys into legacy instruments and does not recommend selling them without explicit user approval.
-
-## Run
-
-```bash
-python run_weekly_allocation.py
+```powershell
+python .\jarvis_operator.py --daily --current-date 2026-06-17
 ```
 
-Optional spoken weekly briefing:
+Default daily mode should not mutate the approval ticket, portfolio state, evidence pack, or local cache.
 
-```bash
-python run_weekly_allocation.py --speak
+## Weekly buy-prep mode
+
+Weekly mode is for manual buy preparation. It may refresh/write the manual review ticket, but still cannot create a buy request, broker order, or trade.
+
+```powershell
+python .\jarvis_operator.py --weekly-buy-prep --current-date 2026-06-17
 ```
 
-On Windows, depending on your Python launcher:
+## Explicit free research cache refresh
 
-```bash
-py run_weekly_allocation.py
+Public/free research data refresh is explicit.
+
+```powershell
+python .\jarvis_operator.py --daily --current-date 2026-06-17 --refresh-free-research-cache
 ```
 
-Running the weekly allocation creates a manual approval ticket in `outputs/approval_ticket_latest.json` and a dated copy such as `outputs/approval_ticket_2026-06-04.json`.
-It also appends a compact audit record to `outputs/decision_log.jsonl` without overwriting prior entries.
+The local cache path is:
 
-Review the latest approval ticket:
-
-```bash
-python review_ticket.py
+```text
+jarvis/local/free_research_api_cache.local.json
 ```
 
-Record a manual decision without executing trades:
+Do not commit generated local cache files.
 
-```bash
-python review_ticket.py --decision approved --note "Manual review complete."
+## Explicit evidence-pack write
+
+Evidence-pack writing is explicit.
+
+```powershell
+python .\jarvis_operator.py --daily --current-date 2026-06-17 --refresh-free-research-cache --write-evidence-pack
 ```
 
-Decisions are saved to `outputs/approval_ticket_reviewed_latest.json` and appended to `outputs/approval_decisions.jsonl`.
-Use `--test` for dry-run review checks; test decisions append to `outputs/approval_decisions_test.jsonl` and mark the reviewed copy with `test_decision: true`.
+The generated evidence-pack path is:
 
-Approval tickets split decision context into:
-
-- `blocked_actions` for recommendations blocked by platform, routing, minimum, or risk rules.
-- `fallback_actions` for substitute recommendations such as BTC fallback.
-- `reserve_actions` for money intentionally held in `tactical_reserve`.
-
-Update local portfolio state with an automatic backup:
-
-```bash
-python update_state.py --set-platform lightyear_ready=true
-python update_state.py --set-holding btc=61.54
-python update_state.py --set-legacy lhv_growth_cash_pending_settlement=1271.57
+```text
+outputs/free_research_evidence_pack_latest.json
 ```
 
-Print read-only portfolio status:
+Do not commit generated evidence-pack files unless a future stage deliberately promotes a fixture.
 
-```bash
-python status.py
+## Optional public research APIs
+
+The system is free-first and no-key-first where possible.
+
+Supported/declared public research sources include:
+
+- CoinGecko free/demo for crypto
+- ECB official FX reference
+- Yahoo chart public fallback for public quotes
+- SEC EDGAR official validation when explicitly requested
+- FMP optional research API when `JARVIS_FMP_API_KEY` exists
+
+Optional public research keys are allowed only for research. Broker/API execution keys remain outside scope.
+
+## Current active lanes
+
+Current active lane output comes through the v45 operator chain:
+
+- Crypto lane
+- ETF/fund lane
+- Individual stock review lane
+- Free-source router
+- Free-source cache
+- Evidence-pack bridge
+
+See:
+
+```text
+docs/JARVIS_ACTIVE_SYSTEM_MAP.md
+docs/JARVIS_REPOSITORY_HYGIENE_PLAN.md
 ```
 
-Optional spoken read-only status briefing:
+## Safety check
 
-```bash
-python status.py --speak
+```powershell
+python .\jarvis_operator.py --safety-check
 ```
+
+Expected behavior: execution commands are blocked.
 
 ## Tests
 
-Run the v0.1 stability checkpoint:
+Run focused current checks:
 
-```bash
-python test_jarvis_v01.py
+```powershell
+python -m unittest jarvis.tests.test_jarvis_v45_0_free_research_cache_evidence_pack_bridge jarvis.tests.test_jarvis_operator_v45_0_root_bridge jarvis.tests.test_jarvis_v46_0_repository_hygiene_active_surface_map -v
 ```
 
-Run the v0.2 ETF scoring checkpoint:
-
-```bash
-python test_jarvis_v02.py
-```
-
-Run the state updater tests:
-
-```bash
-python test_update_state.py
-```
-
-Run the status command tests:
-
-```bash
-python test_status.py
-```
-
-Run the voice briefing tests:
-
-```bash
-python test_voice_briefing.py
-```
-
-Voice output is output-only. It cannot approve tickets, modify files, append logs by itself, or execute trades. If `pyttsx3` is unavailable, J.A.R.V.I.S. prints a voice fallback line instead of failing.
-
-## ETF Scoring
-
-J.A.R.V.I.S. v0.2 scores ETF sleeves from manual inputs only. It makes no network calls and uses no live market data.
-
-ETF score = 45% allocation gap + 25% momentum + 15% valuation risk + 10% inverse concentration penalty + 5% fee/liquidity.
-
-ETF scoring only affects ideal ETF sleeve priority. Platform readiness, manual approval, crypto throttles, approval tickets, and no-trade safety rules still apply.
-
-## Current Target Portfolio
-
-| Sleeve | Target |
-| --- | ---: |
-| global_core_etf | 55% |
-| growth_nasdaq_etf | 15% |
-| quality_etf | 10% |
-| btc | 10% |
-| hype | 2.5% |
-| tao | 2.5% |
-| discovery | 2.5% |
-| tactical_reserve | 2.5% |
-
-## Notes
-
-- Values are stored in EUR.
-- The emergency fund is visible in state but excluded from investable portfolio value and allocation calculations.
-- Legacy LHV growth holdings are present as nullable fields for future migration or manual reconciliation.
-- The allocation engine is intentionally simple, deterministic, and readable.
+Older stage tests remain in the repository for historical coverage while the runtime dependency chain is being slimmed. Do not delete older `jarvis_v*.py` files blindly; the current operator still imports through earlier safety/source modules.
