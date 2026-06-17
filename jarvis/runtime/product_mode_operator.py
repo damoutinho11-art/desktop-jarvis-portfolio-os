@@ -441,6 +441,18 @@ def build_product_mode_result(
             ],
         ),
         _call_builder(
+            component_name="correlation_risk_model",
+            module_name="jarvis.runtime.correlation_risk_model",
+            builder_names=["build_correlation_risk_model_result"],
+            kwargs=common_kwargs,
+            selected_keys=[
+                "correlation_model_ready",
+                "model_status",
+                "exposure_weights",
+                "remaining_full_allocation_blockers",
+            ],
+        ),
+        _call_builder(
             component_name="platform_data_completeness_gate",
             module_name="jarvis.runtime.platform_data_completeness_gate",
             builder_names=["build_platform_data_completeness_gate_result"],
@@ -606,6 +618,12 @@ def build_product_mode_result(
         )
     )
 
+    correlation_model_ready = any(
+        component.name == "correlation_risk_model"
+        and bool(_find_first(component.selected_fields, ["correlation_model_ready"]))
+        for component in components
+    )
+
     full_allocation_blockers: list[str] = []
     for component in components:
         full_allocation_blockers.extend(
@@ -619,11 +637,10 @@ def build_product_mode_result(
     for component in components:
         for blocker in component.blockers:
             key = _norm(blocker)
-            if (
-                "correlation" in key
-                or "stock_specific" in key
-                or "stock_specific_public_evidence" in key
-            ):
+            if "correlation" in key:
+                if not correlation_model_ready:
+                    full_allocation_blockers.append(blocker)
+            elif "stock_specific" in key or "stock_specific_public_evidence" in key:
                 full_allocation_blockers.append(blocker)
 
     full_allocation_blockers = list(dict.fromkeys(full_allocation_blockers))
@@ -737,7 +754,7 @@ def build_product_mode_result(
         f"3) ETF/fund lane: {_money(etf)}",
         f"4) Individual stock lane: {_money(stock)}",
         f"Total monthly contribution: {_money(monthly_contribution)}",
-        "Reason stock is zero: full allocation still waits for correlation risk and stock-specific public evidence.",
+        "Reason stock is zero: stock-specific public evidence is still missing.",
         "Execution rule: this is a manual checklist only; J.A.R.V.I.S. creates no orders.",
     ]
 
