@@ -1,100 +1,20 @@
 {
   "allocation_basis_as_of": "2026-06-04",
+  "allocation_basis_crypto_amount_eur": 41.54,
+  "allocation_basis_crypto_candidate": "btc",
   "allocation_mutation": false,
   "approval_notice": "Manual approval required. No trades executed.",
   "approval_status": "pending_manual_approval",
-  "approval_ticket_written_by_v25": true,
+  "approval_ticket_refresh_required": true,
+  "approval_ticket_written_by_v30": true,
   "as_of": "2026-06-04",
-  "blocked_actions": [
-    "Approval ticket file as_of does not match current allocation engine result (2026-06-17 vs 2026-06-04)."
-  ],
-  "bridge_status": "CRYPTO_LANE_SELECTION_DAILY_OPERATOR_BRIDGE_BLOCKED",
+  "blocked_actions": [],
+  "bridge_status": "EXPANDED_CRYPTO_ALLOCATION_ELIGIBILITY_BRIDGE_REVIEW_REQUIRED",
   "broker_connection_forbidden": true,
   "buy_request_created": false,
   "credentials_forbidden": true,
-  "crypto_lane_selection": {
-    "allocation_mutation": false,
-    "approval_ticket_mutation": false,
-    "blocked_candidate_count": 2,
-    "blockers": [],
-    "broker_connection_forbidden": true,
-    "buy_request_created": false,
-    "candidate_count": 3,
-    "candidate_decisions": [
-      {
-        "blockers": [],
-        "candidate_id": "btc",
-        "change_24h_pct": -1.10104951,
-        "decision_status": "SELECTED_FOR_CRYPTO_LANE_EVIDENCE",
-        "executable_amount_eur": 41.54,
-        "ideal_amount_eur": 41.54,
-        "market_cap_eur": 1134228733012.749,
-        "platform_ready": true,
-        "price_eur": 56606.0,
-        "route": "lhv_crypto",
-        "selected": true,
-        "signal_age_days": 0,
-        "source_id": "coingecko_btc_simple_price_eur",
-        "source_quality_ready": true,
-        "warnings": []
-      },
-      {
-        "blockers": [
-          "hype has no executable crypto-lane amount after allocation, platform, budget, and risk checks."
-        ],
-        "candidate_id": "hype",
-        "change_24h_pct": 9.45508465,
-        "decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
-        "executable_amount_eur": 0.0,
-        "ideal_amount_eur": 0.0,
-        "market_cap_eur": 14035298773.655401,
-        "platform_ready": true,
-        "price_eur": 63.12,
-        "route": "lhv_crypto",
-        "selected": false,
-        "signal_age_days": 0,
-        "source_id": "coingecko_hype_simple_price_eur",
-        "source_quality_ready": true,
-        "warnings": []
-      },
-      {
-        "blockers": [
-          "tao platform route is not ready.",
-          "tao has no executable crypto-lane amount after allocation, platform, budget, and risk checks."
-        ],
-        "candidate_id": "tao",
-        "change_24h_pct": -3.18620519,
-        "decision_status": "BLOCKED_BY_PLATFORM",
-        "executable_amount_eur": 0.0,
-        "ideal_amount_eur": 0.0,
-        "market_cap_eur": 2136945116.7529802,
-        "platform_ready": false,
-        "price_eur": 222.59,
-        "route": "kraken",
-        "selected": false,
-        "signal_age_days": 0,
-        "source_id": "coingecko_tao_simple_price_eur",
-        "source_quality_ready": true,
-        "warnings": []
-      }
-    ],
-    "credentials_forbidden": true,
-    "crypto_public_signal_universe_ready": true,
-    "current_date": "2026-06-17",
-    "eligible_candidate_count": 1,
-    "gate_status": "CRYPTO_LANE_PUBLIC_SIGNAL_SELECTION_GATE_READY",
-    "no_trades_executed": true,
-    "order_creation_forbidden": true,
-    "private_account_data_ingestion_forbidden": true,
-    "recommendation_quality_current_data": false,
-    "recommended_next_stage": "crypto_lane_public_signal_scoring_integration",
-    "selected_crypto_amount_eur": 41.54,
-    "selected_crypto_candidate": "btc",
-    "status": "JARVIS_V23_0_CRYPTO_LANE_PUBLIC_SIGNAL_SELECTION_GATE_READY_SAFE",
-    "warnings": []
-  },
-  "daily_operator_status": "JARVIS_V24_0_CRYPTO_LANE_SELECTION_DAILY_OPERATOR_BRIDGE_BLOCKED_SAFE",
-  "data_readiness": "READINESS_BLOCKED",
+  "daily_operator_status": "JARVIS_V29_0_EXPANDED_CRYPTO_ALLOCATION_ELIGIBILITY_BRIDGE_REVIEW_REQUIRED_SAFE",
+  "data_readiness": "STALE_REVIEW_REQUIRED",
   "etf_scoring_verdict": {
     "selected_ideal_etf": "quality_etf",
     "sleeves": [
@@ -148,8 +68,183 @@
   },
   "executable_allocation": {
     "btc": 41.54,
+    "hype": 41.54,
     "quality_etf": 62.31
   },
+  "expanded_crypto_allocation_eligibility": {
+    "candidate_decisions": [
+      {
+        "allocation_basis_amount_eur": 0.0,
+        "blockers": [],
+        "candidate_id": "hype",
+        "decision_status": "SELECTED_FOR_CRYPTO_LANE_MANUAL_BUY",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
+        "proposed_amount_eur": 41.54,
+        "rank": 1,
+        "score": 86.49,
+        "selected": true,
+        "source_quality_ready": true,
+        "warnings": []
+      },
+      {
+        "allocation_basis_amount_eur": 41.54,
+        "blockers": [],
+        "candidate_id": "btc",
+        "decision_status": "ELIGIBLE_NOT_SELECTED",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "SELECTED_FOR_WEEKLY_CRYPTO_MANUAL_BUY",
+        "proposed_amount_eur": 0.0,
+        "rank": 2,
+        "score": 83.33,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      },
+      {
+        "allocation_basis_amount_eur": 0.0,
+        "blockers": [],
+        "candidate_id": "sol",
+        "decision_status": "ELIGIBLE_NOT_SELECTED",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
+        "proposed_amount_eur": 0.0,
+        "rank": 3,
+        "score": 82.02,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      },
+      {
+        "allocation_basis_amount_eur": 0.0,
+        "blockers": [],
+        "candidate_id": "eth",
+        "decision_status": "ELIGIBLE_NOT_SELECTED",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
+        "proposed_amount_eur": 0.0,
+        "rank": 4,
+        "score": 80.63,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      },
+      {
+        "allocation_basis_amount_eur": 0.0,
+        "blockers": [],
+        "candidate_id": "near",
+        "decision_status": "ELIGIBLE_NOT_SELECTED",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
+        "proposed_amount_eur": 0.0,
+        "rank": 5,
+        "score": 78.9,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      },
+      {
+        "allocation_basis_amount_eur": 0.0,
+        "blockers": [],
+        "candidate_id": "link",
+        "decision_status": "ELIGIBLE_NOT_SELECTED",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
+        "proposed_amount_eur": 0.0,
+        "rank": 6,
+        "score": 77.52,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      },
+      {
+        "allocation_basis_amount_eur": 0.0,
+        "blockers": [],
+        "candidate_id": "inj",
+        "decision_status": "ELIGIBLE_NOT_SELECTED",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
+        "proposed_amount_eur": 0.0,
+        "rank": 7,
+        "score": 77.23,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      },
+      {
+        "allocation_basis_amount_eur": 0.0,
+        "blockers": [],
+        "candidate_id": "render",
+        "decision_status": "ELIGIBLE_NOT_SELECTED",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
+        "proposed_amount_eur": 0.0,
+        "rank": 8,
+        "score": 74.96,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      },
+      {
+        "allocation_basis_amount_eur": 0.0,
+        "blockers": [],
+        "candidate_id": "avax",
+        "decision_status": "ELIGIBLE_NOT_SELECTED",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
+        "proposed_amount_eur": 0.0,
+        "rank": 9,
+        "score": 74.88,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      },
+      {
+        "allocation_basis_amount_eur": 0.0,
+        "blockers": [
+          "tao is not eligible from source-quality or expanded-ranking gates."
+        ],
+        "candidate_id": "tao",
+        "decision_status": "BLOCKED_BY_SOURCE_OR_RANKING",
+        "eligible": false,
+        "platform_ready": false,
+        "platform_route": "kraken",
+        "prior_daily_decision_status": "BLOCKED_BY_EXPANDED_CRYPTO_RANKING_ENGINE",
+        "proposed_amount_eur": 0.0,
+        "rank": 10,
+        "score": 0.0,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      }
+    ],
+    "expanded_crypto_ranking_ready": true,
+    "full_public_data_coverage": true,
+    "reassigned_from_allocation_basis": true,
+    "selected_crypto_amount_eur": 41.54,
+    "selected_crypto_candidate": "hype",
+    "selected_crypto_rank": 1,
+    "selected_crypto_score": 86.49
+  },
+  "expanded_crypto_candidate_reassigned": true,
   "final_user_buy_action_required": true,
   "freshness_checks": [
     {
@@ -163,14 +258,14 @@
       "status": "STALE"
     },
     {
-      "age_days": 0,
-      "as_of": "2026-06-17",
+      "age_days": 13,
+      "as_of": "2026-06-04",
       "current_date": "2026-06-17",
       "max_age_days": 7,
-      "message": "approval_ticket_latest is 0 days old and within the 7-day freshness window.",
+      "message": "approval_ticket_latest is 13 days old; refresh required before manual action.",
       "name": "approval_ticket_latest",
       "source_path": "outputs/approval_ticket_latest.json",
-      "status": "FRESH"
+      "status": "STALE"
     }
   ],
   "generated_at": "2026-06-17",
@@ -178,14 +273,15 @@
     "btc": 41.54,
     "quality_etf": 62.31
   },
-  "manual_action_guidance": "Do not use this recommendation for a manual buy until blockers are resolved.",
+  "manual_action_guidance": "Refresh local portfolio data and approval ticket before any manual buy.",
   "manual_approval_required": true,
   "order_creation_forbidden": true,
-  "portfolio_data_stale_review_required": false,
+  "portfolio_data_stale_review_required": true,
   "portfolio_mode": "transition_mode",
+  "portfolio_state_mutation": false,
   "private_account_data_ingestion_forbidden": true,
   "recommendation_quality_current_data": false,
-  "recommendation_trust": "blocked_until_local_data_and_safety_checks_pass",
+  "recommendation_trust": "refresh_required_before_manual_action",
   "safety_checks": [
     "Manual approval required. No trades executed.",
     "No broker connection.",
@@ -196,288 +292,196 @@
     "No automatic selling."
   ],
   "selected_crypto_amount_eur": 41.54,
-  "selected_crypto_candidate": "btc",
+  "selected_crypto_candidate": "hype",
   "selected_stock_fund_etf_amount_eur": 62.31,
   "selected_stock_fund_etf_candidate": "quality_etf",
-  "source_bridge_result": {
-    "allocation_mutation": false,
-    "approval_ticket_mutation": false,
-    "blockers": [
-      "Approval ticket file as_of does not match current allocation engine result (2026-06-17 vs 2026-06-04)."
-    ],
-    "bridge_status": "CRYPTO_LANE_SELECTION_DAILY_OPERATOR_BRIDGE_BLOCKED",
-    "broker_connection_forbidden": true,
-    "buy_request_created": false,
-    "credentials_forbidden": true,
-    "crypto_selection_ready": true,
-    "crypto_selection_result": {
-      "allocation_mutation": false,
-      "approval_ticket_mutation": false,
-      "blocked_candidate_count": 2,
-      "blockers": [],
-      "broker_connection_forbidden": true,
-      "buy_request_created": false,
-      "candidate_count": 3,
-      "candidate_decisions": [
-        {
-          "blockers": [],
-          "candidate_id": "btc",
-          "change_24h_pct": -1.10104951,
-          "decision_status": "SELECTED_FOR_CRYPTO_LANE_EVIDENCE",
-          "executable_amount_eur": 41.54,
-          "ideal_amount_eur": 41.54,
-          "market_cap_eur": 1134228733012.749,
-          "platform_ready": true,
-          "price_eur": 56606.0,
-          "route": "lhv_crypto",
-          "selected": true,
-          "signal_age_days": 0,
-          "source_id": "coingecko_btc_simple_price_eur",
-          "source_quality_ready": true,
-          "warnings": []
-        },
-        {
-          "blockers": [
-            "hype has no executable crypto-lane amount after allocation, platform, budget, and risk checks."
-          ],
-          "candidate_id": "hype",
-          "change_24h_pct": 9.45508465,
-          "decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
-          "executable_amount_eur": 0.0,
-          "ideal_amount_eur": 0.0,
-          "market_cap_eur": 14035298773.655401,
-          "platform_ready": true,
-          "price_eur": 63.12,
-          "route": "lhv_crypto",
-          "selected": false,
-          "signal_age_days": 0,
-          "source_id": "coingecko_hype_simple_price_eur",
-          "source_quality_ready": true,
-          "warnings": []
-        },
-        {
-          "blockers": [
-            "tao platform route is not ready.",
-            "tao has no executable crypto-lane amount after allocation, platform, budget, and risk checks."
-          ],
-          "candidate_id": "tao",
-          "change_24h_pct": -3.18620519,
-          "decision_status": "BLOCKED_BY_PLATFORM",
-          "executable_amount_eur": 0.0,
-          "ideal_amount_eur": 0.0,
-          "market_cap_eur": 2136945116.7529802,
-          "platform_ready": false,
-          "price_eur": 222.59,
-          "route": "kraken",
-          "selected": false,
-          "signal_age_days": 0,
-          "source_id": "coingecko_tao_simple_price_eur",
-          "source_quality_ready": true,
-          "warnings": []
-        }
-      ],
-      "credentials_forbidden": true,
-      "crypto_public_signal_universe_ready": true,
-      "current_date": "2026-06-17",
-      "eligible_candidate_count": 1,
-      "gate_status": "CRYPTO_LANE_PUBLIC_SIGNAL_SELECTION_GATE_READY",
-      "no_trades_executed": true,
-      "order_creation_forbidden": true,
-      "private_account_data_ingestion_forbidden": true,
-      "recommendation_quality_current_data": false,
-      "recommended_next_stage": "crypto_lane_public_signal_scoring_integration",
-      "selected_crypto_amount_eur": 41.54,
-      "selected_crypto_candidate": "btc",
-      "status": "JARVIS_V23_0_CRYPTO_LANE_PUBLIC_SIGNAL_SELECTION_GATE_READY_SAFE",
-      "warnings": []
-    },
-    "daily_readiness_result": {
-      "allocation_result": {
-        "approval_status": "pending_manual_approval",
-        "approval_ticket_path": "outputs/approval_ticket_latest.json",
-        "approval_ticket_used": true,
-        "as_of": "2026-06-04",
+  "source_bridge_summary": {
+    "allocation_basis_amount_eur": 41.54,
+    "allocation_basis_candidate": "btc",
+    "approval_ticket_refresh_required": true,
+    "bridge_status": "EXPANDED_CRYPTO_ALLOCATION_ELIGIBILITY_BRIDGE_REVIEW_REQUIRED",
+    "candidate_decisions": [
+      {
+        "allocation_basis_amount_eur": 0.0,
         "blockers": [],
-        "bridge_status": "REAL_ALLOCATION_DAILY_BRIDGE_READY",
-        "broker_connection_forbidden": true,
-        "credentials_forbidden": true,
-        "daily_bridge_ready": true,
-        "executable_allocation": {
-          "btc": 41.54,
-          "quality_etf": 62.31
-        },
-        "final_user_buy_action_required": true,
-        "ideal_allocation": {
-          "btc": 41.54,
-          "quality_etf": 62.31
-        },
-        "manual_approval_required": true,
-        "no_trades_executed": true,
-        "order_creation_forbidden": true,
-        "portfolio_mode": "transition_mode",
-        "private_account_data_ingestion_forbidden": true,
-        "ranked_candidates": [
-          {
-            "main_penalties": [
-              "no major scoring penalty"
-            ],
-            "main_positive_drivers": [
-              "allocation gap",
-              "fee/liquidity",
-              "concentration"
-            ],
-            "rank": 1,
-            "reason": "Selected ideal ETF sleeve: quality_etf. It has the strongest eligible ETF score after allocation gap, valuation/risk, concentration, and fee/liquidity inputs.",
-            "score": 83.0,
-            "selected": true,
-            "sleeve": "quality_etf"
-          },
-          {
-            "main_penalties": [
-              "concentration penalty",
-              "valuation/risk input"
-            ],
-            "main_positive_drivers": [
-              "allocation gap",
-              "fee/liquidity",
-              "momentum"
-            ],
-            "rank": 2,
-            "reason": "Not selected: lower score than quality_etf.",
-            "score": 79.0,
-            "selected": false,
-            "sleeve": "growth_nasdaq_etf"
-          },
-          {
-            "main_penalties": [
-              "no major scoring penalty"
-            ],
-            "main_positive_drivers": [
-              "fee/liquidity",
-              "concentration",
-              "valuation/risk"
-            ],
-            "rank": 3,
-            "reason": "Not selected: lower score than quality_etf.",
-            "score": 50.3427,
-            "selected": false,
-            "sleeve": "global_core_etf"
-          }
-        ],
-        "real_allocation_engine_used": true,
-        "recommended_next_stage": "real_product_data_core_continuation",
-        "selected_ideal_sleeve": "quality_etf",
-        "status": "JARVIS_V15_0_REAL_ALLOCATION_DAILY_BRIDGE_READY_SAFE",
-        "warnings": [],
-        "weekly_budget": 103.85,
-        "weekly_dual_lane_mandate": {
-          "crypto_lane": {
-            "amount": 41.54,
-            "asset": "btc",
-            "executable_allocation": {
-              "btc": 41.54
-            },
-            "ideal_allocation": {
-              "btc": 41.54
-            },
-            "reason": "btc selected dynamically under target-gap, weekly crypto buy cap, platform-readiness, and crypto risk rules.",
-            "status": "READY_FOR_MANUAL_BUY"
-          },
-          "mandate": "weekly_crypto_and_stock_fund_etf",
-          "manual_action_required": true,
-          "risk_controls": {
-            "btc_buy_room": 318.9,
-            "btc_max": 0.15,
-            "total_crypto_buy_room": 509.13,
-            "total_crypto_hard_max": 0.225,
-            "weekly_btc_cap": 41.54,
-            "weekly_total_crypto_cap": 51.92
-          },
-          "stock_fund_etf_lane": {
-            "amount": 62.31,
-            "asset": "quality_etf",
-            "executable_allocation": {
-              "quality_etf": 62.31
-            },
-            "ideal_allocation": {
-              "quality_etf": 62.31
-            },
-            "reason": "quality_etf selected dynamically from ETF scoring, allocation gap, platform readiness, and executable budget after the crypto lane.",
-            "status": "READY_FOR_MANUAL_BUY"
-          },
-          "trades_executed": false,
-          "weekly_budget": 103.85
-        }
+        "candidate_id": "hype",
+        "decision_status": "SELECTED_FOR_CRYPTO_LANE_MANUAL_BUY",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
+        "proposed_amount_eur": 41.54,
+        "rank": 1,
+        "score": 86.49,
+        "selected": true,
+        "source_quality_ready": true,
+        "warnings": []
       },
-      "approval_ticket_file_checked": true,
-      "blockers": [
-        "Approval ticket file as_of does not match current allocation engine result (2026-06-17 vs 2026-06-04)."
-      ],
-      "broker_connection_forbidden": true,
-      "current_date": "2026-06-17",
-      "data_ready_for_manual_review": false,
-      "etf_universe_file_checked": true,
-      "final_user_buy_action_required": true,
-      "freshness_checks": [
-        {
-          "age_days": 13,
-          "as_of": "2026-06-04",
-          "current_date": "2026-06-17",
-          "max_age_days": 7,
-          "message": "portfolio_state is 13 days old; refresh required before manual action.",
-          "name": "portfolio_state",
-          "source_path": "portfolio_state.json",
-          "status": "STALE"
-        },
-        {
-          "age_days": 0,
-          "as_of": "2026-06-17",
-          "current_date": "2026-06-17",
-          "max_age_days": 7,
-          "message": "approval_ticket_latest is 0 days old and within the 7-day freshness window.",
-          "name": "approval_ticket_latest",
-          "source_path": "outputs/approval_ticket_latest.json",
-          "status": "FRESH"
-        }
-      ],
-      "manual_action_guidance": "Do not use this recommendation for a manual buy until blockers are resolved.",
-      "manual_approval_required": true,
-      "max_fresh_age_days": 7,
-      "no_trades_executed": true,
-      "order_creation_forbidden": true,
-      "portfolio_state_file_checked": true,
-      "readiness_status": "READINESS_BLOCKED",
-      "real_allocation_engine_used": true,
-      "recommendation_trust": "blocked_until_local_data_and_safety_checks_pass",
-      "recommended_next_stage": "real_manual_action_brief",
-      "stale_data_review_required": false,
-      "status": "JARVIS_V16_0_REAL_DAILY_READINESS_GATE_BLOCKED_SAFE",
-      "warnings": [
-        "ETF universe has no as_of/updated_at metadata; scoring inputs are treated as manually maintained local scores.",
-        "portfolio_state is 13 days old; refresh required before manual action."
-      ]
-    },
-    "final_user_buy_action_required": true,
-    "no_trades_executed": true,
-    "order_creation_forbidden": true,
-    "private_account_data_ingestion_forbidden": true,
-    "recommendation_quality_current_data": false,
-    "recommended_next_stage": "crypto_lane_scoring_and_approval_ticket_integration",
-    "selected_crypto_amount_eur": 41.54,
-    "selected_crypto_candidate": "btc",
-    "status": "JARVIS_V24_0_CRYPTO_LANE_SELECTION_DAILY_OPERATOR_BRIDGE_BLOCKED_SAFE",
-    "warnings": [
-      "ETF universe has no as_of/updated_at metadata; scoring inputs are treated as manually maintained local scores.",
-      "portfolio_state is 13 days old; refresh required before manual action."
-    ]
+      {
+        "allocation_basis_amount_eur": 41.54,
+        "blockers": [],
+        "candidate_id": "btc",
+        "decision_status": "ELIGIBLE_NOT_SELECTED",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "SELECTED_FOR_WEEKLY_CRYPTO_MANUAL_BUY",
+        "proposed_amount_eur": 0.0,
+        "rank": 2,
+        "score": 83.33,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      },
+      {
+        "allocation_basis_amount_eur": 0.0,
+        "blockers": [],
+        "candidate_id": "sol",
+        "decision_status": "ELIGIBLE_NOT_SELECTED",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
+        "proposed_amount_eur": 0.0,
+        "rank": 3,
+        "score": 82.02,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      },
+      {
+        "allocation_basis_amount_eur": 0.0,
+        "blockers": [],
+        "candidate_id": "eth",
+        "decision_status": "ELIGIBLE_NOT_SELECTED",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
+        "proposed_amount_eur": 0.0,
+        "rank": 4,
+        "score": 80.63,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      },
+      {
+        "allocation_basis_amount_eur": 0.0,
+        "blockers": [],
+        "candidate_id": "near",
+        "decision_status": "ELIGIBLE_NOT_SELECTED",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
+        "proposed_amount_eur": 0.0,
+        "rank": 5,
+        "score": 78.9,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      },
+      {
+        "allocation_basis_amount_eur": 0.0,
+        "blockers": [],
+        "candidate_id": "link",
+        "decision_status": "ELIGIBLE_NOT_SELECTED",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
+        "proposed_amount_eur": 0.0,
+        "rank": 6,
+        "score": 77.52,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      },
+      {
+        "allocation_basis_amount_eur": 0.0,
+        "blockers": [],
+        "candidate_id": "inj",
+        "decision_status": "ELIGIBLE_NOT_SELECTED",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
+        "proposed_amount_eur": 0.0,
+        "rank": 7,
+        "score": 77.23,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      },
+      {
+        "allocation_basis_amount_eur": 0.0,
+        "blockers": [],
+        "candidate_id": "render",
+        "decision_status": "ELIGIBLE_NOT_SELECTED",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
+        "proposed_amount_eur": 0.0,
+        "rank": 8,
+        "score": 74.96,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      },
+      {
+        "allocation_basis_amount_eur": 0.0,
+        "blockers": [],
+        "candidate_id": "avax",
+        "decision_status": "ELIGIBLE_NOT_SELECTED",
+        "eligible": true,
+        "platform_ready": true,
+        "platform_route": "lhv_crypto",
+        "prior_daily_decision_status": "BLOCKED_BY_ALLOCATION_RISK_OR_BUDGET",
+        "proposed_amount_eur": 0.0,
+        "rank": 9,
+        "score": 74.88,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      },
+      {
+        "allocation_basis_amount_eur": 0.0,
+        "blockers": [
+          "tao is not eligible from source-quality or expanded-ranking gates."
+        ],
+        "candidate_id": "tao",
+        "decision_status": "BLOCKED_BY_SOURCE_OR_RANKING",
+        "eligible": false,
+        "platform_ready": false,
+        "platform_route": "kraken",
+        "prior_daily_decision_status": "BLOCKED_BY_EXPANDED_CRYPTO_RANKING_ENGINE",
+        "proposed_amount_eur": 0.0,
+        "rank": 10,
+        "score": 0.0,
+        "selected": false,
+        "source_quality_ready": true,
+        "warnings": []
+      }
+    ],
+    "expanded_crypto_ranking_ready": true,
+    "full_public_data_coverage": true,
+    "reassigned_from_allocation_basis": true,
+    "selected_expanded_crypto_amount_eur": 41.54,
+    "selected_expanded_crypto_candidate": "hype",
+    "selected_expanded_crypto_rank": 1,
+    "selected_expanded_crypto_score": 86.49,
+    "status": "JARVIS_V29_0_EXPANDED_CRYPTO_ALLOCATION_ELIGIBILITY_BRIDGE_REVIEW_REQUIRED_SAFE"
   },
   "ticket_generated_at": "2026-06-17",
-  "ticket_id": "JARVIS-2026-06-04-daily-dual-lane-manual-approval",
+  "ticket_id": "JARVIS-2026-06-04-expanded-crypto-daily-dual-lane-manual-approval",
   "timestamp": "2026-06-17",
   "trades_executed": false,
   "warnings": [
     "ETF universe has no as_of/updated_at metadata; scoring inputs are treated as manually maintained local scores.",
-    "portfolio_state is 13 days old; refresh required before manual action."
+    "portfolio_state is 13 days old; refresh required before manual action.",
+    "approval_ticket_latest is 13 days old; refresh required before manual action.",
+    "Crypto-lane candidate changed from allocation basis btc to hype; approval ticket refresh is required before manual action."
   ],
   "weekly_budget": 103.85,
   "weekly_dual_lane_mandate": {

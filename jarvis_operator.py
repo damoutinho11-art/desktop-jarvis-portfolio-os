@@ -1,6 +1,6 @@
-"""Root shortcut for the J.A.R.V.I.S. daily operator with expanded crypto allocation eligibility."""
+"""Root shortcut for the J.A.R.V.I.S. expanded crypto approval ticket refresh operator."""
 
-from jarvis.jarvis_v29_0_expanded_crypto_allocation_eligibility_bridge import main
+from jarvis.jarvis_v30_0_expanded_crypto_approval_ticket_refresh import main
 
 
 if __name__ == "__main__":
