@@ -21,6 +21,7 @@ from jarvis.runtime.tradable_candidate_universe_gate import main as _tradable_ca
 from jarvis.runtime.stock_candidate_universe_expansion import main as _stock_candidate_universe_expansion_main
 from jarvis.runtime.cross_lane_dynamic_allocation_preflight import main as _cross_lane_dynamic_allocation_preflight_main
 from jarvis.runtime.dynamic_quality_allocator import main as _dynamic_quality_allocator_main
+from jarvis.runtime.multi_candidate_instrument_selector import main as _multi_candidate_instrument_selector_main
 
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
@@ -142,6 +143,8 @@ def main(argv: list[str] | None = None) -> int:
     """Run the stable active J.A.R.V.I.S. operator surface."""
 
     args = list(sys.argv[1:] if argv is None else argv)
+    if "--multi-candidate-instrument-selector" in args:
+        return _multi_candidate_instrument_selector_main(args)
     if "--dynamic-quality-allocator" in args:
         return _dynamic_quality_allocator_main(args)
     if "--cross-lane-dynamic-allocation-preflight" in args:
