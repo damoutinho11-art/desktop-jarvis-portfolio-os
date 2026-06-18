@@ -9,8 +9,8 @@ from jarvis.runtime.cross_lane_dynamic_allocation_preflight import build_cross_l
 from jarvis.runtime.personal_finance_contribution_bridge import build_personal_finance_contribution_bridge_result
 from jarvis.runtime.safety import build_safety_check_console_output
 
-STATUS_READY = "JARVIS_V89_0_CRYPTO_CAP_POLICY_READY_SAFE"
-STATUS_REVIEW_REQUIRED = "JARVIS_V89_0_CRYPTO_CAP_POLICY_REVIEW_REQUIRED_SAFE"
+STATUS_READY = "JARVIS_V90_0_DYNAMIC_SLEEVE_SCORING_READY_SAFE"
+STATUS_REVIEW_REQUIRED = "JARVIS_V90_0_DYNAMIC_SLEEVE_SCORING_REVIEW_REQUIRED_SAFE"
 
 
 @dataclass(frozen=True)
@@ -85,18 +85,27 @@ def build_dynamic_quality_allocator_result(current_date: str = "2026-06-18") -> 
     equity_weight = float(exposure.get("equity", 0.0) or 0.0)
     us_large_cap_weight = float(exposure.get("us_large_cap", 0.0) or 0.0)
 
-    stock_eur = 75.0
+    stock_pct = 0.0
+    if preflight.get("stock_lane_ready"):
+        stock_pct = 0.20
+        if not preflight.get("universe_ready"):
+            stock_pct -= 0.05
+        if not preflight.get("freshness_ready"):
+            stock_pct -= 0.05
+        if equity_weight >= 0.90:
+            stock_pct -= 0.06
+        if us_large_cap_weight >= 0.60:
+            stock_pct -= 0.02
+        stock_pct = max(0.0, min(0.20, stock_pct))
+
+    stock_eur = round(max(0.0, int(((investable * stock_pct) + 2.5) // 5) * 5.0), 2)
+
     rationale = [
         "cross-lane preflight is ready, so allocation recommendation is allowed",
         "emergency top-up remains active because the ideal emergency target is not reached",
         "crypto is capped at 20% of monthly contribution",
+        f"individual stock sleeve is score-based at {stock_pct:.0%} of investable after readiness and concentration penalties",
     ]
-
-    if equity_weight >= 0.90 or us_large_cap_weight >= 0.60:
-        stock_eur = 50.0
-        rationale.append("individual stock sleeve is limited because equity / US large-cap exposure is already high")
-    else:
-        rationale.append("individual stock sleeve is allowed because stock universe breadth and freshness are ready")
 
     crypto_policy_cap = monthly * 0.20
     crypto_eur = min(crypto_cap, investable, crypto_policy_cap)

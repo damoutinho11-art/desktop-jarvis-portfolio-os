@@ -9,7 +9,7 @@ from jarvis.runtime.dynamic_quality_allocator import (
     build_dynamic_quality_allocator_result,
 )
 
-READY_PREFLIGHT = {"dynamic_allocator_allowed": True}
+READY_PREFLIGHT = {"dynamic_allocator_allowed": True, "stock_lane_ready": True, "universe_ready": True, "freshness_ready": True}
 BAD_PREFLIGHT = {"dynamic_allocator_allowed": False}
 
 CONTRIBUTION = {
