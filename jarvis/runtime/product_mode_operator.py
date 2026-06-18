@@ -19,8 +19,8 @@ from typing import Any, Mapping, Sequence
 
 from jarvis.runtime.safety import build_safety_check_console_output
 
-STATUS_READY = "JARVIS_V90_0_DYNAMIC_SLEEVE_SCORING_READY_SAFE"
-STATUS_REVIEW_REQUIRED = "JARVIS_V90_0_DYNAMIC_SLEEVE_SCORING_REVIEW_REQUIRED_SAFE"
+STATUS_READY = "JARVIS_V92_0_PRODUCT_MODE_INSTRUMENT_SELECTOR_INTEGRATION_READY_SAFE"
+STATUS_REVIEW_REQUIRED = "JARVIS_V92_0_PRODUCT_MODE_INSTRUMENT_SELECTOR_INTEGRATION_REVIEW_REQUIRED_SAFE"
 DEFAULT_OUTPUT_PATH = "outputs/product_mode_operator_latest.json"
 
 
@@ -805,10 +805,41 @@ def build_product_mode_result(
         f"2) Crypto lane: {_money(crypto)}",
         f"3) ETF/fund lane: {_money(etf)}",
         f"4) Individual stock lane: {_money(stock)}",
-        f"Total monthly contribution: {_money(monthly_contribution)}",
-        dynamic_allocation_note,
-        "Execution rule: this is a manual checklist only; J.A.R.V.I.S. creates no orders.",
     ]
+
+    try:
+        from jarvis.runtime.multi_candidate_instrument_selector import (
+            build_multi_candidate_instrument_selector_result,
+        )
+
+        selector = build_multi_candidate_instrument_selector_result(current_date=current_date)
+        if selector.selector_ready:
+            week_lines.append("Selected manual instruments:")
+            for lane in ("crypto", "etf_fund", "individual_stock"):
+                lane_items = [item for item in selector.selections if item.lane == lane]
+                if not lane_items:
+                    continue
+                lane_label = {
+                    "crypto": "Crypto",
+                    "etf_fund": "ETF/fund",
+                    "individual_stock": "Individual stock",
+                }[lane]
+                week_lines.append(f"{lane_label}:")
+                for item in lane_items:
+                    week_lines.append(f"  - {item.symbol}: {_money(item.amount_eur)}")
+        else:
+            warnings.append("instrument selector integration unavailable: selector review required")
+    except Exception as exc:
+        warnings.append(f"instrument selector integration unavailable: {exc}")
+
+    week_lines.extend(
+        [
+            f"Total monthly contribution: {_money(monthly_contribution)}",
+            dynamic_allocation_note,
+            "Instrument selector active: lane candidates are selected dynamically from ranked availability, lane size, and minimum practical buy size.",
+            "Execution rule: this is a manual checklist only; J.A.R.V.I.S. creates no orders.",
+        ]
+    )
 
     if full_allocation_blockers:
         week_lines.append("Full allocation still blocked by: " + full_blocker_text)
