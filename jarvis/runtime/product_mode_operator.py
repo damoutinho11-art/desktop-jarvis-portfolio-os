@@ -19,8 +19,8 @@ from typing import Any, Mapping, Sequence
 
 from jarvis.runtime.safety import build_safety_check_console_output
 
-STATUS_READY = "JARVIS_V80_0_PRODUCT_OUTPUT_QUALITY_READY_SAFE"
-STATUS_REVIEW_REQUIRED = "JARVIS_V80_0_PRODUCT_OUTPUT_QUALITY_REVIEW_REQUIRED_SAFE"
+STATUS_READY = "JARVIS_V88_0_PRODUCT_MODE_DYNAMIC_ALLOCATION_READY_SAFE"
+STATUS_REVIEW_REQUIRED = "JARVIS_V88_0_PRODUCT_MODE_DYNAMIC_ALLOCATION_REVIEW_REQUIRED_SAFE"
 DEFAULT_OUTPUT_PATH = "outputs/product_mode_operator_latest.json"
 
 
@@ -749,6 +749,30 @@ def build_product_mode_result(
 
     full_blocker_text = ", ".join(full_allocation_blockers) if full_allocation_blockers else "none"
 
+    dynamic_allocation_note = "Dynamic quality allocation active: recommendation-only, manual approval required."
+    try:
+        if not full_allocation_blockers and monthly_contribution is not None:
+            from jarvis.runtime.correlation_risk_model import build_correlation_risk_model_result
+
+            correlation = _to_plain(build_correlation_risk_model_result(current_date=current_date))
+            exposure = correlation.get("exposure_weights", {}) or {}
+            equity_weight = float(exposure.get("equity", 0.0) or 0.0)
+            us_large_cap_weight = float(exposure.get("us_large_cap", 0.0) or 0.0)
+
+            emergency_top_up = float(emergency_top_up or 0.0)
+            crypto = float(crypto or 0.0)
+            monthly_contribution = float(monthly_contribution or 0.0)
+
+            stock = 50.0 if equity_weight >= 0.90 or us_large_cap_weight >= 0.60 else 75.0
+            etf = max(0.0, monthly_contribution - emergency_top_up - crypto - stock)
+
+            dynamic_allocation_note = (
+                "Dynamic quality allocation active: stock sleeve is conservative because "
+                "equity / US large-cap exposure is already high."
+            )
+    except Exception as exc:
+        warnings.append(f"dynamic quality allocation integration unavailable: {exc}")
+
     today_lines = [
         f"Readiness: {product_verdict}",
         f"Safety: {'execution blocked; manual action only' if safety_blocked else 'REVIEW REQUIRED'}",
@@ -773,7 +797,7 @@ def build_product_mode_result(
         f"3) ETF/fund lane: {_money(etf)}",
         f"4) Individual stock lane: {_money(stock)}",
         f"Total monthly contribution: {_money(monthly_contribution)}",
-        "Reason stock is zero: v83 dynamic allocator has not assigned stock sizing yet.",
+        dynamic_allocation_note,
         "Execution rule: this is a manual checklist only; J.A.R.V.I.S. creates no orders.",
     ]
 
