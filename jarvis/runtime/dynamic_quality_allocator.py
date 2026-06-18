@@ -9,8 +9,8 @@ from jarvis.runtime.cross_lane_dynamic_allocation_preflight import build_cross_l
 from jarvis.runtime.personal_finance_contribution_bridge import build_personal_finance_contribution_bridge_result
 from jarvis.runtime.safety import build_safety_check_console_output
 
-STATUS_READY = "JARVIS_V87_0_DYNAMIC_QUALITY_ALLOCATOR_READY_SAFE"
-STATUS_REVIEW_REQUIRED = "JARVIS_V87_0_DYNAMIC_QUALITY_ALLOCATOR_REVIEW_REQUIRED_SAFE"
+STATUS_READY = "JARVIS_V89_0_CRYPTO_CAP_POLICY_READY_SAFE"
+STATUS_REVIEW_REQUIRED = "JARVIS_V89_0_CRYPTO_CAP_POLICY_REVIEW_REQUIRED_SAFE"
 
 
 @dataclass(frozen=True)
@@ -89,7 +89,7 @@ def build_dynamic_quality_allocator_result(current_date: str = "2026-06-18") -> 
     rationale = [
         "cross-lane preflight is ready, so allocation recommendation is allowed",
         "emergency top-up remains active because the ideal emergency target is not reached",
-        "crypto uses the existing capped bridge amount, not an aggressive increase",
+        "crypto is capped at 20% of monthly contribution",
     ]
 
     if equity_weight >= 0.90 or us_large_cap_weight >= 0.60:
@@ -98,7 +98,8 @@ def build_dynamic_quality_allocator_result(current_date: str = "2026-06-18") -> 
     else:
         rationale.append("individual stock sleeve is allowed because stock universe breadth and freshness are ready")
 
-    crypto_eur = min(crypto_cap, investable)
+    crypto_policy_cap = monthly * 0.20
+    crypto_eur = min(crypto_cap, investable, crypto_policy_cap)
     remaining = max(0.0, monthly - emergency - crypto_eur - stock_eur)
     etf_eur = remaining
 

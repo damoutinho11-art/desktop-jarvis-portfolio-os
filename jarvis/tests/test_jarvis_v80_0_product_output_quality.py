@@ -23,8 +23,8 @@ class JarvisV800ProductOutputQualityTests(unittest.TestCase):
         self.assertIn("EUR 3144.00", text)
         self.assertIn("EUR 6288.00", text)
         self.assertIn("EUR 75.00", text)
-        self.assertIn("EUR 170.00", text)
-        self.assertIn("EUR 255.00", text)
+        self.assertIn("EUR 100.00", text)
+        self.assertIn("EUR 275.00", text)
         self.assertIn("manual", text.lower())
         self.assertNotIn("unknown", text.lower())
 
@@ -35,9 +35,9 @@ class JarvisV800ProductOutputQualityTests(unittest.TestCase):
 
         self.assertIn("Manual buy plan", text)
         self.assertIn("Emergency top-up: EUR 75.00", text)
-        self.assertIn("Crypto lane: EUR 170.00", text)
-        self.assertIn("ETF/fund lane: EUR 255.00", text)
-        self.assertIn("Individual stock lane: EUR 0.00", text)
+        self.assertIn("Crypto lane: EUR 100.00", text)
+        self.assertIn("ETF/fund lane: EUR 275.00", text)
+        self.assertIn("Individual stock lane: EUR 50.00", text)
         self.assertIn("creates no orders", text)
         self.assertNotIn("unknown", text.lower())
 
@@ -64,8 +64,8 @@ class JarvisV800ProductOutputQualityTests(unittest.TestCase):
         self.assertIn("J.A.R.V.I.S. WEEK", output)
         self.assertIn("Manual buy plan", output)
         self.assertIn("EUR 75.00", output)
-        self.assertIn("EUR 170.00", output)
-        self.assertIn("EUR 255.00", output)
+        self.assertIn("EUR 100.00", output)
+        self.assertIn("EUR 275.00", output)
         self.assertNotIn("unknown", output.lower())
 
     def test_safety_flags_remain_manual_only(self) -> None:

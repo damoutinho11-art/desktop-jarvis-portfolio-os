@@ -19,8 +19,8 @@ from typing import Any, Mapping, Sequence
 
 from jarvis.runtime.safety import build_safety_check_console_output
 
-STATUS_READY = "JARVIS_V88_0_PRODUCT_MODE_DYNAMIC_ALLOCATION_READY_SAFE"
-STATUS_REVIEW_REQUIRED = "JARVIS_V88_0_PRODUCT_MODE_DYNAMIC_ALLOCATION_REVIEW_REQUIRED_SAFE"
+STATUS_READY = "JARVIS_V89_0_CRYPTO_CAP_POLICY_READY_SAFE"
+STATUS_REVIEW_REQUIRED = "JARVIS_V89_0_CRYPTO_CAP_POLICY_REVIEW_REQUIRED_SAFE"
 DEFAULT_OUTPUT_PATH = "outputs/product_mode_operator_latest.json"
 
 
@@ -762,13 +762,14 @@ def build_product_mode_result(
             emergency_top_up = float(emergency_top_up or 0.0)
             crypto = float(crypto or 0.0)
             monthly_contribution = float(monthly_contribution or 0.0)
+            crypto = min(crypto, monthly_contribution * 0.20)
 
             stock = 50.0 if equity_weight >= 0.90 or us_large_cap_weight >= 0.60 else 75.0
             etf = max(0.0, monthly_contribution - emergency_top_up - crypto - stock)
 
             dynamic_allocation_note = (
-                "Dynamic quality allocation active: stock sleeve is conservative because "
-                "equity / US large-cap exposure is already high."
+                "Dynamic quality allocation active: crypto is capped at 20% of contribution; "
+                "stock sleeve is conservative because equity / US large-cap exposure is already high."
             )
     except Exception as exc:
         warnings.append(f"dynamic quality allocation integration unavailable: {exc}")

@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import unittest
 from unittest.mock import patch
@@ -39,8 +39,8 @@ class JarvisV870DynamicQualityAllocatorTests(unittest.TestCase):
         self.assertEqual(result.status, STATUS_READY)
         self.assertTrue(result.allocator_ready)
         self.assertEqual(result.emergency_top_up_eur, 75.0)
-        self.assertEqual(result.crypto_eur, 170.0)
-        self.assertEqual(result.etf_fund_eur, 205.0)
+        self.assertEqual(result.crypto_eur, 100.0)
+        self.assertEqual(result.etf_fund_eur, 275.0)
         self.assertEqual(result.individual_stock_eur, 50.0)
         self.assertEqual(result.total_allocated_eur, 500.0)
         self.assertFalse(result.approved_for_purchase)

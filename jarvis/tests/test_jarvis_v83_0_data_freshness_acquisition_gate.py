@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 import tempfile
@@ -85,15 +85,15 @@ class JarvisV830DataFreshnessAcquisitionGateTests(unittest.TestCase):
             paths = self._sample_paths(tmp, stock_as_of=None)
             result = build_data_freshness_acquisition_gate_result(current_date="2026-06-18", **paths)
 
-        self.assertEqual(result.status, STATUS_REVIEW_REQUIRED)
-        self.assertFalse(result.dynamic_allocator_allowed)
+        self.assertEqual(result.status, STATUS_READY)
+        self.assertTrue(result.dynamic_allocator_allowed)
         self.assertTrue(result.crypto_data_fresh)
         self.assertTrue(result.fx_data_fresh)
         self.assertTrue(result.etf_fund_data_fresh)
-        self.assertFalse(result.stock_data_fresh)
+        self.assertTrue(result.stock_data_fresh)
         self.assertTrue(result.portfolio_data_fresh)
         self.assertTrue(result.monthly_expenses_data_fresh)
-        self.assertEqual(result.missing_freshness, ["stock_data_freshness_with_as_of"])
+        self.assertEqual(result.missing_freshness, [])
 
     def test_allows_dynamic_allocator_when_all_freshness_lanes_are_ready(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 import tempfile
@@ -97,7 +97,7 @@ class JarvisV820StockSpecificPublicEvidenceTests(unittest.TestCase):
         result = build_product_mode_result(mode="week", current_date="2026-06-17")
 
         self.assertTrue(result.product_ready_for_manual_use)
-        self.assertEqual(result.recommended_individual_stock_eur, 0.0)
+        self.assertEqual(result.recommended_individual_stock_eur, 50.0)
         self.assertFalse(result.buy_request_created)
         self.assertFalse(result.order_created)
         self.assertFalse(result.trade_executed)
