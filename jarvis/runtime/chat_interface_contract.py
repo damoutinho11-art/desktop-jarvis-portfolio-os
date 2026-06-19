@@ -16,6 +16,10 @@ from jarvis.runtime.assistant_market_context import (
     build_assistant_market_context_result,
     format_assistant_market_context,
 )
+from jarvis.runtime.assistant_news_context import (
+    build_assistant_news_context_result,
+    format_assistant_news_context,
+)
 from jarvis.runtime.dashboard_contract import build_dashboard_contract_result
 
 STATUS_READY = "JARVIS_V103_0_LOCAL_CHAT_CLI_POLISH_READY_SAFE"
@@ -28,6 +32,7 @@ SUPPORTED_INTENTS = [
     "etf_compare",
     "crypto_market_context",
     "market_context",
+    "news_context",
     "instrument_rationale",
     "safety",
     "blockers",
@@ -75,6 +80,9 @@ def _detect_intent(query: str) -> str:
 
     if not normalized:
         return "help"
+
+    if any(word in normalized for word in ["news", "headline", "headlines"]) or "why is crypto moving" in normalized:
+        return "news_context"
 
     if "crypto" in normalized and any(word in normalized for word in ["doing", "market", "moving", "changed", "today"]):
         return "crypto_market_context"
@@ -167,6 +175,9 @@ def _response_for_intent(intent: str, contract: Any, query: str) -> str:
         return format_assistant_market_context(
             build_assistant_market_context_result(context_type="market", current_date=contract.current_date)
         )
+
+    if intent == "news_context":
+        return format_assistant_news_context(build_assistant_news_context_result(current_date=contract.current_date))
 
     if intent == "instrument_rationale":
         return (

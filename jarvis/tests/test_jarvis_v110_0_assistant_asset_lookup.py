@@ -99,7 +99,7 @@ class JarvisV1100AssistantAssetLookupTests(unittest.TestCase):
 
     def test_operator_surface_v110_and_route(self) -> None:
         self.assertTrue(operator.ACTIVE_RUNTIME_STAGE.startswith("v"))
-        self.assertIn(operator.CURRENT_OPERATOR_SURFACE, {"assistant_asset_lookup", "assistant_market_context"})
+        self.assertIn(operator.CURRENT_OPERATOR_SURFACE, {"assistant_asset_lookup", "assistant_market_context", "assistant_news_context"})
 
         surface = operator.get_active_runtime_surface()
         self.assertEqual(surface["active_assistant_asset_lookup_module"], "jarvis.runtime.assistant_asset_lookup")
