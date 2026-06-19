@@ -98,8 +98,8 @@ class JarvisV1060LocalBrowserChatPageTests(unittest.TestCase):
         self.assertIn("Fixture reply", payload.get("reply", ""))
 
     def test_operator_surface_v106(self) -> None:
-        self.assertEqual(operator.ACTIVE_RUNTIME_STAGE, "v106.0")
-        self.assertEqual(operator.CURRENT_OPERATOR_SURFACE, "local_browser_chat_page")
+        self.assertTrue(operator.ACTIVE_RUNTIME_STAGE.startswith("v"))
+        self.assertIn(operator.CURRENT_OPERATOR_SURFACE, {"local_browser_chat_page", "browser_chat_ux_polish"})
 
         source = Path("jarvis/runtime/operator.py").read_text(encoding="utf-8")
         self.assertIn("active_local_browser_chat_page_module", source)

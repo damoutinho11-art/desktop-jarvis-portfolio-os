@@ -20,8 +20,8 @@ from jarvis.runtime.chat_interface_contract import (
 from jarvis.runtime.dashboard_contract import build_dashboard_contract_result
 from jarvis.runtime.product_api import build_product_api_result
 
-STATUS_READY = "JARVIS_V106_0_LOCAL_BROWSER_CHAT_PAGE_READY_SAFE"
-STATUS_REVIEW_REQUIRED = "JARVIS_V106_0_LOCAL_BROWSER_CHAT_PAGE_REVIEW_REQUIRED_SAFE"
+STATUS_READY = "JARVIS_V107_0_BROWSER_CHAT_UX_POLISH_READY_SAFE"
+STATUS_REVIEW_REQUIRED = "JARVIS_V107_0_BROWSER_CHAT_UX_POLISH_REVIEW_REQUIRED_SAFE"
 DEFAULT_OUTPUT_PATH = "outputs/local_server_smoke_latest.json"
 
 ROUTES = {
@@ -142,45 +142,94 @@ def render_chat_page() -> str:
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>J.A.R.V.I.S. Local Chat</title>
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; margin: 0; background: #101216; color: #f2f4f8; }
-    main { max-width: 880px; margin: 0 auto; padding: 32px 20px 48px; }
-    .card { background: #171a21; border: 1px solid #2b303b; border-radius: 18px; padding: 22px; box-shadow: 0 18px 40px rgba(0,0,0,.28); }
-    h1 { margin: 0 0 8px; font-size: 34px; }
-    .muted { color: #aab2c0; line-height: 1.55; }
-    .safety { margin: 18px 0; padding: 14px 16px; border-radius: 14px; background: #1f2a1f; border: 1px solid #3f6541; color: #d8f3d8; }
-    textarea { width: 100%; min-height: 120px; border-radius: 14px; border: 1px solid #3a4150; background: #0f1117; color: #f2f4f8; padding: 14px; font-size: 16px; box-sizing: border-box; }
-    button { margin-top: 12px; border: 0; border-radius: 999px; padding: 12px 18px; font-weight: 700; cursor: pointer; background: #f2f4f8; color: #101216; }
+    :root { color-scheme: dark; }
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; margin: 0; background: #0f1218; color: #f4f7fb; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 20px 48px; }
+    .shell { display: grid; gap: 18px; }
+    .card { background: #171b24; border: 1px solid #2a3343; border-radius: 8px; padding: 22px; box-shadow: 0 18px 40px rgba(0,0,0,.26); }
+    h1 { margin: 0 0 8px; font-size: 32px; letter-spacing: 0; }
+    h2 { margin: 0 0 12px; font-size: 17px; letter-spacing: 0; }
+    .muted { color: #aeb8c8; line-height: 1.55; }
+    .safety { margin: 18px 0; padding: 14px 16px; border-radius: 8px; background: #18261f; border: 1px solid #365c45; color: #dcf8e6; }
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .badge { border: 1px solid #3b4658; background: #111722; color: #d7e2f4; border-radius: 999px; padding: 7px 10px; font-size: 13px; font-weight: 700; }
+    .badge.safe { border-color: #3c714e; color: #dffbe9; background: #122117; }
+    .preset-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(178px, 1fr)); gap: 10px; margin: 16px 0; }
+    .preset { border: 1px solid #3a4659; background: #101622; color: #eef4ff; border-radius: 8px; padding: 11px 12px; font-weight: 700; cursor: pointer; text-align: left; }
+    .preset:hover, .preset:focus { border-color: #7898d8; outline: none; }
+    textarea { width: 100%; min-height: 122px; border-radius: 8px; border: 1px solid #3a4150; background: #0d1119; color: #f2f4f8; padding: 14px; font-size: 16px; box-sizing: border-box; line-height: 1.45; }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 12px; }
+    .primary { border: 0; border-radius: 8px; padding: 12px 18px; font-weight: 800; cursor: pointer; background: #f2f6ff; color: #101216; }
     button:disabled { opacity: .55; cursor: not-allowed; }
-    pre { white-space: pre-wrap; background: #0f1117; border: 1px solid #303744; border-radius: 14px; padding: 16px; min-height: 130px; line-height: 1.5; }
+    .dashboard-link { display: inline-block; border: 1px solid #5876aa; border-radius: 8px; padding: 11px 14px; color: #e7f0ff; text-decoration: none; font-weight: 800; }
+    .reply-card { background: #101622; border: 1px solid #303b4d; border-radius: 8px; padding: 16px; min-height: 168px; }
+    .reply-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 10px; color: #c9d4e5; font-weight: 800; }
+    .loading { color: #ffd98a; visibility: hidden; }
+    .loading.active { visibility: visible; }
+    pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; line-height: 1.5; color: #f5f8ff; }
     .links a { color: #d8e7ff; margin-right: 14px; }
   </style>
 </head>
 <body>
   <main>
-    <section class="card">
-      <h1>J.A.R.V.I.S. Local Chat</h1>
-      <p class="muted">Ask about today's plan, instruments, safety, blockers, or the dashboard.</p>
-      <div class="safety">Read-only and manual-only. No broker, credentials, orders, trades, or auto-approval path is enabled.</div>
-      <textarea id="question">what is my plan today?</textarea>
-      <br>
-      <button id="askButton" type="button">Ask J.A.R.V.I.S.</button>
-      <p class="muted">Reply</p>
-      <pre id="reply">Ready.</pre>
-      <p class="links">
-        <a href="/dashboard">Open dashboard</a>
-        <a href="/health">Health</a>
-        <a href="/api/status">API status</a>
-      </p>
-    </section>
+    <div class="shell">
+      <section class="card">
+        <h1>J.A.R.V.I.S. Local Chat</h1>
+        <p class="muted">Ask about today's plan, instruments, safety, blockers, or the dashboard.</p>
+        <div class="safety">Read-only and manual-only. No broker, credentials, orders, trades, or auto-approval path is enabled.</div>
+        <div class="badges" aria-label="Safety and status badges">
+          <span class="badge safe">manual-only</span>
+          <span class="badge safe">read-only</span>
+          <span class="badge safe">no broker</span>
+          <span class="badge safe">no credentials</span>
+          <span class="badge safe">no orders</span>
+          <span class="badge safe">no trades</span>
+          <span class="badge safe">no auto-approval</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Presets</h2>
+        <div class="preset-grid" aria-label="Preset questions">
+          <button class="preset" type="button" data-question="What is my plan today?">What is my plan today?</button>
+          <button class="preset" type="button" data-question="Why these instruments?">Why these instruments?</button>
+          <button class="preset" type="button" data-question="Is this safe?">Is this safe?</button>
+          <button class="preset" type="button" data-question="What are the blockers?">What are the blockers?</button>
+          <button class="preset" type="button" data-action="dashboard">Open dashboard</button>
+        </div>
+        <textarea id="question">What is my plan today?</textarea>
+        <div class="actions">
+          <button id="askButton" class="primary" type="button">Ask J.A.R.V.I.S.</button>
+          <a class="dashboard-link" href="/dashboard">Open dashboard</a>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="reply-card" aria-live="polite">
+          <div class="reply-head">
+            <span>Reply</span>
+            <span id="loadingState" class="loading">Loading...</span>
+          </div>
+          <pre id="reply">Ready.</pre>
+        </div>
+        <p class="links">
+          <a href="/dashboard">Dashboard</a>
+          <a href="/health">Health</a>
+          <a href="/api/status">API status</a>
+        </p>
+      </section>
+    </div>
   </main>
   <script>
     const question = document.getElementById("question");
     const reply = document.getElementById("reply");
     const button = document.getElementById("askButton");
+    const loading = document.getElementById("loadingState");
 
     async function askJarvis() {
       button.disabled = true;
-      reply.textContent = "Thinking...";
+      loading.classList.add("active");
+      reply.textContent = "Loading reply...";
       try {
         const response = await fetch("/api/chat", {
           method: "POST",
@@ -193,10 +242,21 @@ def render_chat_page() -> str:
         reply.textContent = "Local chat error: " + error;
       } finally {
         button.disabled = false;
+        loading.classList.remove("active");
       }
     }
 
     button.addEventListener("click", askJarvis);
+    document.querySelectorAll(".preset").forEach((preset) => {
+      preset.addEventListener("click", () => {
+        if (preset.dataset.action === "dashboard") {
+          window.location.href = "/dashboard";
+          return;
+        }
+        question.value = preset.dataset.question || preset.textContent;
+        askJarvis();
+      });
+    });
   </script>
 </body>
 </html>"""
