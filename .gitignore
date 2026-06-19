@@ -88,3 +88,7 @@ outputs/fx_assistant_bridge_latest.json
 outputs/news_intelligence_contract_latest.json
 
 outputs/public_universe_data_coverage_latest.json
+
+jarvis/local/public_data/v120_public_universe_quote_cache.local.json
+
+outputs/public_universe_quote_fetch_latest.json
