@@ -17,6 +17,7 @@ from jarvis.runtime.chat_interface_contract import (
     build_chat_interface_contract_result,
     format_chat_reply,
 )
+from jarvis.runtime.assistant_router import build_assistant_router_result
 from jarvis.runtime.dashboard_contract import build_dashboard_contract_result
 from jarvis.runtime.product_api import build_product_api_result
 
@@ -263,9 +264,10 @@ def render_chat_page() -> str:
 
 
 def _chat_payload(*, query: str, current_date: str) -> dict[str, Any]:
-    result = build_chat_interface_contract_result(query=query, current_date=current_date)
+    result = build_assistant_router_result(query=query, current_date=current_date)
     payload = result.to_dict()
-    payload["reply"] = format_chat_reply(result)
+    payload["response"] = result.reply
+    payload["reply"] = result.reply
     return payload
 
 

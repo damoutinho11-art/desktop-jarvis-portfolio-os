@@ -216,8 +216,13 @@ def build_local_server_live_endpoint_smoke_result(
     api_status_ready = api_status_code == 200 and bool(api_status.get("api_ready"))
     api_chat_ready = (
         api_chat_code == 200
-        and bool(api_chat.get("chat_contract_ready"))
-        and "Safety is active" in str(api_chat.get("reply", ""))
+        and bool(api_chat.get("reply"))
+        and (
+            "Safety is active" in str(api_chat.get("reply", ""))
+            or "I cannot create buy/sell requests" in str(api_chat.get("reply", ""))
+        )
+        and not bool(api_chat.get("order_created"))
+        and not bool(api_chat.get("trade_executed"))
     )
     dashboard_ready = dashboard_status == 200 and "J.A.R.V.I.S. Portfolio Dashboard" in dashboard_html
 
