@@ -80,9 +80,9 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v113.0"
+ACTIVE_RUNTIME_STAGE = "v114.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "assistant_router"
+CURRENT_OPERATOR_SURFACE = "assistant_answer_style_polish"
 ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE = "jarvis.runtime.platform_data_completeness_gate"
 ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE = "jarvis.runtime.monthly_expenses_intake"
 
@@ -148,6 +148,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_assistant_market_context_module": "jarvis.runtime.assistant_market_context",
         "active_assistant_news_context_module": "jarvis.runtime.assistant_news_context",
         "active_assistant_router_module": "jarvis.runtime.assistant_router",
+        "active_assistant_answer_style_module": "jarvis.runtime.assistant_router",
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,

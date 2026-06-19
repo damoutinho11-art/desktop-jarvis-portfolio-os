@@ -124,11 +124,11 @@ class JarvisV1070BrowserChatUxPolishTests(unittest.TestCase):
 
     def test_operator_surface_is_v107_browser_chat_ux_polish(self) -> None:
         self.assertTrue(operator.ACTIVE_RUNTIME_STAGE.startswith("v"))
-        self.assertIn(operator.CURRENT_OPERATOR_SURFACE, {"browser_chat_ux_polish", "assistant_tool_registry", "assistant_data_source_registry", "assistant_asset_lookup", "assistant_market_context", "assistant_news_context", "assistant_router"})
+        self.assertIn(operator.CURRENT_OPERATOR_SURFACE, {"browser_chat_ux_polish", "assistant_tool_registry", "assistant_data_source_registry", "assistant_asset_lookup", "assistant_market_context", "assistant_news_context", "assistant_router", "assistant_answer_style_polish"})
 
         surface = operator.get_active_runtime_surface()
         self.assertTrue(surface["active_runtime_stage"].startswith("v"))
-        self.assertIn(surface["current_operator_surface"], {"browser_chat_ux_polish", "assistant_tool_registry", "assistant_data_source_registry", "assistant_asset_lookup", "assistant_market_context", "assistant_news_context", "assistant_router"})
+        self.assertIn(surface["current_operator_surface"], {"browser_chat_ux_polish", "assistant_tool_registry", "assistant_data_source_registry", "assistant_asset_lookup", "assistant_market_context", "assistant_news_context", "assistant_router", "assistant_answer_style_polish"})
 
         source = Path("jarvis/runtime/operator.py").read_text(encoding="utf-8")
         self.assertIn("active_local_browser_chat_page_module", source)

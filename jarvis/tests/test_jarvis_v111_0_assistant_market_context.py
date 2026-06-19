@@ -65,7 +65,7 @@ class JarvisV1110AssistantMarketContextTests(unittest.TestCase):
 
     def test_operator_surface_v111_and_route(self) -> None:
         self.assertTrue(operator.ACTIVE_RUNTIME_STAGE.startswith("v"))
-        self.assertIn(operator.CURRENT_OPERATOR_SURFACE, {"assistant_market_context", "assistant_news_context", "assistant_router"})
+        self.assertIn(operator.CURRENT_OPERATOR_SURFACE, {"assistant_market_context", "assistant_news_context", "assistant_router", "assistant_answer_style_polish"})
 
         surface = operator.get_active_runtime_surface()
         self.assertEqual(surface["active_assistant_market_context_module"], "jarvis.runtime.assistant_market_context")
