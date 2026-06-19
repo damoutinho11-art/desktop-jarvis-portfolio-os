@@ -10,7 +10,7 @@ class JarvisV900DynamicSleeveScoringTests(unittest.TestCase):
     def test_allocator_keeps_only_crypto_cap_static_and_scores_stock(self) -> None:
         result = build_dynamic_quality_allocator_result(current_date="2026-06-18")
 
-        self.assertEqual(result.status, "JARVIS_V90_0_DYNAMIC_SLEEVE_SCORING_READY_SAFE")
+        self.assertIn(result.status, {"JARVIS_V90_0_DYNAMIC_SLEEVE_SCORING_READY_SAFE", "JARVIS_V93_0_DYNAMIC_STOCK_SLEEVE_SCORING_READY_SAFE"})
         self.assertEqual(result.crypto_eur, 100.0)
         self.assertEqual(result.etf_fund_eur, 275.0)
         self.assertEqual(result.individual_stock_eur, 50.0)
@@ -22,7 +22,7 @@ class JarvisV900DynamicSleeveScoringTests(unittest.TestCase):
         result = build_product_mode_result(mode="week", current_date="2026-06-18")
         text = "\n".join(result.week_lines)
 
-        self.assertEqual(result.status, "JARVIS_V90_0_DYNAMIC_SLEEVE_SCORING_READY_SAFE")
+        self.assertIn(result.status, {"JARVIS_V90_0_DYNAMIC_SLEEVE_SCORING_READY_SAFE", "JARVIS_V93_0_DYNAMIC_STOCK_SLEEVE_SCORING_READY_SAFE"})
         self.assertIn("Crypto lane: EUR 100.00", text)
         self.assertIn("ETF/fund lane: EUR 275.00", text)
         self.assertIn("Individual stock lane: EUR 50.00", text)

@@ -9,8 +9,8 @@ from jarvis.runtime.cross_lane_dynamic_allocation_preflight import build_cross_l
 from jarvis.runtime.personal_finance_contribution_bridge import build_personal_finance_contribution_bridge_result
 from jarvis.runtime.safety import build_safety_check_console_output
 
-STATUS_READY = "JARVIS_V90_0_DYNAMIC_SLEEVE_SCORING_READY_SAFE"
-STATUS_REVIEW_REQUIRED = "JARVIS_V90_0_DYNAMIC_SLEEVE_SCORING_REVIEW_REQUIRED_SAFE"
+STATUS_READY = "JARVIS_V93_0_DYNAMIC_STOCK_SLEEVE_SCORING_READY_SAFE"
+STATUS_REVIEW_REQUIRED = "JARVIS_V93_0_DYNAMIC_STOCK_SLEEVE_SCORING_REVIEW_REQUIRED_SAFE"
 
 
 @dataclass(frozen=True)
@@ -27,6 +27,7 @@ class DynamicQualityAllocatorResult:
     rationale: list[str]
     blockers: list[str]
     warnings: list[str]
+    stock_sleeve_score: DynamicStockSleeveScore
     safety_check_blocked_execution: bool
     approved_for_purchase: bool
     allocation_mutation: bool
@@ -39,6 +40,96 @@ class DynamicQualityAllocatorResult:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+def _clamp(value: float, low: float = 0.0, high: float = 1.0) -> float:
+    return max(low, min(high, value))
+
+
+@dataclass(frozen=True)
+class DynamicStockSleeveScore:
+    stock_lane_ready: bool
+    universe_ready: bool
+    freshness_ready: bool
+    availability_score: float
+    equity_weight: float
+    us_large_cap_weight: float
+    equity_concentration_risk: float
+    us_large_cap_concentration_risk: float
+    concentration_score: float
+    stock_quality_score: float
+    stock_capacity_pct: float
+    final_stock_pct: float
+    investable_eur: float
+    stock_eur_before_rounding: float
+    stock_eur_after_rounding: float
+    method: str
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+def score_dynamic_stock_sleeve(
+    *,
+    stock_lane_ready: bool,
+    universe_ready: bool,
+    freshness_ready: bool,
+    equity_weight: float,
+    us_large_cap_weight: float,
+    investable_eur: float,
+) -> DynamicStockSleeveScore:
+    if not stock_lane_ready:
+        availability_score = 0.0
+        equity_concentration_risk = 0.0
+        us_large_cap_concentration_risk = 0.0
+        concentration_score = 0.0
+        stock_quality_score = 0.0
+        stock_capacity_pct = 0.0
+        final_stock_pct = 0.0
+    else:
+        readiness_inputs = [
+            1.0,
+            1.0 if universe_ready else 0.0,
+            1.0 if freshness_ready else 0.0,
+        ]
+        availability_score = sum(readiness_inputs) / len(readiness_inputs)
+
+        equity_concentration_risk = _clamp((equity_weight - 0.90) / 0.10)
+        us_large_cap_concentration_risk = _clamp((us_large_cap_weight - 0.60) / 0.40)
+
+        concentration_score = _clamp(
+            1.0 - ((equity_concentration_risk + us_large_cap_concentration_risk) / 2.0)
+        )
+
+        stock_quality_score = _clamp(availability_score * concentration_score)
+
+        stock_capacity_pct = 0.20 * availability_score
+        final_stock_pct = _clamp(stock_quality_score * stock_capacity_pct, 0.0, stock_capacity_pct)
+
+    before_rounding = round(max(0.0, investable_eur * final_stock_pct), 2)
+    after_rounding = round(max(0.0, int((before_rounding + 2.5) // 5) * 5.0), 2)
+
+    return DynamicStockSleeveScore(
+        stock_lane_ready=stock_lane_ready,
+        universe_ready=universe_ready,
+        freshness_ready=freshness_ready,
+        availability_score=round(availability_score, 4),
+        equity_weight=round(float(equity_weight), 4),
+        us_large_cap_weight=round(float(us_large_cap_weight), 4),
+        equity_concentration_risk=round(equity_concentration_risk, 4),
+        us_large_cap_concentration_risk=round(us_large_cap_concentration_risk, 4),
+        concentration_score=round(concentration_score, 4),
+        stock_quality_score=round(stock_quality_score, 4),
+        stock_capacity_pct=round(stock_capacity_pct, 4),
+        final_stock_pct=round(final_stock_pct, 4),
+        investable_eur=round(investable_eur, 2),
+        stock_eur_before_rounding=before_rounding,
+        stock_eur_after_rounding=after_rounding,
+        method=(
+            "dynamic score = availability_score * concentration_score; "
+            "stock_pct = dynamic score * availability-adjusted stock capacity"
+        ),
+    )
 
 
 def _plain(value: Any) -> dict[str, Any]:
@@ -85,26 +176,29 @@ def build_dynamic_quality_allocator_result(current_date: str = "2026-06-18") -> 
     equity_weight = float(exposure.get("equity", 0.0) or 0.0)
     us_large_cap_weight = float(exposure.get("us_large_cap", 0.0) or 0.0)
 
-    stock_pct = 0.0
-    if preflight.get("stock_lane_ready"):
-        stock_pct = 0.20
-        if not preflight.get("universe_ready"):
-            stock_pct -= 0.05
-        if not preflight.get("freshness_ready"):
-            stock_pct -= 0.05
-        if equity_weight >= 0.90:
-            stock_pct -= 0.06
-        if us_large_cap_weight >= 0.60:
-            stock_pct -= 0.02
-        stock_pct = max(0.0, min(0.20, stock_pct))
-
-    stock_eur = round(max(0.0, int(((investable * stock_pct) + 2.5) // 5) * 5.0), 2)
+    stock_sleeve_score = score_dynamic_stock_sleeve(
+        stock_lane_ready=bool(preflight.get("stock_lane_ready")),
+        universe_ready=bool(preflight.get("universe_ready")),
+        freshness_ready=bool(preflight.get("freshness_ready")),
+        equity_weight=equity_weight,
+        us_large_cap_weight=us_large_cap_weight,
+        investable_eur=investable,
+    )
+    stock_pct = stock_sleeve_score.final_stock_pct
+    stock_eur = stock_sleeve_score.stock_eur_after_rounding
 
     rationale = [
         "cross-lane preflight is ready, so allocation recommendation is allowed",
         "emergency top-up remains active because the ideal emergency target is not reached",
         "crypto is capped at 20% of monthly contribution",
-        f"individual stock sleeve is score-based at {stock_pct:.0%} of investable after readiness and concentration penalties",
+        f"individual stock sleeve is score-based at {stock_pct:.0%} of investable from dynamic quality score {stock_sleeve_score.stock_quality_score:.0%}",
+        (
+            "stock sleeve dynamic inputs: "
+            f"availability {stock_sleeve_score.availability_score:.0%}, "
+            f"concentration score {stock_sleeve_score.concentration_score:.0%}, "
+            f"equity risk {stock_sleeve_score.equity_concentration_risk:.0%}, "
+            f"US large-cap risk {stock_sleeve_score.us_large_cap_concentration_risk:.0%}"
+        ),
     ]
 
     crypto_policy_cap = monthly * 0.20
@@ -131,6 +225,7 @@ def build_dynamic_quality_allocator_result(current_date: str = "2026-06-18") -> 
         total_allocated_eur=total,
         rationale=rationale,
         blockers=blockers,
+        stock_sleeve_score=stock_sleeve_score,
         warnings=[
             "recommendation only; no purchase is approved",
             "manual approval remains required",
@@ -164,6 +259,19 @@ def format_result(result: DynamicQualityAllocatorResult) -> str:
         "rationale:",
     ]
     lines.extend(f"- {x}" for x in result.rationale)
+    lines.extend([
+        "stock sleeve score:",
+        f"- availability score: {result.stock_sleeve_score.availability_score:.0%}",
+        f"- concentration score: {result.stock_sleeve_score.concentration_score:.0%}",
+        f"- equity concentration risk: {result.stock_sleeve_score.equity_concentration_risk:.0%}",
+        f"- US large-cap concentration risk: {result.stock_sleeve_score.us_large_cap_concentration_risk:.0%}",
+        f"- stock quality score: {result.stock_sleeve_score.stock_quality_score:.0%}",
+        f"- stock capacity pct: {result.stock_sleeve_score.stock_capacity_pct:.0%}",
+        f"- final stock pct: {result.stock_sleeve_score.final_stock_pct:.0%}",
+        f"- stock EUR before rounding: {result.stock_sleeve_score.stock_eur_before_rounding:.2f}",
+        f"- stock EUR after rounding: {result.stock_sleeve_score.stock_eur_after_rounding:.2f}",
+        f"- method: {result.stock_sleeve_score.method}",
+    ])
     lines.append("warnings:")
     lines.extend(f"- {x}" for x in result.warnings)
     lines.append("blockers:")
@@ -192,6 +300,18 @@ def main(argv: list[str] | None = None) -> int:
     result = build_dynamic_quality_allocator_result(current_date=args.current_date)
     print(format_result(result))
     return 0 if not result.blockers else 1
+
+
+__all__ = [
+    "STATUS_READY",
+    "STATUS_REVIEW_REQUIRED",
+    "DynamicStockSleeveScore",
+    "DynamicQualityAllocatorResult",
+    "score_dynamic_stock_sleeve",
+    "build_dynamic_quality_allocator_result",
+    "format_result",
+    "main",
+]
 
 
 if __name__ == "__main__":
