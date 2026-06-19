@@ -81,9 +81,9 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v118.0"
+ACTIVE_RUNTIME_STAGE = "v119.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "finance_intelligence_core"
+CURRENT_OPERATOR_SURFACE = "public_universe_data_coverage_engine"
 ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE = "jarvis.runtime.platform_data_completeness_gate"
 ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE = "jarvis.runtime.monthly_expenses_intake"
 ACTIVE_FINANCE_INTELLIGENCE_CORE_MODULE = "jarvis.runtime.finance_intelligence_core"
@@ -209,6 +209,10 @@ def main(argv: list[str] | None = None) -> int:
         return _assistant_router_main(args)
     if "--assistant-system-audit" in args:
         return _assistant_system_audit_main(args)
+    if "--public-universe-data-coverage" in args:
+        from jarvis.runtime.public_universe_data_coverage import main as _public_universe_data_coverage_main
+        coverage_args = [arg for arg in args if arg != "--public-universe-data-coverage"]
+        return _public_universe_data_coverage_main(coverage_args)
     if "--finance-intelligence-core" in args:
         return _finance_intelligence_core_main(args)
     if "--current-runtime-fast-gate" in args:

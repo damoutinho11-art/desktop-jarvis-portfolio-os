@@ -86,3 +86,5 @@ outputs/current_runtime_fast_gate_latest.json
 outputs/selected_instrument_resolver_latest.json
 outputs/fx_assistant_bridge_latest.json
 outputs/news_intelligence_contract_latest.json
+
+outputs/public_universe_data_coverage_latest.json
