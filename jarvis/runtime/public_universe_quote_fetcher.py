@@ -5,13 +5,13 @@ import json
 import math
 import urllib.parse
 import urllib.request
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 
-STATUS_READY = "JARVIS_V120_0_READ_ONLY_PUBLIC_UNIVERSE_QUOTE_FETCHER_READY_SAFE"
+STATUS_READY = "JARVIS_V122_0_QUOTE_FETCH_RESILIENCE_READY_SAFE"
 DEFAULT_CACHE_PATH = "jarvis/local/public_data/v120_public_universe_quote_cache.local.json"
 DEFAULT_OUTPUT_PATH = "outputs/public_universe_quote_fetch_latest.json"
 
@@ -26,6 +26,12 @@ CRYPTO_ID_MAP = {
     "NEAR": "near",
     "RENDER": "render-token",
     "TAO": "bittensor",
+}
+
+CORE_CRYPTO_REFRESH_SYMBOLS = ("BTC", "ETH")
+
+UNRESOLVED_PROVIDER_SYMBOLS = {
+    "GROWTH_NASDAQ_ETF": "autonomous identity unresolved: generic growth/Nasdaq sleeve has no verified tradable ticker/ISIN yet",
 }
 
 MANUAL_PROVIDER_SYMBOLS = {
@@ -290,8 +296,99 @@ def fetch_coingecko_quote(target: QuoteFetchTarget, current_date: str) -> QuoteF
     return QuoteFetchRecord(**{**temp.to_dict(), "missing_fields": _missing_fields(temp)})
 
 
+
+def fetch_coingecko_markets_quotes(
+    targets: list[QuoteFetchTarget],
+    current_date: str,
+) -> tuple[list[QuoteFetchRecord], list[str]]:
+    if not targets:
+        return [], []
+
+    ids = ",".join(dict.fromkeys(target.provider_symbol for target in targets))
+    url = (
+        "https://api.coingecko.com/api/v3/coins/markets"
+        + "?vs_currency=eur"
+        + "&ids="
+        + urllib.parse.quote(ids)
+        + "&price_change_percentage=24h,7d,30d"
+        + "&per_page=250&page=1&sparkline=false"
+    )
+    data = _fetch_json(url)
+    if not isinstance(data, list):
+        raise RuntimeError("CoinGecko markets endpoint returned non-list payload")
+
+    by_id = {str(row.get("id") or ""): row for row in data if isinstance(row, dict)}
+    records: list[QuoteFetchRecord] = []
+    failures: list[str] = []
+
+    for target in targets:
+        row = by_id.get(target.provider_symbol)
+        if not row:
+            failures.append(f"{target.symbol}:{target.provider}:{target.provider_symbol}: CoinGecko markets batch returned no row")
+            continue
+
+        latest_price = row.get("current_price")
+        source_as_of = str(row.get("last_updated") or "")[:10] or None
+        freshness, freshness_warnings = _freshness(source_as_of, latest_price is not None, current_date)
+
+        warnings = [
+            "CoinGecko markets batch endpoint used to reduce public rate-limit risk",
+            *freshness_warnings,
+        ]
+        if target.mapping_warning:
+            warnings.append(target.mapping_warning)
+
+        record = QuoteFetchRecord(
+            symbol=target.symbol,
+            lane=target.lane,
+            provider=target.provider,
+            provider_symbol=target.provider_symbol,
+            quote_price=float(latest_price) if latest_price is not None else None,
+            currency="EUR",
+            source_as_of=source_as_of,
+            freshness=freshness,
+            movement_24h_pct=round(float(row.get("price_change_percentage_24h_in_currency") or row.get("price_change_percentage_24h")), 6) if (row.get("price_change_percentage_24h_in_currency") or row.get("price_change_percentage_24h")) is not None else None,
+            movement_7d_pct=round(float(row.get("price_change_percentage_7d_in_currency")), 6) if row.get("price_change_percentage_7d_in_currency") is not None else None,
+            movement_30d_pct=round(float(row.get("price_change_percentage_30d_in_currency")), 6) if row.get("price_change_percentage_30d_in_currency") is not None else None,
+            source_url=url,
+            manual_review_required=target.manual_review_required,
+            missing_fields=[],
+            warnings=warnings,
+        )
+        record = replace(record, missing_fields=_missing_fields(record))
+        records.append(record)
+
+    return records, failures
+
+
+def _load_existing_cache_payload(cache_path: str | Path) -> dict[str, Any]:
+    path = Path(cache_path)
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def _merge_cache_records(existing_records: list[Any], new_records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    merged: dict[str, dict[str, Any]] = {}
+    for raw in existing_records or []:
+        if isinstance(raw, dict) and raw.get("symbol"):
+            merged[str(raw["symbol"]).upper()] = raw
+    for raw in new_records or []:
+        if isinstance(raw, dict) and raw.get("symbol"):
+            merged[str(raw["symbol"]).upper()] = raw
+    return [merged[symbol] for symbol in sorted(merged)]
+
+
+
 def _target_from_symbol(symbol: str, lane: str) -> QuoteFetchTarget | None:
     symbol = symbol.upper()
+    if symbol in UNRESOLVED_PROVIDER_SYMBOLS:
+        return None
+
     if lane == "crypto" or symbol in CRYPTO_ID_MAP:
         coin_id = CRYPTO_ID_MAP.get(symbol)
         if not coin_id:
@@ -351,6 +448,14 @@ def build_quote_fetch_targets(current_date: str, max_targets: int = 30) -> tuple
         else:
             targets.append(target)
 
+    for core_symbol in CORE_CRYPTO_REFRESH_SYMBOLS:
+        if core_symbol in seen:
+            continue
+        target = _target_from_symbol(core_symbol, "crypto")
+        if target is not None:
+            targets.append(target)
+            seen.add(core_symbol)
+
     return targets, unresolved
 
 
@@ -375,18 +480,24 @@ def build_public_universe_quote_fetch_result(
     ]
 
     if not dry_run:
-        for target in targets:
+        coingecko_targets = [target for target in targets if target.provider == "coingecko_read_only"]
+        other_targets = [target for target in targets if target.provider != "coingecko_read_only"]
+        if coingecko_targets:
             try:
-                if target.provider == "coingecko_read_only":
-                    record = fetch_coingecko_quote(target, current_date)
-                elif target.provider == "yahoo_chart_read_only":
+                batch_records, batch_failures = fetch_coingecko_markets_quotes(coingecko_targets, current_date)
+                records.extend(record.to_dict() for record in batch_records)
+                failures.extend(batch_failures)
+            except Exception as exc:
+                failures.append(f"coingecko_batch: {exc}")
+        for target in other_targets:
+            try:
+                if target.provider == "yahoo_chart_read_only":
                     record = fetch_yahoo_quote(target, current_date)
                 else:
                     raise RuntimeError(f"unsupported provider {target.provider}")
                 records.append(record.to_dict())
             except Exception as exc:
                 failures.append(f"{target.symbol}:{target.provider}:{target.provider_symbol}: {exc}")
-
     payload = {
         "status": STATUS_READY,
         "current_date": current_date,
@@ -400,7 +511,10 @@ def build_public_universe_quote_fetch_result(
 
     if write_cache and not dry_run:
         Path(cache_path).parent.mkdir(parents=True, exist_ok=True)
-        Path(cache_path).write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        existing_payload = _load_existing_cache_payload(cache_path)
+        payload_to_write = dict(payload)
+        payload_to_write["records"] = _merge_cache_records(existing_payload.get("records", []), records)
+        Path(cache_path).write_text(json.dumps(payload_to_write, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     result = PublicUniverseQuoteFetchResult(
         status=STATUS_READY,
