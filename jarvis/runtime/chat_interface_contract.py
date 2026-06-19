@@ -12,6 +12,10 @@ from jarvis.runtime.assistant_asset_lookup import (
     format_assistant_asset_lookup,
     format_etf_comparison,
 )
+from jarvis.runtime.assistant_market_context import (
+    build_assistant_market_context_result,
+    format_assistant_market_context,
+)
 from jarvis.runtime.dashboard_contract import build_dashboard_contract_result
 
 STATUS_READY = "JARVIS_V103_0_LOCAL_CHAT_CLI_POLISH_READY_SAFE"
@@ -22,6 +26,8 @@ SUPPORTED_INTENTS = [
     "today_plan",
     "asset_lookup",
     "etf_compare",
+    "crypto_market_context",
+    "market_context",
     "instrument_rationale",
     "safety",
     "blockers",
@@ -69,6 +75,12 @@ def _detect_intent(query: str) -> str:
 
     if not normalized:
         return "help"
+
+    if "crypto" in normalized and any(word in normalized for word in ["doing", "market", "moving", "changed", "today"]):
+        return "crypto_market_context"
+
+    if any(word in normalized for word in ["what changed", "markets", "market doing", "important today"]):
+        return "market_context"
 
     if any(word in normalized for word in ["compare etf", "compare my etf", "compare the etf", "compare funds"]):
         return "etf_compare"
@@ -145,6 +157,16 @@ def _response_for_intent(intent: str, contract: Any, query: str) -> str:
 
     if intent == "etf_compare":
         return format_etf_comparison(build_etf_comparison_result(current_date=contract.current_date))
+
+    if intent == "crypto_market_context":
+        return format_assistant_market_context(
+            build_assistant_market_context_result(context_type="crypto", current_date=contract.current_date)
+        )
+
+    if intent == "market_context":
+        return format_assistant_market_context(
+            build_assistant_market_context_result(context_type="market", current_date=contract.current_date)
+        )
 
     if intent == "instrument_rationale":
         return (
