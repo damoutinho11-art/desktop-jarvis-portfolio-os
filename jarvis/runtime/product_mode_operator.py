@@ -19,8 +19,8 @@ from typing import Any, Mapping, Sequence
 
 from jarvis.runtime.safety import build_safety_check_console_output
 
-STATUS_READY = "JARVIS_V92_0_PRODUCT_MODE_INSTRUMENT_SELECTOR_INTEGRATION_READY_SAFE"
-STATUS_REVIEW_REQUIRED = "JARVIS_V92_0_PRODUCT_MODE_INSTRUMENT_SELECTOR_INTEGRATION_REVIEW_REQUIRED_SAFE"
+STATUS_READY = "JARVIS_V94_0_DYNAMIC_CANDIDATE_SCORING_FAST_PRODUCT_CONTEXT_READY_SAFE"
+STATUS_REVIEW_REQUIRED = "JARVIS_V94_0_DYNAMIC_CANDIDATE_SCORING_FAST_PRODUCT_CONTEXT_REVIEW_REQUIRED_SAFE"
 DEFAULT_OUTPUT_PATH = "outputs/product_mode_operator_latest.json"
 
 
@@ -764,20 +764,26 @@ def build_product_mode_result(
             monthly_contribution = float(monthly_contribution or 0.0)
             crypto = min(crypto, monthly_contribution * 0.20)
 
-            stock_pct = 0.20
-            if equity_weight >= 0.90:
-                stock_pct -= 0.06
-            if us_large_cap_weight >= 0.60:
-                stock_pct -= 0.02
-            stock_pct = max(0.0, min(0.20, stock_pct))
-
             investable = max(0.0, monthly_contribution - emergency_top_up)
-            stock = float(int(((investable * stock_pct) + 2.5) // 5) * 5)
+
+            from jarvis.runtime.dynamic_quality_allocator import score_dynamic_stock_sleeve
+
+            stock_score = score_dynamic_stock_sleeve(
+                stock_lane_ready=True,
+                universe_ready=not bool(full_allocation_blockers),
+                freshness_ready=not bool(full_allocation_blockers),
+                equity_weight=equity_weight,
+                us_large_cap_weight=us_large_cap_weight,
+                investable_eur=investable,
+            )
+            stock_pct = stock_score.final_stock_pct
+            stock = float(stock_score.stock_eur_after_rounding)
             etf = max(0.0, monthly_contribution - emergency_top_up - crypto - stock)
 
             dynamic_allocation_note = (
                 "Dynamic quality allocation active: crypto is capped at 20% of contribution; "
-                f"stock sleeve is score-based at {stock_pct:.0%} of investable after concentration penalties."
+                f"stock sleeve is score-based at {stock_pct:.0%} of investable from v93 stock quality score "
+                f"{stock_score.stock_quality_score:.0%}."
             )
     except Exception as exc:
         warnings.append(f"dynamic quality allocation integration unavailable: {exc}")
@@ -809,34 +815,36 @@ def build_product_mode_result(
 
     try:
         from jarvis.runtime.multi_candidate_instrument_selector import (
-            build_multi_candidate_instrument_selector_result,
+            build_fast_product_instrument_summary,
         )
 
-        selector = build_multi_candidate_instrument_selector_result(current_date=current_date)
-        if selector.selector_ready:
-            week_lines.append("Selected manual instruments:")
-            for lane in ("crypto", "etf_fund", "individual_stock"):
-                lane_items = [item for item in selector.selections if item.lane == lane]
-                if not lane_items:
-                    continue
-                lane_label = {
-                    "crypto": "Crypto",
-                    "etf_fund": "ETF/fund",
-                    "individual_stock": "Individual stock",
-                }[lane]
-                week_lines.append(f"{lane_label}:")
-                for item in lane_items:
-                    week_lines.append(f"  - {item.symbol}: {_money(item.amount_eur)}")
-        else:
-            warnings.append("instrument selector integration unavailable: selector review required")
+        selector = build_fast_product_instrument_summary(
+            crypto_lane_eur=float(crypto or 0.0),
+            etf_fund_lane_eur=float(etf or 0.0),
+            individual_stock_lane_eur=float(stock or 0.0),
+            current_date=current_date,
+        )
+        week_lines.append("Selected manual instruments:")
+        for lane in ("crypto", "etf_fund", "individual_stock"):
+            lane_items = [item for item in selector.selections if item.lane == lane]
+            if not lane_items:
+                continue
+            lane_label = {
+                "crypto": "Crypto",
+                "etf_fund": "ETF/fund",
+                "individual_stock": "Individual stock",
+            }[lane]
+            week_lines.append(f"{lane_label}:")
+            for item in lane_items:
+                week_lines.append(f"  - {item.symbol}: {_money(item.amount_eur)}")
     except Exception as exc:
-        warnings.append(f"instrument selector integration unavailable: {exc}")
+        warnings.append(f"fast instrument selector integration unavailable: {exc}")
 
     week_lines.extend(
         [
             f"Total monthly contribution: {_money(monthly_contribution)}",
             dynamic_allocation_note,
-            "Instrument selector active: lane candidates are selected dynamically from ranked availability, lane size, and minimum practical buy size.",
+            "Fast instrument selector active: candidates are scored dynamically from quality, risk, lane size, and minimum practical buy size.",
             "Execution rule: this is a manual checklist only; J.A.R.V.I.S. creates no orders.",
         ]
     )

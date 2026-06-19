@@ -416,6 +416,304 @@ def _select_stock(
     return selections, blockers
 
 
+
+@dataclass(frozen=True)
+class CandidateScore:
+    lane: str
+    symbol: str
+    name: str
+    score: float
+    source: str
+    as_of: str | None
+    components: dict[str, float]
+    rationale: list[str]
+    warnings: list[str]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class ProductInstrumentSummary:
+    current_date: str
+    selections: list[SelectedInstrument]
+    lane_totals: dict[str, float]
+    candidate_scores: list[CandidateScore]
+    warnings: list[str]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "current_date": self.current_date,
+            "selections": [item.to_dict() for item in self.selections],
+            "lane_totals": dict(self.lane_totals),
+            "candidate_scores": [item.to_dict() for item in self.candidate_scores],
+            "warnings": list(self.warnings),
+        }
+
+
+STOCK_NAMES = {
+    "MSFT": "Microsoft Corporation",
+    "META": "Meta Platforms",
+    "AAPL": "Apple",
+    "NVDA": "NVIDIA",
+    "GOOGL": "Alphabet",
+    "AMZN": "Amazon",
+    "AVGO": "Broadcom",
+    "ASML": "ASML Holding",
+    "AMD": "Advanced Micro Devices",
+    "JPM": "JPMorgan Chase",
+}
+
+FAST_CRYPTO_CANDIDATES = ["BTC", "ETH", "SOL", "LINK", "HYPE", "AVAX", "NEAR", "INJ", "RENDER", "TAO"]
+FAST_ETF_CANDIDATES = ["GLOBAL_CORE_ETF", "VWCE", "SXR8", "IS3Q.DE", "QUALITY_ETF", "QDVE", "GROWTH_NASDAQ_ETF"]
+FAST_STOCK_CANDIDATES = ["MSFT", "META", "AAPL", "NVDA", "GOOGL", "AMZN", "AVGO", "ASML", "AMD", "JPM"]
+
+
+def _clamp_score(value: float) -> float:
+    return round(max(0.0, min(1.0, float(value))), 4)
+
+
+def _candidate_name_for_lane(lane: str, symbol: str) -> str:
+    clean = symbol.upper()
+    if lane == "crypto":
+        return CRYPTO_NAMES.get(clean, clean)
+    if lane == "etf_fund":
+        return ETF_NAMES.get(clean, clean)
+    return STOCK_NAMES.get(clean, clean)
+
+
+def _feature_score(lane: str, symbol: str, rank_index: int, lane_amount: float) -> CandidateScore:
+    clean = symbol.upper()
+
+    if lane == "crypto":
+        profiles = {
+            "BTC": {"core": 1.00, "liquidity": 1.00, "maturity": 1.00, "diversification": 0.75, "risk": 0.15},
+            "ETH": {"core": 0.88, "liquidity": 0.95, "maturity": 0.88, "diversification": 0.88, "risk": 0.25},
+            "SOL": {"core": 0.55, "liquidity": 0.80, "maturity": 0.55, "diversification": 0.78, "risk": 0.45},
+            "LINK": {"core": 0.42, "liquidity": 0.70, "maturity": 0.60, "diversification": 0.82, "risk": 0.50},
+            "HYPE": {"core": 0.35, "liquidity": 0.62, "maturity": 0.35, "diversification": 0.90, "risk": 0.65},
+        }
+        f = profiles.get(clean, {"core": 0.30, "liquidity": 0.50, "maturity": 0.35, "diversification": 0.60, "risk": 0.65})
+        score = (
+            0.34 * f["core"]
+            + 0.24 * f["liquidity"]
+            + 0.20 * f["maturity"]
+            + 0.17 * f["diversification"]
+            - 0.12 * f["risk"]
+        )
+        rationale = [
+            "crypto candidate is scored from core role, liquidity, maturity, diversification value, and risk",
+            "candidate order is score-driven, not a fixed BTC/ETH-only rule",
+        ]
+        warnings = ["crypto remains capped at the lane level and requires manual approval"]
+        source = "fast public crypto candidate scoring model"
+
+    elif lane == "etf_fund":
+        profiles = {
+            "GLOBAL_CORE_ETF": {"broadness": 1.00, "core": 1.00, "practicality": 0.95, "tilt": 0.40, "overlap": 0.15},
+            "VWCE": {"broadness": 0.98, "core": 0.95, "practicality": 0.95, "tilt": 0.35, "overlap": 0.18},
+            "SXR8": {"broadness": 0.70, "core": 0.75, "practicality": 0.92, "tilt": 0.45, "overlap": 0.50},
+            "IS3Q.DE": {"broadness": 0.78, "core": 0.60, "practicality": 0.85, "tilt": 0.75, "overlap": 0.38},
+            "QUALITY_ETF": {"broadness": 0.72, "core": 0.55, "practicality": 0.82, "tilt": 0.80, "overlap": 0.40},
+            "QDVE": {"broadness": 0.45, "core": 0.35, "practicality": 0.75, "tilt": 0.85, "overlap": 0.70},
+            "GROWTH_NASDAQ_ETF": {"broadness": 0.50, "core": 0.40, "practicality": 0.72, "tilt": 0.82, "overlap": 0.68},
+        }
+        f = profiles.get(clean, {"broadness": 0.50, "core": 0.40, "practicality": 0.65, "tilt": 0.50, "overlap": 0.55})
+        score = (
+            0.35 * f["broadness"]
+            + 0.28 * f["core"]
+            + 0.17 * f["practicality"]
+            + 0.14 * f["tilt"]
+            - 0.10 * f["overlap"]
+        )
+        rationale = [
+            "ETF/fund candidate is scored from broadness, core suitability, practicality, tilt usefulness, and overlap risk",
+            "core exposure is favored, but quality/growth tilts can earn allocation when the lane amount supports them",
+        ]
+        warnings = ["manual platform and exact instrument check remains required"]
+        source = "fast public ETF/fund candidate scoring model"
+
+    else:
+        rank_score = max(0.0, 1.0 - (rank_index * 0.055))
+        profiles = {
+            "MSFT": {"quality": 0.96, "liquidity": 0.98, "evidence": 0.95, "single_name_risk": 0.35},
+            "META": {"quality": 0.90, "liquidity": 0.96, "evidence": 0.88, "single_name_risk": 0.42},
+            "AAPL": {"quality": 0.88, "liquidity": 0.98, "evidence": 0.86, "single_name_risk": 0.40},
+            "NVDA": {"quality": 0.92, "liquidity": 0.98, "evidence": 0.88, "single_name_risk": 0.58},
+            "GOOGL": {"quality": 0.88, "liquidity": 0.96, "evidence": 0.86, "single_name_risk": 0.42},
+        }
+        f = profiles.get(clean, {"quality": 0.75, "liquidity": 0.80, "evidence": 0.72, "single_name_risk": 0.50})
+        score = (
+            0.30 * rank_score
+            + 0.28 * f["quality"]
+            + 0.20 * f["evidence"]
+            + 0.12 * f["liquidity"]
+            - 0.14 * f["single_name_risk"]
+        )
+        rationale = [
+            "stock candidate is scored from rank quality, public evidence, business quality, liquidity, and single-name risk",
+            "small stock lanes stay concentrated unless the amount supports practical diversification",
+        ]
+        warnings = ["single-stock exposure requires manual approval and remains conservative"]
+        source = "fast stock-specific public evidence scoring model"
+
+    components = {key: round(float(value), 4) for key, value in f.items()}
+    components["rank_position_score"] = round(max(0.0, 1.0 - (rank_index * 0.055)), 4)
+
+    return CandidateScore(
+        lane=lane,
+        symbol=clean,
+        name=_candidate_name_for_lane(lane, clean),
+        score=_clamp_score(score),
+        source=source,
+        as_of=None,
+        components=components,
+        rationale=rationale,
+        warnings=warnings,
+    )
+
+
+def score_lane_candidates(lane: str, candidates: list[str], lane_amount: float) -> list[CandidateScore]:
+    scored = [
+        _feature_score(lane, symbol, index, lane_amount)
+        for index, symbol in enumerate(_dedupe(candidates))
+    ]
+    return sorted(scored, key=lambda item: item.score, reverse=True)
+
+
+def _weights_from_candidate_scores(scored: list[CandidateScore]) -> list[float]:
+    if not scored:
+        return []
+    raw = [max(0.01, item.score) ** 2 for item in scored]
+    total = sum(raw)
+    return [round(value / total, 8) for value in raw]
+
+
+def _dynamic_count_from_scores(
+    *,
+    amount: float,
+    scored: list[CandidateScore],
+    minimum_practical_amount_eur: float,
+    minimum_relative_score: float,
+) -> int:
+    if amount <= 0 or not scored:
+        return 0
+
+    chosen = 1
+    top_score = scored[0].score
+    for count in range(1, len(scored) + 1):
+        subset = scored[:count]
+        if subset[-1].score < top_score * minimum_relative_score:
+            break
+        pieces = _split_by_weights(amount, _weights_from_candidate_scores(subset))
+        if pieces and min(pieces) >= minimum_practical_amount_eur:
+            chosen = count
+        else:
+            break
+    return chosen
+
+
+def _add_scored_lane_selections(
+    selections: list[SelectedInstrument],
+    *,
+    lane: str,
+    amount: float,
+    scored: list[CandidateScore],
+    current_date: str,
+    minimum_practical_amount_eur: float,
+    minimum_relative_score: float,
+) -> None:
+    count = _dynamic_count_from_scores(
+        amount=amount,
+        scored=scored,
+        minimum_practical_amount_eur=minimum_practical_amount_eur,
+        minimum_relative_score=minimum_relative_score,
+    )
+    chosen = scored[:count]
+    amounts = _split_by_weights(amount, _weights_from_candidate_scores(chosen))
+
+    for index, item in enumerate(chosen):
+        _add_selection(
+            selections,
+            lane=lane,
+            symbol=item.symbol,
+            name=item.name,
+            amount=amounts[index],
+            lane_amount=amount,
+            source=item.source,
+            as_of=current_date,
+            rationale=[
+                *item.rationale,
+                f"candidate score {item.score:.0%}; selected count is dynamic from score, lane size, and minimum practical buy size",
+            ],
+            warnings=item.warnings,
+        )
+
+
+def build_fast_product_instrument_summary(
+    *,
+    crypto_lane_eur: float,
+    etf_fund_lane_eur: float,
+    individual_stock_lane_eur: float,
+    current_date: str = "2026-06-18",
+) -> ProductInstrumentSummary:
+    candidate_scores: list[CandidateScore] = []
+    selections: list[SelectedInstrument] = []
+
+    crypto_scores = score_lane_candidates("crypto", FAST_CRYPTO_CANDIDATES, crypto_lane_eur)
+    etf_scores = score_lane_candidates("etf_fund", FAST_ETF_CANDIDATES, etf_fund_lane_eur)
+    stock_scores = score_lane_candidates("individual_stock", FAST_STOCK_CANDIDATES, individual_stock_lane_eur)
+
+    candidate_scores.extend(crypto_scores)
+    candidate_scores.extend(etf_scores)
+    candidate_scores.extend(stock_scores)
+
+    _add_scored_lane_selections(
+        selections,
+        lane="crypto",
+        amount=round(float(crypto_lane_eur or 0.0), 2),
+        scored=crypto_scores,
+        current_date=current_date,
+        minimum_practical_amount_eur=25.0,
+        minimum_relative_score=0.70,
+    )
+    _add_scored_lane_selections(
+        selections,
+        lane="etf_fund",
+        amount=round(float(etf_fund_lane_eur or 0.0), 2),
+        scored=etf_scores,
+        current_date=current_date,
+        minimum_practical_amount_eur=60.0,
+        minimum_relative_score=0.62,
+    )
+    _add_scored_lane_selections(
+        selections,
+        lane="individual_stock",
+        amount=round(float(individual_stock_lane_eur or 0.0), 2),
+        scored=stock_scores,
+        current_date=current_date,
+        minimum_practical_amount_eur=45.0,
+        minimum_relative_score=0.72,
+    )
+
+    return ProductInstrumentSummary(
+        current_date=current_date,
+        selections=selections,
+        lane_totals={
+            "crypto": _lane_total(selections, "crypto"),
+            "etf_fund": _lane_total(selections, "etf_fund"),
+            "individual_stock": _lane_total(selections, "individual_stock"),
+        },
+        candidate_scores=candidate_scores,
+        warnings=[
+            "fast product summary uses dynamic candidate scoring and does not rebuild heavy runtime gates",
+            "manual approval remains required; no order or trade is created",
+        ],
+    )
+
+
+
+
 def build_multi_candidate_instrument_selector_result(
     current_date: str = "2026-06-18",
 ) -> MultiCandidateInstrumentSelectorResult:
