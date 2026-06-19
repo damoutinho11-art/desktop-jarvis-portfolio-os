@@ -37,6 +37,12 @@ from jarvis.runtime.assistant_market_context import main as _assistant_market_co
 from jarvis.runtime.assistant_news_context import main as _assistant_news_context_main
 from jarvis.runtime.assistant_router import main as _assistant_router_main
 from jarvis.runtime.assistant_system_audit import main as _assistant_system_audit_main
+from jarvis.runtime.finance_intelligence_core import main as _finance_intelligence_core_main
+from jarvis.runtime.market_data_normalized import main as _market_data_normalized_main
+from jarvis.runtime.selected_instrument_resolver import main as _selected_instrument_resolver_main
+from jarvis.runtime.fx_assistant_bridge import main as _fx_assistant_bridge_main
+from jarvis.runtime.news_intelligence_contract import main as _news_intelligence_contract_main
+from jarvis.runtime.current_runtime_fast_gate import main as _current_runtime_fast_gate_main
 
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
@@ -64,12 +70,6 @@ from jarvis.runtime.manual_cost_basis_intake import main as _manual_cost_basis_i
 from jarvis.runtime.active_runtime_surface_redundancy_audit import main as _active_runtime_surface_redundancy_audit_main
 from jarvis.runtime.import_closure_safe_archive_plan import main as _import_closure_safe_archive_plan_main
 from jarvis.runtime.personal_finance_contribution_bridge import main as _personal_finance_contribution_bridge_main
-from jarvis.runtime.platform_data_completeness_gate import main as _platform_data_completeness_gate_main
-from jarvis.runtime.monthly_expenses_intake import main as _monthly_expenses_intake_main
-from jarvis.runtime.manual_cost_basis_intake import main as _manual_cost_basis_intake_main
-from jarvis.runtime.active_runtime_surface_redundancy_audit import main as _active_runtime_surface_redundancy_audit_main
-from jarvis.runtime.import_closure_safe_archive_plan import main as _import_closure_safe_archive_plan_main
-from jarvis.runtime.personal_finance_contribution_bridge import main as _personal_finance_contribution_bridge_main
 from jarvis.runtime.weekly_packet import (
     NEXT_STAGE as WEEKLY_PACKET_NEXT_STAGE,
     build_weekly_manual_buy_packet_result,
@@ -81,11 +81,17 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v117.0"
+ACTIVE_RUNTIME_STAGE = "v118.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "public_data_provider_registry"
+CURRENT_OPERATOR_SURFACE = "finance_intelligence_core"
 ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE = "jarvis.runtime.platform_data_completeness_gate"
 ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE = "jarvis.runtime.monthly_expenses_intake"
+ACTIVE_FINANCE_INTELLIGENCE_CORE_MODULE = "jarvis.runtime.finance_intelligence_core"
+ACTIVE_MARKET_DATA_NORMALIZED_MODULE = "jarvis.runtime.market_data_normalized"
+ACTIVE_SELECTED_INSTRUMENT_RESOLVER_MODULE = "jarvis.runtime.selected_instrument_resolver"
+ACTIVE_FX_ASSISTANT_BRIDGE_MODULE = "jarvis.runtime.fx_assistant_bridge"
+ACTIVE_NEWS_INTELLIGENCE_CONTRACT_MODULE = "jarvis.runtime.news_intelligence_contract"
+ACTIVE_CURRENT_RUNTIME_FAST_GATE_MODULE = "jarvis.runtime.current_runtime_fast_gate"
 
 
 def get_active_runtime_surface() -> dict[str, str]:
@@ -102,8 +108,6 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_dynamic_target_policy_module": "jarvis.runtime.dynamic_target_policy",
         "active_platform_lane_policy_module": "jarvis.runtime.platform_lane_policy",
         "active_platform_weekly_action_packet_module": "jarvis.runtime.platform_weekly_action_packet",
-        "active_platform_data_completeness_gate_module": ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE,
-        "active_monthly_expenses_intake_module": ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE,
         "active_platform_data_completeness_gate_module": ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE,
         "active_monthly_expenses_intake_module": ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE,
         "active_personal_finance_contribution_bridge_module": "jarvis.runtime.personal_finance_contribution_bridge",
@@ -151,6 +155,12 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_assistant_router_module": "jarvis.runtime.assistant_router",
         "active_assistant_answer_style_module": "jarvis.runtime.assistant_router",
         "active_assistant_system_audit_module": "jarvis.runtime.assistant_system_audit",
+        "active_finance_intelligence_core_module": ACTIVE_FINANCE_INTELLIGENCE_CORE_MODULE,
+        "active_market_data_normalized_module": ACTIVE_MARKET_DATA_NORMALIZED_MODULE,
+        "active_selected_instrument_resolver_module": ACTIVE_SELECTED_INSTRUMENT_RESOLVER_MODULE,
+        "active_fx_assistant_bridge_module": ACTIVE_FX_ASSISTANT_BRIDGE_MODULE,
+        "active_news_intelligence_contract_module": ACTIVE_NEWS_INTELLIGENCE_CONTRACT_MODULE,
+        "active_current_runtime_fast_gate_module": ACTIVE_CURRENT_RUNTIME_FAST_GATE_MODULE,
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -199,6 +209,18 @@ def main(argv: list[str] | None = None) -> int:
         return _assistant_router_main(args)
     if "--assistant-system-audit" in args:
         return _assistant_system_audit_main(args)
+    if "--finance-intelligence-core" in args:
+        return _finance_intelligence_core_main(args)
+    if "--current-runtime-fast-gate" in args:
+        return _current_runtime_fast_gate_main(args)
+    if "--market-data-normalized" in args:
+        return _market_data_normalized_main(args)
+    if "--selected-instrument-resolver" in args:
+        return _selected_instrument_resolver_main(args)
+    if "--fx-assistant-bridge" in args:
+        return _fx_assistant_bridge_main(args)
+    if "--news-intelligence-contract" in args:
+        return _news_intelligence_contract_main(args)
     if "--local-server" in args or "--local-server-smoke" in args:
         return _local_server_main(args)
     if "--ask" in args:
@@ -246,10 +268,6 @@ def main(argv: list[str] | None = None) -> int:
         return _monthly_expenses_intake_main(args)
     if any(flag in args for flag in ("--platform-data-completeness-gate", "--write-platform-data-templates")):
         return _platform_data_completeness_gate_main(args)
-    if any(flag in args for flag in ("--monthly-expenses-intake", "--write-monthly-expenses-template")):
-        return _monthly_expenses_intake_main(args)
-    if any(flag in args for flag in ("--platform-data-completeness-gate", "--write-platform-data-templates")):
-        return _platform_data_completeness_gate_main(args)
     if "--import-closure-safe-archive-plan" in args or "--write-import-closure-safe-archive-plan" in args:
         return _import_closure_safe_archive_plan_main(args)
     if "--active-runtime-surface-redundancy-audit" in args or "--write-active-runtime-surface-audit" in args:
@@ -275,11 +293,16 @@ def main(argv: list[str] | None = None) -> int:
 
 __all__ = [
     "ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE",
+    "ACTIVE_CURRENT_RUNTIME_FAST_GATE_MODULE",
+    "ACTIVE_FINANCE_INTELLIGENCE_CORE_MODULE",
+    "ACTIVE_FX_ASSISTANT_BRIDGE_MODULE",
     "ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE",
+    "ACTIVE_MARKET_DATA_NORMALIZED_MODULE",
     "ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE",
-    "ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE",
+    "ACTIVE_NEWS_INTELLIGENCE_CONTRACT_MODULE",
     "ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE",
     "ACTIVE_RUNTIME_MODULE",
+    "ACTIVE_SELECTED_INSTRUMENT_RESOLVER_MODULE",
     "ACTIVE_RUNTIME_STAGE",
     "ACTIVE_WEEKLY_PACKET_MODULE",
     "CURRENT_OPERATOR_SURFACE",

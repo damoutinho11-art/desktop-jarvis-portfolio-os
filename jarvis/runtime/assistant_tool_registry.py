@@ -9,7 +9,7 @@ from typing import Any
 from jarvis.runtime.dashboard_contract import build_dashboard_contract_result
 from jarvis.runtime.data_readiness_status import build_data_readiness_status_result
 from jarvis.runtime.news_coverage_readiness import build_news_coverage_readiness_result
-from jarvis.runtime.product_api import build_product_api_result
+from jarvis.runtime.product_api import _preserve_tracked_approval_ticket, build_product_api_result
 from jarvis.runtime.safety import build_safety_check_console_output
 
 
@@ -18,6 +18,7 @@ STATUS_REVIEW_REQUIRED = "JARVIS_V108_0_ASSISTANT_TOOL_REGISTRY_REVIEW_REQUIRED_
 DEFAULT_OUTPUT_PATH = "outputs/assistant_tool_registry_latest.json"
 
 REQUIRED_TOOL_IDS = (
+    "finance_intelligence_core",
     "portfolio_overview",
     "today_plan",
     "asset_lookup",
@@ -131,6 +132,20 @@ def build_assistant_tool_registry_result(
     output_path: str | Path = DEFAULT_OUTPUT_PATH,
     write_report: bool = False,
 ) -> AssistantToolRegistryResult:
+    with _preserve_tracked_approval_ticket():
+        return _build_assistant_tool_registry_result_unprotected(
+            current_date=current_date,
+            output_path=output_path,
+            write_report=write_report,
+        )
+
+
+def _build_assistant_tool_registry_result_unprotected(
+    *,
+    current_date: str = "2026-06-18",
+    output_path: str | Path = DEFAULT_OUTPUT_PATH,
+    write_report: bool = False,
+) -> AssistantToolRegistryResult:
     product = build_product_api_result(current_date=current_date)
     data_readiness = build_data_readiness_status_result(current_date=current_date)
     news = build_news_coverage_readiness_result(current_date=current_date)
@@ -143,6 +158,22 @@ def build_assistant_tool_registry_result(
     dashboard_ready = bool(dashboard.dashboard_contract_ready)
 
     tools = [
+        _tool(
+            "finance_intelligence_core",
+            "Finance intelligence core",
+            "Answers finance, trust, selected-instrument, FX, market movement, and news-contract questions from normalized local data.",
+            readiness="ready" if product_ready else "partial",
+            data_sources_used=[
+                "market_data_normalized",
+                "selected_instrument_resolver",
+                "fx_assistant_bridge",
+                "news_intelligence_contract",
+                "public_data_provider_registry",
+            ],
+            live_fetch_required=False,
+            blockers=[] if product_ready else list(product.blockers),
+            warnings=["read-only intelligence layer; no broker, order, trade, buy/sell request, or auto-approval path"],
+        ),
         _tool(
             "portfolio_overview",
             "Portfolio overview",

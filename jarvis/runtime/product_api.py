@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -15,6 +16,7 @@ from jarvis.runtime.safety import build_safety_check_console_output
 STATUS_READY = "JARVIS_V96_0_PRODUCT_API_LAYER_READY_SAFE"
 STATUS_REVIEW_REQUIRED = "JARVIS_V96_0_PRODUCT_API_LAYER_REVIEW_REQUIRED_SAFE"
 DEFAULT_OUTPUT_PATH = "outputs/product_api_latest.json"
+TRACKED_APPROVAL_TICKET_PATH = Path("outputs/approval_ticket_latest.json")
 
 
 @dataclass(frozen=True)
@@ -83,7 +85,38 @@ def _money_field(data: Mapping[str, Any], key: str) -> float:
         return 0.0
 
 
+@contextmanager
+def _preserve_tracked_approval_ticket() -> Any:
+    """Keep read-only product/status builders from drifting the tracked latest ticket."""
+
+    path = TRACKED_APPROVAL_TICKET_PATH
+    existed = path.exists()
+    original = path.read_bytes() if existed else None
+    try:
+        yield
+    finally:
+        if existed and original is not None:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(original)
+        elif not existed and path.exists():
+            path.unlink()
+
+
 def build_product_api_result(
+    *,
+    current_date: str = "2026-06-18",
+    output_path: str | Path = DEFAULT_OUTPUT_PATH,
+    write_report: bool = False,
+) -> ProductApiResult:
+    with _preserve_tracked_approval_ticket():
+        return _build_product_api_result_unprotected(
+            current_date=current_date,
+            output_path=output_path,
+            write_report=write_report,
+        )
+
+
+def _build_product_api_result_unprotected(
     *,
     current_date: str = "2026-06-18",
     output_path: str | Path = DEFAULT_OUTPUT_PATH,

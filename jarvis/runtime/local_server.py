@@ -19,17 +19,20 @@ from jarvis.runtime.chat_interface_contract import (
 )
 from jarvis.runtime.assistant_router import build_assistant_router_result
 from jarvis.runtime.dashboard_contract import build_dashboard_contract_result
+from jarvis.runtime.finance_intelligence_core import build_finance_intelligence_core_result
 from jarvis.runtime.product_api import build_product_api_result
 
 STATUS_READY = "JARVIS_V107_0_BROWSER_CHAT_UX_POLISH_READY_SAFE"
 STATUS_REVIEW_REQUIRED = "JARVIS_V107_0_BROWSER_CHAT_UX_POLISH_REVIEW_REQUIRED_SAFE"
 DEFAULT_OUTPUT_PATH = "outputs/local_server_smoke_latest.json"
+MAX_JSON_BODY_BYTES = 32768
 
 ROUTES = {
     "GET /health": "local server health and safety metadata",
-    "GET /dashboard": "generated local static dashboard HTML",
+    "GET /dashboard": "generated local static dashboard HTML artifact",
     "GET /chat": "local browser chat page backed by POST /api/chat",
     "GET /api/status": "read-only product API payload",
+    "GET /api/finance-intelligence": "read-only finance intelligence core payload",
     "POST /api/chat": "read-only chat reply payload",
 }
 
@@ -99,6 +102,8 @@ def _read_json_body(handler: BaseHTTPRequestHandler) -> dict[str, Any]:
 
     if length <= 0:
         return {}
+    if length > MAX_JSON_BODY_BYTES:
+        return {"_error": "request_body_too_large"}
 
     body = handler.rfile.read(length).decode("utf-8")
     try:
@@ -123,7 +128,7 @@ def _health_payload(*, host: str, port: int, current_date: str) -> dict[str, Any
         "credentials_used": False,
         "order_created": False,
         "trade_executed": False,
-        "warning": "local server shell is read-only and exposes no execution path",
+        "warning": "local server shell is read-only and exposes no execution path; /dashboard may generate a local HTML artifact",
     }
 
 
@@ -193,7 +198,10 @@ def render_chat_page() -> str:
         <h2>Presets</h2>
         <div class="preset-grid" aria-label="Preset questions">
           <button class="preset" type="button" data-question="What is my plan today?">What is my plan today?</button>
+          <button class="preset" type="button" data-question="What happened today?">What happened today?</button>
           <button class="preset" type="button" data-question="Why these instruments?">Why these instruments?</button>
+          <button class="preset" type="button" data-question="Can I trust this data?">Can I trust this data?</button>
+          <button class="preset" type="button" data-question="What news matters to my portfolio?">What news matters?</button>
           <button class="preset" type="button" data-question="Is this safe?">Is this safe?</button>
           <button class="preset" type="button" data-question="What are the blockers?">What are the blockers?</button>
           <button class="preset" type="button" data-action="dashboard">Open dashboard</button>
@@ -293,6 +301,11 @@ def make_handler(*, host: str, port: int, current_date: str) -> type[BaseHTTPReq
                 _json_response(self, _plain(product))
                 return
 
+            if path == "/api/finance-intelligence":
+                finance = build_finance_intelligence_core_result(current_date=current_date)
+                _json_response(self, _plain(finance))
+                return
+
             if path == "/api/chat":
                 chat_query = str((query.get("q") or [""])[0])
                 _json_response(self, _chat_payload(query=chat_query, current_date=current_date))
@@ -315,6 +328,9 @@ def make_handler(*, host: str, port: int, current_date: str) -> type[BaseHTTPReq
                 return
 
             payload = _read_json_body(self)
+            if payload.get("_error") == "request_body_too_large":
+                _error_response(self, "request body too large", status=413)
+                return
             query = str(payload.get("query") or payload.get("q") or "")
             _json_response(self, _chat_payload(query=query, current_date=current_date))
 
@@ -455,7 +471,7 @@ def run_server(*, host: str = "127.0.0.1", port: int = 8765, current_date: str =
     handler = make_handler(host=host, port=port, current_date=current_date)
     server = ThreadingHTTPServer((host, port), handler)
     print(f"J.A.R.V.I.S. local server running at http://{host}:{port}")
-    print("Routes: /health, /chat, /dashboard, /api/status, /api/chat")
+    print("Routes: /health, /chat, /dashboard, /api/status, /api/finance-intelligence, /api/chat")
     print("Safety: read-only, manual-only, no broker/credentials/orders/trades.")
     server.serve_forever()
 

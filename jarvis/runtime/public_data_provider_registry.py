@@ -40,6 +40,8 @@ class PublicDataProviderRegistryResult:
     status: str
     current_date: str
     providers: list[dict[str, Any]]
+    provider_plan: list[dict[str, Any]]
+    secret_policy: list[str]
     enabled_provider_count: int
     assistant_ready_provider_count: int
     major_gaps: list[str]
@@ -203,6 +205,54 @@ def build_public_data_provider_registry_result(
     ]
 
     provider_dicts = [provider.to_dict() for provider in providers]
+    provider_plan = [
+        {
+            "provider_id": "coingecko",
+            "phase": "enabled_local_cache_now",
+            "action": "Use existing normalized local crypto cache; do not live-fetch during assistant answers.",
+            "default_enabled": True,
+            "optional_env_key_only": False,
+            "secrets_may_be_written": False,
+        },
+        {
+            "provider_id": "yahoo_chart_local",
+            "phase": "enabled_local_cache_now",
+            "action": "Use existing local stock/ETF quote caches; quarantine future-dated or invalid ETF rows.",
+            "default_enabled": True,
+            "optional_env_key_only": False,
+            "secrets_may_be_written": False,
+        },
+        {
+            "provider_id": "ecb_fx",
+            "phase": "planned_read_only_local_cache",
+            "action": "Parse official ECB EUR/USD reference data into a local cache before assistant currency conversion.",
+            "default_enabled": False,
+            "optional_env_key_only": False,
+            "secrets_may_be_written": False,
+        },
+        {
+            "provider_id": "fmp_or_eodhd_future",
+            "phase": "future_default_off",
+            "action": "Add only as read-only optional-env-key providers; redact keys from URLs, caches, logs, reports, and outputs.",
+            "default_enabled": False,
+            "optional_env_key_only": True,
+            "secrets_may_be_written": False,
+        },
+        {
+            "provider_id": "news_future",
+            "phase": "future_default_off",
+            "action": "Add cached headline ingestion only when source, timestamp, URL/id, and relevance can be stored without fabricating news.",
+            "default_enabled": False,
+            "optional_env_key_only": True,
+            "secrets_may_be_written": False,
+        },
+    ]
+    secret_policy = [
+        "broker/trading/execution APIs are forbidden",
+        "external provider keys, if supported later, must be optional environment variables only",
+        "provider keys must never be written to cache, logs, reports, request URLs, or outputs",
+        "future paid/live providers must remain default-off until read-only cache and redaction tests exist",
+    ]
     major_gaps = [
         "ETF quote coverage is incomplete: VWCE and GLOBAL_CORE_ETF have no trusted quote in the assistant bridge.",
         "IS3Q.DE quote exists but is not trusted because source_as_of/freshness is suspicious.",
@@ -216,6 +266,8 @@ def build_public_data_provider_registry_result(
         status=STATUS_READY,
         current_date=current_date,
         providers=provider_dicts,
+        provider_plan=provider_plan,
+        secret_policy=secret_policy,
         enabled_provider_count=sum(1 for provider in providers if provider.enabled_now),
         assistant_ready_provider_count=sum(1 for provider in providers if provider.assistant_ready),
         major_gaps=major_gaps,
@@ -255,6 +307,21 @@ def format_public_data_provider_registry(result: PublicDataProviderRegistryResul
             f"assistant_ready={provider['assistant_ready']}; type={provider['provider_type']}; "
             f"purpose={', '.join(provider['purpose'])}"
         )
+    lines.extend(
+        [
+            "",
+            "PROVIDER PLAN:",
+            *[
+                f"- {plan['provider_id']}: phase={plan['phase']}; default_enabled={plan['default_enabled']}; "
+                f"optional_env_key_only={plan['optional_env_key_only']}; secrets_may_be_written={plan['secrets_may_be_written']}; "
+                f"action={plan['action']}"
+                for plan in result.provider_plan
+            ],
+            "",
+            "SECRET POLICY:",
+            *[f"- {policy}" for policy in result.secret_policy],
+        ]
+    )
     lines.extend(
         [
             "",

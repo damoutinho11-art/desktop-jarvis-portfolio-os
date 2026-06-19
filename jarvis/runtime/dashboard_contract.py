@@ -9,7 +9,8 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from jarvis.runtime.full_system_audit import build_full_system_audit_result
-from jarvis.runtime.product_api import build_product_api_result
+from jarvis.runtime.finance_intelligence_core import build_finance_intelligence_core_result
+from jarvis.runtime.product_api import _preserve_tracked_approval_ticket, build_product_api_result
 
 STATUS_READY = "JARVIS_V99_0_DASHBOARD_CONTRACT_READY_SAFE"
 STATUS_REVIEW_REQUIRED = "JARVIS_V99_0_DASHBOARD_CONTRACT_REVIEW_REQUIRED_SAFE"
@@ -64,7 +65,7 @@ def _html_list(items: list[Any]) -> str:
     return "".join(f"<li>{html.escape(str(item))}</li>" for item in items)
 
 
-def _build_sections(product_api: dict[str, Any], audit: dict[str, Any]) -> dict[str, Any]:
+def _build_sections(product_api: dict[str, Any], audit: dict[str, Any], finance: dict[str, Any]) -> dict[str, Any]:
     week = product_api.get("week_plan", {}) or {}
     data = product_api.get("data_readiness", {}) or {}
     news = product_api.get("news_coverage", {}) or {}
@@ -104,6 +105,16 @@ def _build_sections(product_api: dict[str, Any], audit: dict[str, Any]) -> dict[
             "manual_review_required": news.get("manual_review_required"),
             "covered_categories": list(news.get("covered_categories", []) or []),
         },
+        "finance_intelligence": {
+            "title": "Finance Intelligence",
+            "data_trust_summary": dict(finance.get("data_trust_summary", {}) or {}),
+            "selected_instrument_coverage": list(finance.get("selected_instrument_coverage", []) or []),
+            "market_movement_summary": finance.get("market_movement_summary"),
+            "etf_gap_summary": finance.get("etf_gap_summary"),
+            "fx_summary": dict(finance.get("fx_summary", {}) or {}),
+            "news_summary": dict(finance.get("news_summary", {}) or {}),
+            "manual_qa_checklist": list(finance.get("manual_qa_checklist", []) or []),
+        },
         "safety": {
             "title": "Safety",
             "safety_check_blocked_execution": safety.get("safety_check_blocked_execution"),
@@ -132,6 +143,7 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
     week = sections["week_plan"]
     data = sections["data"]
     news = sections["news"]
+    finance = sections["finance_intelligence"]
     safety = sections["safety"]
     audit = sections["audit"]
 
@@ -157,6 +169,19 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
     crypto_summary = lane_summary("crypto")
     etf_summary = lane_summary("etf_fund")
     stock_summary = lane_summary("individual_stock")
+    trust = finance.get("data_trust_summary", {}) or {}
+    coverage_rows = []
+    for item in finance.get("selected_instrument_coverage", []) or []:
+        coverage_rows.append(
+            "<tr>"
+            f"<td>{html.escape(str(item.get('symbol', '')))}</td>"
+            f"<td>{html.escape(str(item.get('classification', '')))}</td>"
+            f"<td>{html.escape(str(item.get('trusted_quote', '')))}</td>"
+            f"<td>{html.escape(str(item.get('freshness', '')))}</td>"
+            f"<td>{html.escape(str(item.get('next_action', '')))}</td>"
+            "</tr>"
+        )
+    coverage_table = "".join(coverage_rows) if coverage_rows else "<tr><td colspan='5'>none</td></tr>"
 
     css = """
     body { margin:0; font-family:Segoe UI, Arial, sans-serif; background:#0b0f14; color:#edf3fb; }
@@ -251,6 +276,16 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <li>Covered: {html.escape(", ".join(news.get("covered_categories") or []) or "none")}</li>
 </ul></section>
 
+<section class="card wide"><h2>Finance Intelligence</h2>
+<div class="grid">
+<div class="metric"><div class="label">Trusted Records</div><div class="value">{html.escape(str(trust.get("trusted_records")))}</div></div>
+<div class="metric"><div class="label">Partial Records</div><div class="value warn">{html.escape(str(trust.get("partial_records")))}</div></div>
+<div class="metric"><div class="label">FX Conversion</div><div class="value warn">{html.escape(str((finance.get("fx_summary") or {}).get("conversion_available")))}</div></div>
+</div>
+<p>{html.escape(str(finance.get("market_movement_summary") or ""))}</p>
+<table><thead><tr><th>Symbol</th><th>Classification</th><th>Trusted</th><th>Freshness</th><th>Next Action</th></tr></thead><tbody>{coverage_table}</tbody></table>
+</section>
+
 <section class="card"><h2>Safety</h2><ul>
 <li>Safety-check blocked execution: {safety.get("safety_check_blocked_execution")}</li>
 <li>Manual approval required: {safety.get("manual_approval_required")}</li>
@@ -275,6 +310,7 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <li>Confirm the weekly manual plan total matches the contribution.</li>
 <li>Confirm BTC, ETH, ETF/fund, and stock rows are visible.</li>
 <li>Confirm news coverage is ready, while live news fetch remains disabled.</li>
+<li>Confirm finance intelligence shows ETF gaps and data trust honestly.</li>
 <li>Confirm safety shows no broker, credentials, orders, or trades.</li>
 <li>Open command: start .\\outputs\\dashboard_latest.html</li>
 </ul></section>
@@ -285,6 +321,24 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 
 
 def build_dashboard_contract_result(
+    *,
+    current_date: str = "2026-06-18",
+    output_path: str | Path = DEFAULT_OUTPUT_PATH,
+    dashboard_path: str | Path = DEFAULT_DASHBOARD_PATH,
+    write_report: bool = False,
+    write_dashboard: bool = False,
+) -> DashboardContractResult:
+    with _preserve_tracked_approval_ticket():
+        return _build_dashboard_contract_result_unprotected(
+            current_date=current_date,
+            output_path=output_path,
+            dashboard_path=dashboard_path,
+            write_report=write_report,
+            write_dashboard=write_dashboard,
+        )
+
+
+def _build_dashboard_contract_result_unprotected(
     *,
     current_date: str = "2026-06-18",
     output_path: str | Path = DEFAULT_OUTPUT_PATH,
@@ -303,7 +357,9 @@ def build_dashboard_contract_result(
             product_api_elapsed_seconds=product_api_elapsed_seconds,
         )
     )
-    sections = _build_sections(product_api, audit)
+    finance_result = build_finance_intelligence_core_result(current_date=current_date)
+    finance = _plain(finance_result)
+    sections = _build_sections(product_api, audit, finance)
     safety = sections["safety"]
 
     manual_only = bool(
@@ -332,9 +388,13 @@ def build_dashboard_contract_result(
     blockers = _dedupe(blockers)
 
     warnings = _dedupe(
-        ["dashboard contract is local/static and does not start a web server"]
+        [
+            "dashboard contract is local/static and does not start a web server",
+            "dashboard HTML is generated only when write_dashboard=True or when the local /dashboard route explicitly serves the generated artifact",
+        ]
         + [str(item) for item in (product_api.get("warnings") or [])]
         + [str(item) for item in (audit.get("warnings") or [])]
+        + [str(item) for item in (finance.get("warnings") or [])]
     )
 
     ready = not blockers

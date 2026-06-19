@@ -9,7 +9,7 @@ from typing import Any
 from jarvis.runtime.dashboard_contract import build_dashboard_contract_result
 from jarvis.runtime.data_readiness_status import build_data_readiness_status_result
 from jarvis.runtime.news_coverage_readiness import build_news_coverage_readiness_result
-from jarvis.runtime.product_api import build_product_api_result
+from jarvis.runtime.product_api import _preserve_tracked_approval_ticket, build_product_api_result
 from jarvis.runtime.safety import build_safety_check_console_output
 
 
@@ -123,6 +123,20 @@ def build_assistant_data_source_registry_result(
     output_path: str | Path = DEFAULT_OUTPUT_PATH,
     write_report: bool = False,
 ) -> AssistantDataSourceRegistryResult:
+    with _preserve_tracked_approval_ticket():
+        return _build_assistant_data_source_registry_result_unprotected(
+            current_date=current_date,
+            output_path=output_path,
+            write_report=write_report,
+        )
+
+
+def _build_assistant_data_source_registry_result_unprotected(
+    *,
+    current_date: str = "2026-06-18",
+    output_path: str | Path = DEFAULT_OUTPUT_PATH,
+    write_report: bool = False,
+) -> AssistantDataSourceRegistryResult:
     data = build_data_readiness_status_result(current_date=current_date)
     news = build_news_coverage_readiness_result(current_date=current_date)
     product = build_product_api_result(current_date=current_date)
@@ -187,6 +201,50 @@ def build_assistant_data_source_registry_result(
             live_fetch_supported=False,
             warnings=["live news fetch is disabled; no headlines are invented"],
             blockers=[] if news.news_coverage_ready else list(news.blockers),
+        ),
+        _source(
+            "normalized_market_data",
+            "finance intelligence normalized market data",
+            "normalized_market_data",
+            "market_data",
+            ready_for_assistant=True,
+            local_cache_path=None,
+            freshness_policy="assistant-facing records must show source/as_of/freshness/missing fields",
+            latest_as_of=current_date,
+            warnings=["selected plan amounts are not quote trust; quote trust comes from source evidence"],
+        ),
+        _source(
+            "selected_instrument_resolver",
+            "ETF/fund selected instrument resolver",
+            "instrument_resolution",
+            "etf_fund",
+            ready_for_assistant=True,
+            local_cache_path="jarvis/local/stock_fund_etf_selected_instrument.local.json",
+            freshness_policy="GLOBAL_CORE_ETF, VWCE, and IS3Q.DE gaps must be disclosed honestly",
+            latest_as_of=current_date,
+            warnings=["partial ETF/fund quote data must not be treated as fully trusted"],
+        ),
+        _source(
+            "fx_assistant_bridge",
+            "assistant-facing FX readiness",
+            "fx_rate",
+            "fx",
+            ready_for_assistant=True,
+            local_cache_path="jarvis/local/free_research_api_cache.local.json",
+            freshness_policy="EUR base portfolio; USD conversion only when trusted parsed ECB rate exists",
+            latest_as_of=current_date,
+            warnings=["USD quotes remain USD when trusted FX conversion is unavailable"],
+        ),
+        _source(
+            "news_intelligence_contract",
+            "safe news intelligence contract",
+            "news_contract",
+            "news",
+            ready_for_assistant=True,
+            local_cache_path="jarvis/local/news/headlines.local.json",
+            freshness_policy="no live news; future cached headlines require source, timestamp, url/id, and relevance",
+            latest_as_of=current_date,
+            warnings=["no fake headlines or market causes are generated"],
         ),
         _source(
             "portfolio_manual_plan",

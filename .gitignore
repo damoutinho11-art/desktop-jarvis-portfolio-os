@@ -78,5 +78,11 @@ outputs/dashboard_latest.html
 outputs/chat_interface_contract_latest.json
 outputs/local_server_smoke_latest.json
 outputs/local_server_live_endpoint_smoke_latest.json
-\noutputs/assistant_market_data_bridge_latest.json\n
+outputs/assistant_market_data_bridge_latest.json
 outputs/public_data_provider_registry_latest.json
+outputs/market_data_normalized_latest.json
+outputs/finance_intelligence_core_latest.json
+outputs/current_runtime_fast_gate_latest.json
+outputs/selected_instrument_resolver_latest.json
+outputs/fx_assistant_bridge_latest.json
+outputs/news_intelligence_contract_latest.json

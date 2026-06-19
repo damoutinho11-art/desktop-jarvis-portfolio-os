@@ -29,6 +29,7 @@ class LocalServerLiveEndpointSmokeResult:
     health_ready: bool
     dashboard_ready: bool
     api_status_ready: bool
+    api_finance_intelligence_ready: bool
     api_chat_ready: bool
     manual_only: bool
     execution_forbidden: bool
@@ -103,6 +104,29 @@ class _SafeFixtureProductApiResult:
 
 
 @dataclass
+class _SafeFixtureFinanceIntelligenceResult:
+    finance_intelligence_ready: bool = True
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "status": "JARVIS_V118_SAFE_FIXTURE_FINANCE_INTELLIGENCE_READY",
+            "finance_intelligence_ready": True,
+            "normalized_records": [
+                {"symbol": "BTC", "trusted_for_assistant": True},
+                {"symbol": "ETH", "trusted_for_assistant": True},
+                {"symbol": "MSFT", "trusted_for_assistant": True},
+            ],
+            "broker_connection": False,
+            "credentials_used": False,
+            "order_created": False,
+            "trade_executed": False,
+            "auto_approval_enabled": False,
+            "warnings": ["safe fixture finance intelligence payload for live endpoint smoke"],
+            "blockers": [],
+        }
+
+
+@dataclass
 class _SafeFixtureDashboardContractResult:
     dashboard_contract_ready: bool = True
     manual_only: bool = True
@@ -125,6 +149,10 @@ def _safe_fixture_chat_contract(*, query: str = "", **kwargs: Any) -> _SafeFixtu
 
 def _safe_fixture_product_api(*args: Any, **kwargs: Any) -> _SafeFixtureProductApiResult:
     return _SafeFixtureProductApiResult()
+
+
+def _safe_fixture_finance_intelligence(*args: Any, **kwargs: Any) -> _SafeFixtureFinanceIntelligenceResult:
+    return _SafeFixtureFinanceIntelligenceResult()
 
 
 def _request_json(
@@ -184,6 +212,7 @@ def build_local_server_live_endpoint_smoke_result(
         stack.enter_context(patch("jarvis.runtime.local_server.build_chat_interface_contract_result", _safe_fixture_chat_contract))
         stack.enter_context(patch("jarvis.runtime.local_server.build_dashboard_contract_result", _safe_fixture_dashboard_contract))
         stack.enter_context(patch("jarvis.runtime.local_server.build_product_api_result", _safe_fixture_product_api))
+        stack.enter_context(patch("jarvis.runtime.local_server.build_finance_intelligence_core_result", _safe_fixture_finance_intelligence))
 
         handler = local_server.make_handler(host=host, port=port, current_date=current_date)
         server = ThreadingHTTPServer((host, port), handler)
@@ -194,6 +223,7 @@ def build_local_server_live_endpoint_smoke_result(
         try:
             health_status, health = _request_json(host=host, port=bound_port, method="GET", path="/health")
             api_status_code, api_status = _request_json(host=host, port=bound_port, method="GET", path="/api/status")
+            api_finance_code, api_finance = _request_json(host=host, port=bound_port, method="GET", path="/api/finance-intelligence")
             api_chat_code, api_chat = _request_json(
                 host=host,
                 port=bound_port,
@@ -214,6 +244,12 @@ def build_local_server_live_endpoint_smoke_result(
 
     health_ready = health_status == 200 and bool(health.get("local_server_ready"))
     api_status_ready = api_status_code == 200 and bool(api_status.get("api_ready"))
+    api_finance_ready = (
+        api_finance_code == 200
+        and bool(api_finance.get("finance_intelligence_ready"))
+        and not bool(api_finance.get("order_created"))
+        and not bool(api_finance.get("trade_executed"))
+    )
     api_chat_ready = (
         api_chat_code == 200
         and bool(api_chat.get("reply"))
@@ -236,6 +272,7 @@ def build_local_server_live_endpoint_smoke_result(
     http_checks = {
         "GET /health": {"status": health_status, "ready": health_ready},
         "GET /api/status": {"status": api_status_code, "ready": api_status_ready},
+        "GET /api/finance-intelligence": {"status": api_finance_code, "ready": api_finance_ready},
         "POST /api/chat": {"status": api_chat_code, "ready": api_chat_ready},
         "GET /dashboard": {"status": dashboard_status, "ready": dashboard_ready},
     }
@@ -244,6 +281,8 @@ def build_local_server_live_endpoint_smoke_result(
         blockers.append("health_endpoint_not_ready")
     if not api_status_ready:
         blockers.append("api_status_endpoint_not_ready")
+    if not api_finance_ready:
+        blockers.append("api_finance_intelligence_endpoint_not_ready")
     if not api_chat_ready:
         blockers.append("api_chat_endpoint_not_ready")
     if not dashboard_ready:
@@ -274,6 +313,7 @@ def build_local_server_live_endpoint_smoke_result(
         health_ready=health_ready,
         dashboard_ready=dashboard_ready,
         api_status_ready=api_status_ready,
+        api_finance_intelligence_ready=api_finance_ready,
         api_chat_ready=api_chat_ready,
         manual_only=manual_only,
         execution_forbidden=execution_forbidden,

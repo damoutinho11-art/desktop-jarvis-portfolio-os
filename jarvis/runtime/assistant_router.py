@@ -21,6 +21,11 @@ from jarvis.runtime.assistant_news_context import (
     format_assistant_news_context,
 )
 from jarvis.runtime.chat_interface_contract import build_chat_interface_contract_result, format_chat_reply
+from jarvis.runtime.finance_intelligence_core import (
+    answer_finance_intelligence_question,
+    build_finance_intelligence_core_result,
+)
+from jarvis.runtime.news_intelligence_contract import build_news_intelligence_contract_result
 
 
 STATUS_READY = "JARVIS_V113_0_ASSISTANT_ROUTER_READY_SAFE"
@@ -28,6 +33,7 @@ STATUS_REFUSED = "JARVIS_V113_0_ASSISTANT_ROUTER_REFUSED_SAFE"
 DEFAULT_OUTPUT_PATH = "outputs/assistant_router_latest.json"
 
 SUPPORTED_INTENTS = [
+    "finance_intelligence",
     "today_plan",
     "portfolio_overview",
     "asset_lookup",
@@ -91,15 +97,19 @@ def classify_assistant_intent(query: str) -> str:
     normalized = _normalize(query)
     if not normalized:
         return "help"
+    if any(phrase in normalized for phrase in ["manual check", "before buying", "before any external action"]):
+        return "finance_intelligence"
     if any(word in normalized for word in ["buy", "sell", "trade", "order", "execute", "place an order"]):
         return "safety"
     if any(word in normalized for word in ["dashboard", "open dashboard"]):
         return "dashboard"
     if any(word in normalized for word in ["safe", "safety", "can you trade", "broker", "credential"]):
         return "safety"
+    if any(phrase in normalized for phrase in ["what happened today", "what changed since last week", "changed since last week", "manual check", "before buying"]):
+        return "finance_intelligence"
     if any(word in normalized for word in ["blocker", "blocked", "warning", "problem"]):
         return "blockers"
-    if any(word in normalized for word in ["freshness", "trust this data", "can i trust"]):
+    if any(word in normalized for word in ["freshness", "trust this data", "can i trust", "missing"]):
         return "data_freshness"
     if any(word in normalized for word in ["risk", "risks"]):
         return "risk_summary"
@@ -141,47 +151,75 @@ def build_assistant_router_result(
     execution_refused = False
 
     if intent == "asset_lookup":
-        tool = build_assistant_asset_lookup_result(asset=_extract_asset_query(query), current_date=current_date)
-        reply = format_assistant_asset_lookup(tool)
-        if tool.price is not None and "Price:" not in reply:
-            price_line = f"Price: {float(tool.price):,.2f} {tool.currency or ''}."
-            reply_lines = reply.splitlines()
-            insert_at = 1 if reply_lines else 0
-            reply_lines.insert(insert_at, price_line)
-            reply = "\n".join(reply_lines)
-        source = str(tool.source)
-        as_of = str(tool.as_of or current_date)
-        freshness = tool.freshness
-        confidence = tool.confidence
-        blockers.extend(tool.blockers)
+        asset = _extract_asset_query(query)
+        if asset.upper() in {"BTC", "ETH", "VWCE", "GLOBAL_CORE_ETF", "IS3Q", "IS3Q.DE", "MSFT"}:
+            core = build_finance_intelligence_core_result(current_date=current_date)
+            reply = answer_finance_intelligence_question(asset, current_date=current_date, result=core)
+            source = "finance_intelligence_core.normalized_market_data"
+            as_of = current_date
+            freshness = "normalized_local_cache"
+            confidence = "medium"
+            warnings.extend(core.warnings)
+        else:
+            tool = build_assistant_asset_lookup_result(asset=asset, current_date=current_date)
+            reply = format_assistant_asset_lookup(tool)
+            if tool.price is not None and "Price:" not in reply:
+                price_line = f"Price: {float(tool.price):,.2f} {tool.currency or ''}."
+                reply_lines = reply.splitlines()
+                insert_at = 1 if reply_lines else 0
+                reply_lines.insert(insert_at, price_line)
+                reply = "\n".join(reply_lines)
+            source = str(tool.source)
+            as_of = str(tool.as_of or current_date)
+            freshness = tool.freshness
+            confidence = tool.confidence
+            blockers.extend(tool.blockers)
     elif intent == "etf_compare":
-        reply = format_etf_comparison(build_etf_comparison_result(current_date=current_date))
-        source = "assistant_asset_lookup"
-        freshness = "local_product_plan"
+        core = build_finance_intelligence_core_result(current_date=current_date)
+        reply = core.answers["compare_my_etfs"]
+        source = "finance_intelligence_core.selected_instrument_resolver"
+        freshness = "normalized_local_cache"
+        confidence = "medium"
+        warnings.extend(core.warnings)
     elif intent == "crypto_market_context":
-        tool = build_assistant_market_context_result(context_type="crypto", current_date=current_date)
-        reply = format_assistant_market_context(tool)
-        source = tool.source
-        as_of = tool.as_of
-        freshness = tool.freshness
-        confidence = tool.confidence
-        blockers.extend(tool.blockers)
+        core = build_finance_intelligence_core_result(current_date=current_date)
+        reply = core.answers["what_is_crypto_doing_today"]
+        source = "finance_intelligence_core.normalized_market_data"
+        freshness = "normalized_local_cache"
+        confidence = "medium"
+        warnings.extend(core.warnings)
     elif intent == "market_context":
-        tool = build_assistant_market_context_result(context_type="market", current_date=current_date)
-        reply = format_assistant_market_context(tool)
-        source = tool.source
-        as_of = tool.as_of
-        freshness = tool.freshness
-        confidence = tool.confidence
-        blockers.extend(tool.blockers)
+        core = build_finance_intelligence_core_result(current_date=current_date)
+        reply = answer_finance_intelligence_question(query, current_date=current_date, result=core)
+        source = "finance_intelligence_core"
+        freshness = "normalized_local_cache"
+        confidence = "medium"
+        warnings.extend(core.warnings)
     elif intent == "news_context":
-        tool = build_assistant_news_context_result(current_date=current_date)
-        reply = format_assistant_news_context(tool)
-        source = tool.source
-        as_of = tool.as_of
-        freshness = tool.freshness
-        confidence = tool.confidence
+        tool = build_news_intelligence_contract_result(current_date=current_date)
+        reply = "\n".join(
+            [
+                tool.answer_summary,
+                (
+                    "Data / Source / Freshness: source=news_intelligence_contract; "
+                    f"as_of={tool.current_date}; live_news_fetch_enabled={tool.live_news_fetch_enabled}; "
+                    f"local_cached_news_available={tool.local_cached_news_available}; cached_headline_count={tool.cached_headline_count}."
+                ),
+                "Manual checklist: check reputable external headlines, timestamps, URLs, and relevance before any external action.",
+            ]
+        )
+        source = "news_intelligence_contract"
+        as_of = tool.current_date
+        freshness = "news_contract_no_live_fetch"
+        confidence = "medium_for_contract_low_for_headlines"
         blockers.extend(tool.blockers)
+    elif intent in {"finance_intelligence", "data_freshness", "blockers"}:
+        core = build_finance_intelligence_core_result(current_date=current_date)
+        reply = answer_finance_intelligence_question(query, current_date=current_date, result=core)
+        source = "finance_intelligence_core"
+        freshness = "normalized_local_cache"
+        confidence = "medium"
+        warnings.extend(core.warnings)
     elif intent == "safety":
         execution_refused = any(word in _normalize(query) for word in ["buy", "sell", "trade", "order", "execute"])
         reply = (
