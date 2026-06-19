@@ -79,3 +79,4 @@ outputs/chat_interface_contract_latest.json
 outputs/local_server_smoke_latest.json
 outputs/local_server_live_endpoint_smoke_latest.json
 \noutputs/assistant_market_data_bridge_latest.json\n
+outputs/public_data_provider_registry_latest.json
