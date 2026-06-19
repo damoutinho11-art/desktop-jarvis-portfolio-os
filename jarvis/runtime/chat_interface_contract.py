@@ -6,6 +6,12 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
+from jarvis.runtime.assistant_asset_lookup import (
+    build_assistant_asset_lookup_result,
+    build_etf_comparison_result,
+    format_assistant_asset_lookup,
+    format_etf_comparison,
+)
 from jarvis.runtime.dashboard_contract import build_dashboard_contract_result
 
 STATUS_READY = "JARVIS_V103_0_LOCAL_CHAT_CLI_POLISH_READY_SAFE"
@@ -14,6 +20,8 @@ DEFAULT_OUTPUT_PATH = "outputs/chat_interface_contract_latest.json"
 
 SUPPORTED_INTENTS = [
     "today_plan",
+    "asset_lookup",
+    "etf_compare",
     "instrument_rationale",
     "safety",
     "blockers",
@@ -62,6 +70,15 @@ def _detect_intent(query: str) -> str:
     if not normalized:
         return "help"
 
+    if any(word in normalized for word in ["compare etf", "compare my etf", "compare the etf", "compare funds"]):
+        return "etf_compare"
+
+    known_symbols = ["btc", "eth", "vwce", "is3q", "is3q.de", "msft", "global_core_etf"]
+    if any(symbol in normalized for symbol in known_symbols) and any(
+        word in normalized for word in ["tell", "what is", "what do we know", "why", "about", "lookup"]
+    ):
+        return "asset_lookup"
+
     if any(word in normalized for word in ["today", "plan", "buy", "week", "allocation"]):
         return "today_plan"
 
@@ -78,6 +95,15 @@ def _detect_intent(query: str) -> str:
         return "dashboard"
 
     return "help"
+
+
+def _asset_query_from_chat(query: str) -> str:
+    normalized = query.strip().replace("?", " ")
+    upper = normalized.upper()
+    for candidate in ["IS3Q.DE", "GLOBAL_CORE_ETF", "VWCE", "MSFT", "BTC", "ETH", "IS3Q"]:
+        if candidate in upper:
+            return candidate
+    return normalized
 
 
 def _selected_summary(selections: list[dict[str, Any]], lane: str) -> str:
@@ -111,6 +137,14 @@ def _response_for_intent(intent: str, contract: Any, query: str) -> str:
             f"Individual stock: {_money(week.get('individual_stock_eur'))} as {stock}. "
             "This is read-only guidance; Diogo must perform any real-world action manually outside J.A.R.V.I.S."
         )
+
+    if intent == "asset_lookup":
+        lookup_query = _asset_query_from_chat(query)
+        result = build_assistant_asset_lookup_result(asset=lookup_query.strip() or query, current_date=contract.current_date)
+        return format_assistant_asset_lookup(result)
+
+    if intent == "etf_compare":
+        return format_etf_comparison(build_etf_comparison_result(current_date=contract.current_date))
 
     if intent == "instrument_rationale":
         return (
