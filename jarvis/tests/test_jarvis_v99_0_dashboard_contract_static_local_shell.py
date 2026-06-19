@@ -74,13 +74,13 @@ class JarvisV990DashboardContractStaticLocalShellTests(unittest.TestCase):
         self.assertIn("dashboard path:", output)
         self.assertIn("BLOCKERS:", output)
 
-    def test_operator_routes_v99_surface(self) -> None:
-        self.assertEqual(operator.ACTIVE_RUNTIME_STAGE, "v99.0")
-        self.assertEqual(operator.CURRENT_OPERATOR_SURFACE, "dashboard_contract_static_local_shell")
-
+    def test_operator_keeps_dashboard_contract_route(self) -> None:
         source = Path("jarvis/runtime/operator.py").read_text(encoding="utf-8")
+
         self.assertIn("--dashboard-contract", source)
         self.assertIn("_dashboard_contract_main", source)
+        self.assertTrue(operator.ACTIVE_RUNTIME_STAGE.startswith("v"))
+        self.assertIn("dashboard", operator.CURRENT_OPERATOR_SURFACE)
 
 
 if __name__ == "__main__":

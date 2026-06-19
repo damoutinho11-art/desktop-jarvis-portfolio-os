@@ -144,6 +144,18 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
             "</tr>"
         )
     selected_rows = "".join(rows) if rows else "<tr><td colspan='3'>none</td></tr>"
+    selected_items = week.get("selected_instruments", []) or []
+
+    def lane_summary(lane: str) -> str:
+        labels = []
+        for item in selected_items:
+            if str(item.get("lane", "")) == lane:
+                labels.append(f"{item.get('symbol', '')} {_money(item.get('amount_eur'))}")
+        return ", ".join(labels) if labels else "none"
+
+    crypto_summary = lane_summary("crypto")
+    etf_summary = lane_summary("etf_fund")
+    stock_summary = lane_summary("individual_stock")
 
     css = """
     body { margin:0; font-family:Segoe UI, Arial, sans-serif; background:#0b0f14; color:#edf3fb; }
@@ -180,6 +192,24 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <div class="subtitle">Generated locally from the read-only product API. Current date: {html.escape(result.current_date)}</div>
 </header>
 <main>
+<section class="card wide">
+<h2>Today's Manual Action Summary</h2>
+<div class="grid">
+<div class="metric"><div class="label">Emergency Top-up</div><div class="value">{_money(week.get("emergency_top_up_eur"))}</div></div>
+<div class="metric"><div class="label">Crypto</div><div class="value">{_money(week.get("crypto_eur"))}</div></div>
+<div class="metric"><div class="label">ETF/Fund</div><div class="value">{_money(week.get("etf_fund_eur"))}</div></div>
+<div class="metric"><div class="label">Stock</div><div class="value">{_money(week.get("individual_stock_eur"))}</div></div>
+<div class="metric"><div class="label">Safety</div><div class="value ok">{safety.get("safety_check_blocked_execution")}</div></div>
+<div class="metric"><div class="label">Blockers</div><div class="value ok">{len(result.blockers)}</div></div>
+</div>
+<ul>
+<li>Crypto checklist: {html.escape(crypto_summary)}</li>
+<li>ETF/fund checklist: {html.escape(etf_summary)}</li>
+<li>Stock checklist: {html.escape(stock_summary)}</li>
+<li>Execution remains outside J.A.R.V.I.S.; this dashboard is read-only.</li>
+</ul>
+</section>
+
 <section class="card wide">
 <h2>Readiness</h2>
 <div class="grid">
@@ -238,8 +268,15 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <li>Speed ready: {audit.get("speed_ready")}</li>
 </ul></section>
 
-<section class="card wide"><h2>Warnings</h2><ul>{_html_list(result.warnings)}</ul></section>
+<section class="card wide"><h2>Warnings & Manual Review Notes</h2><details open><summary>Review dashboard warnings</summary><ul>{_html_list(result.warnings)}</ul></details></section>
 <section class="card wide"><h2>Blockers</h2><ul>{_html_list(result.blockers)}</ul></section>
+<section class="card wide"><h2>Manual QA Checklist</h2><ul>
+<li>Confirm the weekly manual plan total matches the contribution.</li>
+<li>Confirm BTC, ETH, ETF/fund, and stock rows are visible.</li>
+<li>Confirm news coverage is ready, while live news fetch remains disabled.</li>
+<li>Confirm safety shows no broker, credentials, orders, or trades.</li>
+<li>Open command: start .\\outputs\\dashboard_latest.html</li>
+</ul></section>
 </main>
 </body>
 </html>
@@ -321,6 +358,7 @@ def build_dashboard_contract_result(
 
 
 def format_dashboard_contract(result: DashboardContractResult) -> str:
+    dashboard_open_path = result.dashboard_path.replace("/", "\\")
     lines = [
         "J.A.R.V.I.S. DASHBOARD CONTRACT",
         f"status: {result.status}",
@@ -333,6 +371,15 @@ def format_dashboard_contract(result: DashboardContractResult) -> str:
         f"manual-only safety: {result.manual_only}",
         f"dashboard html written: {result.dashboard_html_written}",
         f"dashboard path: {result.dashboard_path}",
+        "",
+        "OPEN DASHBOARD:",
+        f"- start .\\{dashboard_open_path}",
+        "",
+        "QA CHECKLIST:",
+        "- verify Weekly Manual Plan is visible",
+        "- verify BTC, ETH, ETF/fund, and MSFT rows are visible",
+        "- verify News and Safety sections are visible",
+        "- verify Blockers is none before manual action",
         "",
         "SECTIONS:",
     ]
