@@ -77,3 +77,4 @@ outputs/dashboard_contract_latest.json
 outputs/dashboard_latest.html
 outputs/chat_interface_contract_latest.json
 outputs/local_server_smoke_latest.json
+outputs/local_server_live_endpoint_smoke_latest.json
