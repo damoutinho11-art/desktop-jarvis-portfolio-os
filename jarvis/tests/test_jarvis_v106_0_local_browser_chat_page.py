@@ -70,6 +70,12 @@ class JarvisV1060LocalBrowserChatPageTests(unittest.TestCase):
                 conn.close()
 
                 conn = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
+                conn.request("GET", "/")
+                root_response = conn.getresponse()
+                root_html = root_response.read().decode("utf-8")
+                conn.close()
+
+                conn = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
                 conn.request(
                     "POST",
                     "/api/chat",
@@ -86,6 +92,8 @@ class JarvisV1060LocalBrowserChatPageTests(unittest.TestCase):
 
         self.assertEqual(response.status, 200)
         self.assertIn("J.A.R.V.I.S. Local Chat", chat_html)
+        self.assertEqual(root_response.status, 200)
+        self.assertIn("J.A.R.V.I.S. Local Chat", root_html)
         self.assertEqual(api_response.status, 200)
         self.assertIn("Fixture reply", payload.get("reply", ""))
 

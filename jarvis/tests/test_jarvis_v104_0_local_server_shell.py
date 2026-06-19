@@ -81,7 +81,7 @@ class JarvisV1040LocalServerShellTests(unittest.TestCase):
         self.assertIn("J.A.R.V.I.S. LOCAL SERVER SHELL", output)
         self.assertIn("GET /health", output)
         self.assertIn("POST /api/chat", output)
-        self.assertIn("python .\\jarvis\\runtime\\local_server.py", output)
+        self.assertIn("python -m jarvis.runtime.local_server --local-server", output)
         self.assertIn("trade executed: False", output)
 
     def test_handler_factory_creates_handler_class(self) -> None:

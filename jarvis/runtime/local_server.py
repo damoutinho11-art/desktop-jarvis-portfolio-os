@@ -236,7 +236,7 @@ def make_handler(*, host: str, port: int, current_date: str) -> type[BaseHTTPReq
                 _json_response(self, _chat_payload(query=chat_query, current_date=current_date))
                 return
 
-            if path == "/chat":
+            if path in {"/", "/chat"}:
                 _html_response(self, render_chat_page())
                 return
 
