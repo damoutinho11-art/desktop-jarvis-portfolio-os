@@ -69,7 +69,7 @@ class JarvisV1080AssistantToolRegistryTests(unittest.TestCase):
 
     def test_operator_surface_v108_and_route(self) -> None:
         self.assertTrue(operator.ACTIVE_RUNTIME_STAGE.startswith("v"))
-        self.assertIn(operator.CURRENT_OPERATOR_SURFACE, {"assistant_tool_registry", "assistant_data_source_registry", "assistant_asset_lookup", "assistant_market_context", "assistant_news_context", "assistant_router", "assistant_answer_style_polish"})
+        self.assertIn(operator.CURRENT_OPERATOR_SURFACE, {"assistant_tool_registry", "assistant_data_source_registry", "assistant_asset_lookup", "assistant_market_context", "assistant_news_context", "assistant_router", "assistant_answer_style_polish", "assistant_system_audit"})
 
         surface = operator.get_active_runtime_surface()
         self.assertEqual(surface["active_assistant_tool_registry_module"], "jarvis.runtime.assistant_tool_registry")

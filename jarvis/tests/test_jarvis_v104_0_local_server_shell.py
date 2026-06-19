@@ -94,7 +94,7 @@ class JarvisV1040LocalServerShellTests(unittest.TestCase):
         self.assertTrue(operator.ACTIVE_RUNTIME_STAGE.startswith("v"))
         self.assertIn(
             operator.CURRENT_OPERATOR_SURFACE,
-            {"local_browser_chat_page", "browser_chat_ux_polish", "assistant_tool_registry", "assistant_data_source_registry", "assistant_asset_lookup", "assistant_market_context", "assistant_news_context", "assistant_router", "assistant_answer_style_polish"},
+            {"local_browser_chat_page", "browser_chat_ux_polish", "assistant_tool_registry", "assistant_data_source_registry", "assistant_asset_lookup", "assistant_market_context", "assistant_news_context", "assistant_router", "assistant_answer_style_polish", "assistant_system_audit"},
         )
 
         source = Path("jarvis/runtime/operator.py").read_text(encoding="utf-8")

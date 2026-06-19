@@ -49,7 +49,7 @@ class JarvisV1120AssistantNewsContextTests(unittest.TestCase):
 
     def test_operator_surface_v112_and_route(self) -> None:
         self.assertTrue(operator.ACTIVE_RUNTIME_STAGE.startswith("v"))
-        self.assertIn(operator.CURRENT_OPERATOR_SURFACE, {"assistant_news_context", "assistant_router", "assistant_answer_style_polish"})
+        self.assertIn(operator.CURRENT_OPERATOR_SURFACE, {"assistant_news_context", "assistant_router", "assistant_answer_style_polish", "assistant_system_audit"})
 
         surface = operator.get_active_runtime_surface()
         self.assertEqual(surface["active_assistant_news_context_module"], "jarvis.runtime.assistant_news_context")

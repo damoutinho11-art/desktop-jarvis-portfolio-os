@@ -176,13 +176,16 @@ def build_assistant_router_result(
         freshness = tool.freshness
         confidence = tool.confidence
         blockers.extend(tool.blockers)
-    elif intent == "safety" and any(word in _normalize(query) for word in ["buy", "sell", "trade", "order", "execute"]):
-        execution_refused = True
+    elif intent == "safety":
+        execution_refused = any(word in _normalize(query) for word in ["buy", "sell", "trade", "order", "execute"])
         reply = (
-            "I cannot create buy/sell requests, place orders, connect to a broker, or execute trades. "
-            "J.A.R.V.I.S. can only summarize local data and produce manual-only checklists."
+            "Safety is active. J.A.R.V.I.S. is read-only and manual-only: no broker connection, no credentials, "
+            "no buy/sell request creation, no orders, no trades, and no auto-approval. "
+            "I can summarize local data and produce manual checklists, but Diogo performs any real-world action externally."
         )
-        source = "assistant_router_safety_refusal"
+        if execution_refused:
+            reply = "I cannot create buy/sell requests, place orders, connect to a broker, or execute trades. " + reply
+        source = "assistant_router_safety"
         freshness = "not_applicable"
         confidence = "high"
     else:

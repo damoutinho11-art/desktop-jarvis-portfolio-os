@@ -14,25 +14,22 @@ from jarvis.runtime.local_server import ROUTES, make_handler, render_chat_page
 
 
 class _FixtureChat:
-    chat_contract_ready = True
-    manual_only = True
-    response = "safe fixture response"
+    reply = "Fixture reply from local browser chat page. Safety: read-only and manual-only."
+    trade_executed = False
 
     def to_dict(self):
         return {
-            "chat_contract_ready": True,
-            "manual_only": True,
-            "response": "safe fixture response",
+            "status": "fixture_ready",
+            "intent": "safety",
+            "reply": self.reply,
+            "response": self.reply,
+            "trade_executed": False,
             "blockers": [],
         }
 
 
 def _fixture_chat_result(*args, **kwargs):
     return _FixtureChat()
-
-
-def _fixture_chat_reply(result):
-    return "Fixture reply from local browser chat page. Safety: read-only and manual-only."
 
 
 class JarvisV1060LocalBrowserChatPageTests(unittest.TestCase):
@@ -51,10 +48,7 @@ class JarvisV1060LocalBrowserChatPageTests(unittest.TestCase):
 
     def test_live_chat_page_and_api_chat_endpoint(self) -> None:
         with ExitStack() as stack:
-            stack.enter_context(
-                patch("jarvis.runtime.local_server.build_chat_interface_contract_result", _fixture_chat_result)
-            )
-            stack.enter_context(patch("jarvis.runtime.local_server.format_chat_reply", _fixture_chat_reply))
+            stack.enter_context(patch("jarvis.runtime.local_server.build_assistant_router_result", _fixture_chat_result))
 
             handler = make_handler(host="127.0.0.1", port=0, current_date="2026-06-18")
             server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
@@ -101,7 +95,7 @@ class JarvisV1060LocalBrowserChatPageTests(unittest.TestCase):
         self.assertTrue(operator.ACTIVE_RUNTIME_STAGE.startswith("v"))
         self.assertIn(
             operator.CURRENT_OPERATOR_SURFACE,
-            {"local_browser_chat_page", "browser_chat_ux_polish", "assistant_tool_registry", "assistant_data_source_registry", "assistant_asset_lookup", "assistant_market_context", "assistant_news_context", "assistant_router", "assistant_answer_style_polish"},
+            {"local_browser_chat_page", "browser_chat_ux_polish", "assistant_tool_registry", "assistant_data_source_registry", "assistant_asset_lookup", "assistant_market_context", "assistant_news_context", "assistant_router", "assistant_answer_style_polish", "assistant_system_audit"},
         )
 
         source = Path("jarvis/runtime/operator.py").read_text(encoding="utf-8")
