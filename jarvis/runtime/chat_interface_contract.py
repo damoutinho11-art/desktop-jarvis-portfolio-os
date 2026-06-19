@@ -22,11 +22,13 @@ from jarvis.runtime.assistant_news_context import (
 )
 from jarvis.runtime.dashboard_contract import build_dashboard_contract_result
 
+from jarvis.runtime.finance_intelligence_core import answer_finance_intelligence_question, build_finance_intelligence_core_result
 STATUS_READY = "JARVIS_V103_0_LOCAL_CHAT_CLI_POLISH_READY_SAFE"
 STATUS_REVIEW_REQUIRED = "JARVIS_V103_0_LOCAL_CHAT_CLI_POLISH_REVIEW_REQUIRED_SAFE"
 DEFAULT_OUTPUT_PATH = "outputs/chat_interface_contract_latest.json"
 
 SUPPORTED_INTENTS = [
+    "finance_intelligence",
     "today_plan",
     "asset_lookup",
     "etf_compare",
@@ -80,6 +82,34 @@ def _detect_intent(query: str) -> str:
 
     if not normalized:
         return "help"
+
+    if any(
+        phrase in normalized
+        for phrase in [
+            "what happened today",
+            "what changed today",
+            "what changed since last week",
+            "can i trust",
+            "trust my etf",
+            "etf data",
+            "data fresh",
+            "freshness",
+            "what is missing",
+            "missing data",
+            "before buying",
+            "manual check",
+            "tell me about vwce",
+            "tell me about global_core_etf",
+            "tell me about is3q",
+            "tell me about btc",
+            "tell me about eth",
+            "tell me about msft",
+        ]
+    ):
+        return "finance_intelligence"
+
+    if any(symbol in normalized for symbol in ["vwce", "global_core_etf", "is3q", "is3q.de"]):
+        return "finance_intelligence"
 
     if any(word in normalized for word in ["news", "headline", "headlines"]) or "why is crypto moving" in normalized:
         return "news_context"
@@ -135,7 +165,7 @@ def _selected_summary(selections: list[dict[str, Any]], lane: str) -> str:
     return ", ".join(items) if items else "none"
 
 
-def _response_for_intent(intent: str, contract: Any, query: str) -> str:
+def _response_for_intent(intent: str, contract: dict[str, Any], query: str, current_date: str) -> str:
     sections = contract.sections
     week = sections["week_plan"]
     news = sections["news"]
@@ -147,6 +177,10 @@ def _response_for_intent(intent: str, contract: Any, query: str) -> str:
     etf_fund = _selected_summary(selections, "etf_fund")
     stock = _selected_summary(selections, "individual_stock")
     open_command = _open_dashboard_command(contract.dashboard_path)
+
+    if intent == "finance_intelligence":
+        core = build_finance_intelligence_core_result(current_date=current_date)
+        return answer_finance_intelligence_question(query, current_date=current_date, result=core)
 
     if intent == "today_plan":
         return (
@@ -231,7 +265,7 @@ def build_chat_interface_contract_result(
 ) -> ChatInterfaceContractResult:
     dashboard_contract = build_dashboard_contract_result(current_date=current_date)
     intent = _detect_intent(query)
-    response = _response_for_intent(intent, dashboard_contract, query)
+    response = _response_for_intent(intent, dashboard_contract, query, current_date)
 
     blockers: list[str] = []
     blockers.extend(str(item) for item in (dashboard_contract.blockers or []))

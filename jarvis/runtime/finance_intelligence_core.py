@@ -302,12 +302,190 @@ def _answer_from_result(query: str, result: FinanceIntelligenceCoreResult) -> st
     return result.answers["what_happened_today"]
 
 
+
+def _answer_etf_trust_from_normalized_records(records: list[dict[str, Any]]) -> str:
+    etf_records = [record for record in records if record.get("lane") == "etf_fund"]
+    if not etf_records:
+        return "No ETF/fund records are present in the normalized finance core."
+
+    lines = ["ETF/fund trust summary from normalized public data:"]
+    for record in etf_records:
+        verification_status = (
+            "AUTO_VERIFICATION_INCOMPLETE"
+            if record.get("manual_review_required") and record.get("symbol") in {"GLOBAL_CORE_ETF", "QUALITY_ETF"}
+            else "AUTO_VERIFIED_QUOTE"
+        )
+        lines.append(
+            f"- {record.get('symbol')}: price={record.get('quote_price')} {record.get('currency')}; "
+            f"source={record.get('source')}; as_of={record.get('source_as_of')}; "
+            f"freshness={record.get('freshness')}; trusted={record.get('trusted_for_assistant')}; "
+            f"missing={', '.join(record.get('missing_fields') or []) or 'none'}; "
+            f"verification_status={verification_status}; final_buy_manual=True."
+        )
+
+    unresolved = []
+    try:
+        from jarvis.runtime.public_universe_data_coverage import build_public_universe_data_coverage_result
+        coverage = build_public_universe_data_coverage_result(current_date="2026-06-20")
+        unresolved = [
+            symbol
+            for symbol in coverage.next_fetch_priority
+            if symbol in {"GROWTH_NASDAQ_ETF", "RENDER", "SOL", "TAO"}
+        ]
+    except Exception:
+        unresolved = []
+
+    if unresolved:
+        lines.append("Remaining unresolved/missing public coverage: " + ", ".join(unresolved) + ".")
+
+    lines.append("J.A.R.V.I.S. checks data autonomously; Diogo only performs the final real-world buy manually outside the system.")
+    return "\n".join(lines)
+
+
+
+
+def _v121_normalized_records_by_symbol(current_date: str) -> dict[str, dict]:
+    from jarvis.runtime.market_data_normalized import build_normalized_market_data_result
+
+    normalized = build_normalized_market_data_result(current_date=current_date)
+    return {
+        str(record.get("symbol") or "").upper(): record
+        for record in normalized.records
+        if record.get("symbol")
+    }
+
+
+def _v121_fmt_pct(value) -> str:
+    if value is None:
+        return "n/a"
+    return f"{float(value):+.2f}%"
+
+
+def _v121_fmt_price(record: dict) -> str:
+    price = record.get("quote_price")
+    currency = record.get("currency")
+    if price is None:
+        return "price unavailable"
+    return f"{price} {currency or ''}".strip()
+
+
+def _v121_verification_status(record: dict) -> str:
+    symbol = str(record.get("symbol") or "").upper()
+    if symbol == "GLOBAL_CORE_ETF":
+        return "AUTO_VERIFICATION_INCOMPLETE_FOR_IDENTITY_BUT_QUOTE_READY"
+    if record.get("trusted_for_assistant"):
+        return "AUTO_VERIFIED_QUOTE"
+    return "AUTO_VERIFICATION_INCOMPLETE"
+
+
+def _v121_answer_asset_from_normalized(symbol: str, current_date: str) -> str:
+    records = _v121_normalized_records_by_symbol(current_date)
+    wanted = symbol.upper().replace("IS3Q", "IS3Q.DE") if symbol.upper() == "IS3Q" else symbol.upper()
+    record = records.get(wanted)
+    if not record:
+        return (
+            f"{wanted} is not available in the current normalized finance cache. "
+            "J.A.R.V.I.S. needs another autonomous data refresh before trusting this instrument. "
+            "Final real-world buy remains manual outside the system."
+        )
+
+    missing = ", ".join(record.get("missing_fields") or []) or "none"
+    amount = record.get("selected_amount_eur")
+    amount_text = f"EUR {amount}" if amount is not None else "not selected in current plan"
+
+    lines = [
+        f"{record.get('symbol')}: amount={amount_text}; price={_v121_fmt_price(record)}; "
+        f"24h={_v121_fmt_pct(record.get('movement_24h'))}; "
+        f"7d={_v121_fmt_pct(record.get('movement_7d'))}; "
+        f"30d={_v121_fmt_pct(record.get('movement_30d'))}.",
+        f"Data / Source / Freshness: source={record.get('source')}; "
+        f"as_of={record.get('source_as_of')}; freshness={record.get('freshness')}; "
+        f"confidence={record.get('confidence')}; trusted={record.get('trusted_for_assistant')}.",
+        f"Verification: {_v121_verification_status(record)}; missing={missing}.",
+        "J.A.R.V.I.S. handles data checks autonomously. Diogo only performs the final real-world buy manually outside the system.",
+    ]
+    return "\n".join(lines)
+
+
+def _v121_answer_etf_trust(current_date: str) -> str:
+    records = _v121_normalized_records_by_symbol(current_date)
+    etfs = [record for record in records.values() if record.get("lane") == "etf_fund"]
+
+    lines = ["ETF/fund data trust from the normalized v120 public quote cache:"]
+    for record in sorted(etfs, key=lambda r: str(r.get("symbol"))):
+        missing = ", ".join(record.get("missing_fields") or []) or "none"
+        lines.append(
+            f"- {record.get('symbol')}: price={_v121_fmt_price(record)}; "
+            f"24h={_v121_fmt_pct(record.get('movement_24h'))}; "
+            f"7d={_v121_fmt_pct(record.get('movement_7d'))}; "
+            f"30d={_v121_fmt_pct(record.get('movement_30d'))}; "
+            f"source={record.get('source')}; as_of={record.get('source_as_of')}; "
+            f"freshness={record.get('freshness')}; trusted={record.get('trusted_for_assistant')}; "
+            f"verification={_v121_verification_status(record)}; missing={missing}."
+        )
+
+    try:
+        from jarvis.runtime.public_universe_data_coverage import build_public_universe_data_coverage_result
+
+        coverage = build_public_universe_data_coverage_result(current_date=current_date)
+        next_fetch = list(coverage.next_fetch_priority or [])
+    except Exception:
+        next_fetch = []
+
+    if next_fetch:
+        lines.append("Remaining autonomous fetch priorities: " + ", ".join(next_fetch) + ".")
+
+    lines.append("Conclusion: selected ETF/fund quote data is trusted for assistant display when trusted=True, but final real-world buy remains manual only.")
+    return "\n".join(lines)
+
+
+def _v121_answer_today_from_normalized(current_date: str) -> str:
+    records = _v121_normalized_records_by_symbol(current_date)
+    selected = [record for record in records.values() if record.get("selected_in_plan")]
+
+    lines = ["Today's locally cached market movement from normalized public data:"]
+    for record in selected:
+        if record.get("movement_24h") is None and record.get("movement_7d") is None and record.get("movement_30d") is None:
+            continue
+        lines.append(
+            f"- {record.get('symbol')}: 24h={_v121_fmt_pct(record.get('movement_24h'))}; "
+            f"7d={_v121_fmt_pct(record.get('movement_7d'))}; "
+            f"30d={_v121_fmt_pct(record.get('movement_30d'))}; "
+            f"source={record.get('source')}; as_of={record.get('source_as_of')}; "
+            f"trusted={record.get('trusted_for_assistant')}."
+        )
+
+    try:
+        from jarvis.runtime.public_universe_data_coverage import build_public_universe_data_coverage_result
+
+        coverage = build_public_universe_data_coverage_result(current_date=current_date)
+        next_fetch = list(coverage.next_fetch_priority or [])
+    except Exception:
+        next_fetch = []
+
+    if next_fetch:
+        lines.append("Remaining autonomous fetch priorities: " + ", ".join(next_fetch) + ".")
+
+    lines.append("No market cause is claimed because live/cached news headlines are disabled.")
+    lines.append("J.A.R.V.I.S. checks data autonomously; Diogo only performs the final real-world buy manually outside the system.")
+    return "\n".join(lines)
+
+
+
 def answer_finance_intelligence_question(
     query: str,
     *,
     current_date: str = "2026-06-18",
     result: FinanceIntelligenceCoreResult | None = None,
 ) -> str:
+    v121_query = query.lower().strip()
+    if any(phrase in v121_query for phrase in ["what happened today", "what changed today", "what changed since last week"]):
+        return _v121_answer_today_from_normalized(current_date)
+    if ("etf" in v121_query and any(word in v121_query for word in ["trust", "data", "fresh", "freshness"])) or "can i trust" in v121_query:
+        return _v121_answer_etf_trust(current_date)
+    for v121_symbol in ["GLOBAL_CORE_ETF", "IS3Q.DE", "IS3Q", "VWCE", "BTC", "ETH", "MSFT"]:
+        if v121_symbol.lower() in v121_query:
+            return _v121_answer_asset_from_normalized(v121_symbol, current_date)
     if result is None:
         result = build_finance_intelligence_core_result(current_date=current_date)
     return _answer_from_result(query, result)

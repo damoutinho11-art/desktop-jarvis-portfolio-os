@@ -155,6 +155,43 @@ def _stock_sources() -> dict[str, dict[str, Any]]:
     return rows
 
 
+
+def _load_v120_quote_cache_rows() -> dict[str, dict[str, Any]]:
+    path = Path("jarvis/local/public_data/v120_public_universe_quote_cache.local.json")
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+    rows: dict[str, dict[str, Any]] = {}
+    for record in payload.get("records", []) or []:
+        if not isinstance(record, dict):
+            continue
+        symbol = str(record.get("symbol") or "").upper().strip()
+        if not symbol:
+            continue
+        rows[symbol] = {
+            "quote_price": record.get("quote_price"),
+            "currency": record.get("currency"),
+            "source": record.get("provider") or "v120_public_universe_quote_cache",
+            "source_as_of": record.get("source_as_of"),
+            "freshness": record.get("freshness") or "partial_or_unavailable",
+            "movement_24h": record.get("movement_24h_pct"),
+            "movement_7d": record.get("movement_7d_pct"),
+            "movement_30d": record.get("movement_30d_pct"),
+            "warnings": list(record.get("warnings") or []),
+            "blockers": [],
+            "confidence": "medium_high" if record.get("freshness") == "ready" else "low",
+            "cache_path": path.as_posix(),
+            "source_path": record.get("source_url"),
+            "autonomous_verification_incomplete": bool(record.get("manual_review_required")),
+        }
+    return rows
+
+
+
 def _missing_fields(
     *,
     quote_price: float | None,
@@ -235,6 +272,33 @@ def _record_from_selection(
             }
         )
         trusted = bool(resolution.get("trusted_quote"))
+
+    v120_row = _load_v120_quote_cache_rows().get(symbol)
+    if v120_row:
+        source_row = {
+            **source_row,
+            "quote_price": v120_row.get("quote_price"),
+            "currency": v120_row.get("currency"),
+            "source": v120_row.get("source"),
+            "source_as_of": v120_row.get("source_as_of"),
+            "freshness": v120_row.get("freshness"),
+            "movement_24h": v120_row.get("movement_24h"),
+            "movement_7d": v120_row.get("movement_7d"),
+            "movement_30d": v120_row.get("movement_30d"),
+            "warnings": list(source_row.get("warnings", []) or []) + list(v120_row.get("warnings", []) or []),
+            "blockers": list(source_row.get("blockers", []) or []) + list(v120_row.get("blockers", []) or []),
+            "confidence": v120_row.get("confidence") or source_row.get("confidence"),
+            "cache_path": v120_row.get("cache_path"),
+            "source_path": v120_row.get("source_path"),
+            "autonomous_verification_incomplete": v120_row.get("autonomous_verification_incomplete"),
+        }
+        if (
+            v120_row.get("freshness") == "ready"
+            and v120_row.get("quote_price") is not None
+            and v120_row.get("currency")
+            and v120_row.get("source")
+        ):
+            trusted = True
 
     quote_price = source_row.get("quote_price")
     currency = source_row.get("currency")
@@ -337,7 +401,7 @@ def build_normalized_market_data_result(
     warnings = [
         "normalized market data is read-only and assistant-facing",
         "selected amount comes from the manual plan; quote trust comes only from local source evidence",
-        "manual review remains required for every external real-world action",
+        "J.A.R.V.I.S. performs autonomous data checks; final real-world buy remains manual outside the system",
     ]
     if partial_count:
         warnings.append("one or more selected instruments have partial or untrusted quote/history data")
