@@ -75,3 +75,4 @@ outputs/data_freshness_acquisition_gate_latest.json
 outputs/tradable_candidate_universe_gate_latest.json
 outputs/dashboard_contract_latest.json
 outputs/dashboard_latest.html
+outputs/chat_interface_contract_latest.json
