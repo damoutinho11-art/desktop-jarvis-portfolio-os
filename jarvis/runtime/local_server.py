@@ -2,11 +2,16 @@
 
 import argparse
 import json
+import sys
 from dataclasses import asdict, dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlparse
+
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 
 from jarvis.runtime.chat_interface_contract import (
     build_chat_interface_contract_result,
@@ -369,7 +374,7 @@ def format_local_server_smoke(result: LocalServerSmokeResult) -> str:
             f"- product API ready: {result.product_api_smoke_ready}",
             "",
             "RUN SERVER:",
-            f"- python .\\jarvis\\runtime\\local_server.py --host {result.host} --port {result.port}",
+            f"- python -m jarvis.runtime.local_server --local-server --host {result.host} --port {result.port}",
             "",
             "WARNINGS:",
         ]
