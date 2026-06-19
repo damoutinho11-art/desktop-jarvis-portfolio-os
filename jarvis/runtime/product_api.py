@@ -8,6 +8,7 @@ from typing import Any, Mapping
 
 from jarvis.runtime.data_readiness_status import build_data_readiness_status_result
 from jarvis.runtime.multi_candidate_instrument_selector import build_fast_product_instrument_summary
+from jarvis.runtime.news_coverage_readiness import build_news_coverage_readiness_result
 from jarvis.runtime.product_mode_operator import build_product_mode_result
 from jarvis.runtime.safety import build_safety_check_console_output
 
@@ -29,6 +30,7 @@ class ProductApiResult:
     week_plan: dict[str, Any]
     status_summary: dict[str, Any]
     data_readiness: dict[str, Any]
+    news_coverage: dict[str, Any]
     instrument_summary: dict[str, Any]
     candidate_scores: list[dict[str, Any]]
     safety_status: dict[str, Any]
@@ -91,9 +93,11 @@ def build_product_api_result(
     week = build_product_mode_result(mode="week", current_date=current_date)
     status_result = build_product_mode_result(mode="status", current_date=current_date)
     data_readiness = build_data_readiness_status_result(current_date=current_date)
+    news_coverage = build_news_coverage_readiness_result(current_date=current_date)
 
     week_data = _plain(week)
     data_readiness_data = _plain(data_readiness)
+    news_coverage_data = _plain(news_coverage)
 
     crypto_eur = _money_field(week_data, "recommended_crypto_eur")
     etf_fund_eur = _money_field(week_data, "recommended_etf_fund_eur")
@@ -121,6 +125,8 @@ def build_product_api_result(
     blockers.extend(str(item) for item in (data_readiness_data.get("blockers") or []))
     if not data_readiness_data.get("product_recommendations_allowed"):
         blockers.append("data_readiness_does_not_allow_product_recommendations")
+    if not news_coverage_data.get("news_coverage_ready"):
+        blockers.append("news_coverage_not_ready")
     if not safety.get("safety_check_blocked_execution"):
         blockers.append("safety_check_did_not_block_execution")
 
@@ -142,6 +148,7 @@ def build_product_api_result(
     )
     warnings.extend(str(item) for item in (week_data.get("warnings") or []))
     warnings.extend(str(item) for item in (data_readiness_data.get("warnings") or []))
+    warnings.extend(str(item) for item in (news_coverage_data.get("warnings") or []))
     warnings.extend(str(item) for item in (instrument_summary_data.get("warnings") or []))
     warnings = list(dict.fromkeys(item for item in warnings if item))
 
@@ -176,6 +183,7 @@ def build_product_api_result(
             "lines": _lines(status_result, "status_lines"),
         },
         data_readiness=data_readiness_data,
+        news_coverage=news_coverage_data,
         instrument_summary=instrument_summary_data,
         candidate_scores=instrument_summary_data.get("candidate_scores", []),
         safety_status=safety,
@@ -227,6 +235,11 @@ def format_product_api(result: ProductApiResult) -> str:
 
     lines.extend(
         [
+            "",
+            "NEWS COVERAGE:",
+            f"- news coverage ready: {result.news_coverage.get('news_coverage_ready')}",
+            f"- live news fetch enabled: {result.news_coverage.get('live_news_fetch_enabled')}",
+            f"- covered categories: {', '.join(result.news_coverage.get('covered_categories') or []) or 'none'}",
             "",
             "DATA READINESS:",
             f"- readiness ready: {result.data_readiness.get('data_readiness_ready')}",

@@ -9,6 +9,7 @@ from typing import Any, Mapping
 
 from jarvis.runtime.data_readiness_status import build_data_readiness_status_result
 from jarvis.runtime.product_api import build_product_api_result
+from jarvis.runtime.news_coverage_readiness import build_news_coverage_readiness_result
 from jarvis.runtime.safety import build_safety_check_console_output
 
 STATUS_READY = "JARVIS_V97_0_FULL_SYSTEM_AUDIT_READY_SAFE"
@@ -32,6 +33,7 @@ class FullSystemAuditResult:
     formula_checks: dict[str, Any]
     data_checks: dict[str, Any]
     universe_checks: dict[str, Any]
+    news_checks: dict[str, Any]
     speed_checks: dict[str, Any]
     safety_checks: dict[str, Any]
     warnings: list[str]
@@ -98,9 +100,11 @@ def build_full_system_audit_result(
     # Re-read the data readiness builder directly so this audit verifies the API layer
     # did not accidentally hide stale or missing data flags.
     data_readiness = build_data_readiness_status_result(current_date=current_date)
+    news_coverage = build_news_coverage_readiness_result(current_date=current_date)
 
     product_api_data = _plain(product_api)
     data_readiness_data = _plain(data_readiness)
+    news_coverage_data = _plain(news_coverage)
 
     week_plan = product_api_data.get("week_plan", {}) or {}
     selected = list(week_plan.get("selected_instruments", []) or [])
@@ -215,9 +219,14 @@ def build_full_system_audit_result(
         and product_api_data.get("voice_ready")
     )
 
-    # News is deliberately not faked. Current data freshness is ready, but there is
-    # not yet a first-class product API lane proving current news coverage.
-    news_coverage_ready = False
+    news_checks = {
+        "news_coverage_ready": bool(news_coverage_data.get("news_coverage_ready")),
+        "live_news_fetch_enabled": bool(news_coverage_data.get("live_news_fetch_enabled")),
+        "manual_review_required": bool(news_coverage_data.get("manual_review_required")),
+        "covered_categories": list(news_coverage_data.get("covered_categories", []) or []),
+        "missing_categories": list(news_coverage_data.get("missing_categories", []) or []),
+    }
+    news_coverage_ready = bool(news_checks["news_coverage_ready"])
 
     blockers: list[str] = []
     blockers.extend(str(item) for item in (product_api_data.get("blockers") or []))
@@ -232,16 +241,19 @@ def build_full_system_audit_result(
         blockers.append("formula_invariants_failed")
     if not safety_ready:
         blockers.append("manual_only_safety_failed")
+    if not news_coverage_ready:
+        blockers.append("news_coverage_not_ready")
     blockers = list(dict.fromkeys(item for item in blockers if item))
 
     warnings = [
         "full system audit is read-only and creates no broker, order, or trade path",
-        "news coverage is not yet a first-class audited product API lane",
+        "news coverage is first-class in v98 but live news fetching remains disabled; manual review remains required",
     ]
     if not speed_ready:
         warnings.append(f"product API elapsed {elapsed_seconds:.3f}s exceeds warning threshold {speed_warning_seconds:.3f}s")
     warnings.extend(str(item) for item in (product_api_data.get("warnings") or []))
     warnings.extend(str(item) for item in (data_readiness_data.get("warnings") or []))
+    warnings.extend(str(item) for item in (news_coverage_data.get("warnings") or []))
     warnings = list(dict.fromkeys(item for item in warnings if item))
 
     if blockers:
@@ -266,6 +278,7 @@ def build_full_system_audit_result(
         formula_checks=formula_checks,
         data_checks=data_checks,
         universe_checks=universe_checks,
+        news_checks=news_checks,
         speed_checks=speed_checks,
         safety_checks=safety,
         warnings=warnings,
@@ -325,6 +338,13 @@ def format_full_system_audit(result: FullSystemAuditResult) -> str:
         f"- ETF/fund candidates: {result.universe_checks.get('etf_candidate_count')} / {result.universe_checks.get('etf_candidate_minimum')}",
         f"- stock candidates: {result.universe_checks.get('stock_candidate_count')} / {result.universe_checks.get('stock_candidate_minimum')}",
         f"- missing universe: {', '.join(result.universe_checks.get('missing_universe') or []) or 'none'}",
+        "",
+        "NEWS CHECKS:",
+        f"- news coverage ready: {result.news_checks.get('news_coverage_ready')}",
+        f"- live news fetch enabled: {result.news_checks.get('live_news_fetch_enabled')}",
+        f"- manual review required: {result.news_checks.get('manual_review_required')}",
+        f"- covered categories: {', '.join(result.news_checks.get('covered_categories') or []) or 'none'}",
+        f"- missing categories: {', '.join(result.news_checks.get('missing_categories') or []) or 'none'}",
         "",
         "SPEED:",
         f"- product API elapsed seconds: {result.speed_checks.get('product_api_elapsed_seconds')}",

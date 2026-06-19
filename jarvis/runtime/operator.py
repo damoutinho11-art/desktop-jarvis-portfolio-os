@@ -25,6 +25,7 @@ from jarvis.runtime.multi_candidate_instrument_selector import main as _multi_ca
 from jarvis.runtime.data_readiness_status import main as _data_readiness_status_main
 from jarvis.runtime.product_api import main as _product_api_main
 from jarvis.runtime.full_system_audit import main as _full_system_audit_main
+from jarvis.runtime.news_coverage_readiness import main as _news_coverage_readiness_main
 
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
@@ -69,9 +70,9 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v97.0"
+ACTIVE_RUNTIME_STAGE = "v98.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "full_system_audit"
+CURRENT_OPERATOR_SURFACE = "audit_warning_resolution_news_coverage"
 ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE = "jarvis.runtime.platform_data_completeness_gate"
 ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE = "jarvis.runtime.monthly_expenses_intake"
 
@@ -125,6 +126,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_data_readiness_status_module": "jarvis.runtime.data_readiness_status",
         "active_product_api_module": "jarvis.runtime.product_api",
         "active_full_system_audit_module": "jarvis.runtime.full_system_audit",
+        "active_news_coverage_readiness_module": "jarvis.runtime.news_coverage_readiness",
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -149,6 +151,8 @@ def main(argv: list[str] | None = None) -> int:
     """Run the stable active J.A.R.V.I.S. operator surface."""
 
     args = list(sys.argv[1:] if argv is None else argv)
+    if "--news-coverage-readiness" in args:
+        return _news_coverage_readiness_main(args)
     if "--full-system-audit" in args:
         return _full_system_audit_main(args)
     if "--product-api-status" in args:
