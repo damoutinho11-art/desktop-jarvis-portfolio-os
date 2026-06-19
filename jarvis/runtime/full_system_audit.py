@@ -92,10 +92,16 @@ def build_full_system_audit_result(
     output_path: str | Path = DEFAULT_OUTPUT_PATH,
     write_report: bool = False,
     speed_warning_seconds: float = 35.0,
+    product_api_result: Any | None = None,
+    product_api_elapsed_seconds: float | None = None,
 ) -> FullSystemAuditResult:
-    started = time.perf_counter()
-    product_api = build_product_api_result(current_date=current_date)
-    elapsed_seconds = round(time.perf_counter() - started, 3)
+    if product_api_result is None:
+        started = time.perf_counter()
+        product_api = build_product_api_result(current_date=current_date)
+        elapsed_seconds = round(time.perf_counter() - started, 3)
+    else:
+        product_api = product_api_result
+        elapsed_seconds = round(float(product_api_elapsed_seconds or 0.0), 3)
 
     # Re-read the data readiness builder directly so this audit verifies the API layer
     # did not accidentally hide stale or missing data flags.

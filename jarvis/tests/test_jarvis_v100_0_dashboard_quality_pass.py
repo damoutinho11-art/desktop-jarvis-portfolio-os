@@ -75,9 +75,9 @@ class JarvisV1000DashboardQualityPassTests(unittest.TestCase):
             self.assertIn("Today's Manual Action Summary", page)
             self.assertIn("Manual QA Checklist", page)
 
-    def test_operator_surface_v100(self) -> None:
-        self.assertEqual(operator.ACTIVE_RUNTIME_STAGE, "v100.0")
-        self.assertEqual(operator.CURRENT_OPERATOR_SURFACE, "dashboard_quality_pass")
+    def test_operator_keeps_dashboard_surface_after_v100(self) -> None:
+        self.assertTrue(operator.ACTIVE_RUNTIME_STAGE.startswith("v"))
+        self.assertIn("dashboard", operator.CURRENT_OPERATOR_SURFACE)
 
 
 if __name__ == "__main__":

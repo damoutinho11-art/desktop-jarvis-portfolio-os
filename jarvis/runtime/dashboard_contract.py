@@ -3,6 +3,7 @@
 import argparse
 import html
 import json
+import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Mapping
@@ -291,8 +292,17 @@ def build_dashboard_contract_result(
     write_report: bool = False,
     write_dashboard: bool = False,
 ) -> DashboardContractResult:
-    product_api = _plain(build_product_api_result(current_date=current_date))
-    audit = _plain(build_full_system_audit_result(current_date=current_date))
+    started = time.perf_counter()
+    product_api_result = build_product_api_result(current_date=current_date)
+    product_api_elapsed_seconds = round(time.perf_counter() - started, 3)
+    product_api = _plain(product_api_result)
+    audit = _plain(
+        build_full_system_audit_result(
+            current_date=current_date,
+            product_api_result=product_api_result,
+            product_api_elapsed_seconds=product_api_elapsed_seconds,
+        )
+    )
     sections = _build_sections(product_api, audit)
     safety = sections["safety"]
 
