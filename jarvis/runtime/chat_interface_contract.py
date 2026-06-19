@@ -8,8 +8,8 @@ from typing import Any
 
 from jarvis.runtime.dashboard_contract import build_dashboard_contract_result
 
-STATUS_READY = "JARVIS_V102_0_CHAT_INTERFACE_CONTRACT_READY_SAFE"
-STATUS_REVIEW_REQUIRED = "JARVIS_V102_0_CHAT_INTERFACE_CONTRACT_REVIEW_REQUIRED_SAFE"
+STATUS_READY = "JARVIS_V103_0_LOCAL_CHAT_CLI_POLISH_READY_SAFE"
+STATUS_REVIEW_REQUIRED = "JARVIS_V103_0_LOCAL_CHAT_CLI_POLISH_REVIEW_REQUIRED_SAFE"
 DEFAULT_OUTPUT_PATH = "outputs/chat_interface_contract_latest.json"
 
 SUPPORTED_INTENTS = [
@@ -209,6 +209,24 @@ def build_chat_interface_contract_result(
     return result
 
 
+def format_chat_reply(result: ChatInterfaceContractResult) -> str:
+    lines: list[str] = []
+
+    if result.blockers:
+        lines.append("Review required: " + ", ".join(result.blockers))
+        lines.append("")
+
+    lines.append(result.response)
+
+    if result.detected_intent != "dashboard":
+        lines.append("")
+        lines.append(f"Dashboard: {result.open_dashboard_command}")
+
+    lines.append("")
+    lines.append("Safety: read-only and manual-only. No broker, credential, order, trade, or auto-approval path is enabled.")
+    return "\n".join(lines)
+
+
 def format_chat_interface_contract(result: ChatInterfaceContractResult) -> str:
     lines = [
         "J.A.R.V.I.S. CHAT INTERFACE CONTRACT",
@@ -249,18 +267,25 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run J.A.R.V.I.S. chat interface contract.")
     parser.add_argument("--chat-interface", action="store_true")
     parser.add_argument("--chat-query", default="")
+    parser.add_argument("--ask", default=None)
+    parser.add_argument("--reply-only", action="store_true")
+    parser.add_argument("--chat-reply-only", action="store_true")
     parser.add_argument("--current-date", default="2026-06-18")
     parser.add_argument("--write-report", action="store_true")
     parser.add_argument("--output-path", default=DEFAULT_OUTPUT_PATH)
     args = parser.parse_args(argv)
 
+    query = args.ask if args.ask is not None else args.chat_query
     result = build_chat_interface_contract_result(
-        query=args.chat_query,
+        query=query,
         current_date=args.current_date,
         output_path=args.output_path,
         write_report=args.write_report,
     )
-    print(format_chat_interface_contract(result))
+    if args.reply_only or args.chat_reply_only or args.ask is not None:
+        print(format_chat_reply(result))
+    else:
+        print(format_chat_interface_contract(result))
     return 0 if not result.blockers else 1
 
 
@@ -270,6 +295,7 @@ __all__ = [
     "SUPPORTED_INTENTS",
     "ChatInterfaceContractResult",
     "build_chat_interface_contract_result",
+    "format_chat_reply",
     "format_chat_interface_contract",
     "main",
 ]
