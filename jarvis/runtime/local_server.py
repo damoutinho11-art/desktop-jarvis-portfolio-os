@@ -15,13 +15,14 @@ from jarvis.runtime.chat_interface_contract import (
 from jarvis.runtime.dashboard_contract import build_dashboard_contract_result
 from jarvis.runtime.product_api import build_product_api_result
 
-STATUS_READY = "JARVIS_V104_0_LOCAL_SERVER_SHELL_READY_SAFE"
-STATUS_REVIEW_REQUIRED = "JARVIS_V104_0_LOCAL_SERVER_SHELL_REVIEW_REQUIRED_SAFE"
+STATUS_READY = "JARVIS_V106_0_LOCAL_BROWSER_CHAT_PAGE_READY_SAFE"
+STATUS_REVIEW_REQUIRED = "JARVIS_V106_0_LOCAL_BROWSER_CHAT_PAGE_REVIEW_REQUIRED_SAFE"
 DEFAULT_OUTPUT_PATH = "outputs/local_server_smoke_latest.json"
 
 ROUTES = {
     "GET /health": "local server health and safety metadata",
     "GET /dashboard": "generated local static dashboard HTML",
+    "GET /chat": "local browser chat page backed by POST /api/chat",
     "GET /api/status": "read-only product API payload",
     "POST /api/chat": "read-only chat reply payload",
 }
@@ -128,6 +129,74 @@ def _dashboard_html(*, current_date: str) -> str:
     return "<!doctype html><html><body><h1>J.A.R.V.I.S. dashboard unavailable</h1></body></html>"
 
 
+def render_chat_page() -> str:
+    return """<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>J.A.R.V.I.S. Local Chat</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; margin: 0; background: #101216; color: #f2f4f8; }
+    main { max-width: 880px; margin: 0 auto; padding: 32px 20px 48px; }
+    .card { background: #171a21; border: 1px solid #2b303b; border-radius: 18px; padding: 22px; box-shadow: 0 18px 40px rgba(0,0,0,.28); }
+    h1 { margin: 0 0 8px; font-size: 34px; }
+    .muted { color: #aab2c0; line-height: 1.55; }
+    .safety { margin: 18px 0; padding: 14px 16px; border-radius: 14px; background: #1f2a1f; border: 1px solid #3f6541; color: #d8f3d8; }
+    textarea { width: 100%; min-height: 120px; border-radius: 14px; border: 1px solid #3a4150; background: #0f1117; color: #f2f4f8; padding: 14px; font-size: 16px; box-sizing: border-box; }
+    button { margin-top: 12px; border: 0; border-radius: 999px; padding: 12px 18px; font-weight: 700; cursor: pointer; background: #f2f4f8; color: #101216; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    pre { white-space: pre-wrap; background: #0f1117; border: 1px solid #303744; border-radius: 14px; padding: 16px; min-height: 130px; line-height: 1.5; }
+    .links a { color: #d8e7ff; margin-right: 14px; }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="card">
+      <h1>J.A.R.V.I.S. Local Chat</h1>
+      <p class="muted">Ask about today's plan, instruments, safety, blockers, or the dashboard.</p>
+      <div class="safety">Read-only and manual-only. No broker, credentials, orders, trades, or auto-approval path is enabled.</div>
+      <textarea id="question">what is my plan today?</textarea>
+      <br>
+      <button id="askButton" type="button">Ask J.A.R.V.I.S.</button>
+      <p class="muted">Reply</p>
+      <pre id="reply">Ready.</pre>
+      <p class="links">
+        <a href="/dashboard">Open dashboard</a>
+        <a href="/health">Health</a>
+        <a href="/api/status">API status</a>
+      </p>
+    </section>
+  </main>
+  <script>
+    const question = document.getElementById("question");
+    const reply = document.getElementById("reply");
+    const button = document.getElementById("askButton");
+
+    async function askJarvis() {
+      button.disabled = true;
+      reply.textContent = "Thinking...";
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({query: question.value})
+        });
+        const payload = await response.json();
+        reply.textContent = payload.reply || payload.response || JSON.stringify(payload, null, 2);
+      } catch (error) {
+        reply.textContent = "Local chat error: " + error;
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    button.addEventListener("click", askJarvis);
+  </script>
+</body>
+</html>"""
+
+
 def _chat_payload(*, query: str, current_date: str) -> dict[str, Any]:
     result = build_chat_interface_contract_result(query=query, current_date=current_date)
     payload = result.to_dict()
@@ -160,6 +229,10 @@ def make_handler(*, host: str, port: int, current_date: str) -> type[BaseHTTPReq
             if path == "/api/chat":
                 chat_query = str((query.get("q") or [""])[0])
                 _json_response(self, _chat_payload(query=chat_query, current_date=current_date))
+                return
+
+            if path == "/chat":
+                _html_response(self, render_chat_page())
                 return
 
             if path == "/dashboard":
@@ -315,7 +388,7 @@ def run_server(*, host: str = "127.0.0.1", port: int = 8765, current_date: str =
     handler = make_handler(host=host, port=port, current_date=current_date)
     server = ThreadingHTTPServer((host, port), handler)
     print(f"J.A.R.V.I.S. local server running at http://{host}:{port}")
-    print("Routes: /health, /dashboard, /api/status, /api/chat")
+    print("Routes: /health, /chat, /dashboard, /api/status, /api/chat")
     print("Safety: read-only, manual-only, no broker/credentials/orders/trades.")
     server.serve_forever()
 
@@ -353,6 +426,7 @@ __all__ = [
     "LocalServerSmokeResult",
     "build_local_server_smoke_result",
     "format_local_server_smoke",
+    "render_chat_page",
     "make_handler",
     "run_server",
     "main",

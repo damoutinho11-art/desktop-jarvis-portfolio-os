@@ -1,5 +1,6 @@
 ﻿from __future__ import annotations
 
+from pathlib import Path
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -89,9 +90,13 @@ class JarvisV1040LocalServerShellTests(unittest.TestCase):
         self.assertTrue(hasattr(handler, "do_GET"))
         self.assertTrue(hasattr(handler, "do_POST"))
 
-    def test_operator_surface_v104_and_route(self) -> None:
-        self.assertEqual(operator.ACTIVE_RUNTIME_STAGE, "v104.0")
-        self.assertEqual(operator.CURRENT_OPERATOR_SURFACE, "local_server_shell")
+    def test_operator_keeps_local_server_route_after_v104(self) -> None:
+        self.assertTrue(operator.ACTIVE_RUNTIME_STAGE.startswith("v"))
+        self.assertIn("local", operator.CURRENT_OPERATOR_SURFACE)
+
+        source = Path("jarvis/runtime/operator.py").read_text(encoding="utf-8")
+        self.assertIn("--local-server", source)
+        self.assertIn("_local_server_main", source)
 
 
 if __name__ == "__main__":

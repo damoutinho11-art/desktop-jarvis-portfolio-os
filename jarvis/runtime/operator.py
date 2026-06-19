@@ -74,9 +74,9 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v105.0"
+ACTIVE_RUNTIME_STAGE = "v106.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "local_server_live_endpoint_smoke"
+CURRENT_OPERATOR_SURFACE = "local_browser_chat_page"
 ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE = "jarvis.runtime.platform_data_completeness_gate"
 ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE = "jarvis.runtime.monthly_expenses_intake"
 
@@ -135,6 +135,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_chat_interface_contract_module": "jarvis.runtime.chat_interface_contract",
         "active_local_server_module": "jarvis.runtime.local_server",
         "active_local_server_live_endpoint_smoke_module": "jarvis.runtime.local_server_live_endpoint_smoke",
+        "active_local_browser_chat_page_module": "jarvis.runtime.local_server",
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,

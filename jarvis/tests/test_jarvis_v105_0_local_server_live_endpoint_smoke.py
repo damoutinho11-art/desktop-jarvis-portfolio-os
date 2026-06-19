@@ -1,5 +1,6 @@
 ﻿from __future__ import annotations
 
+from pathlib import Path
 import unittest
 
 from jarvis.runtime import operator
@@ -54,9 +55,13 @@ class JarvisV1050LocalServerLiveEndpointSmokeTests(unittest.TestCase):
         self.assertIn("trade executed: False", output)
         self.assertIn("BLOCKERS:", output)
 
-    def test_operator_surface_v105(self) -> None:
-        self.assertEqual(operator.ACTIVE_RUNTIME_STAGE, "v105.0")
-        self.assertEqual(operator.CURRENT_OPERATOR_SURFACE, "local_server_live_endpoint_smoke")
+    def test_operator_keeps_live_endpoint_smoke_route_after_v105(self) -> None:
+        self.assertTrue(operator.ACTIVE_RUNTIME_STAGE.startswith("v"))
+        self.assertIn("local", operator.CURRENT_OPERATOR_SURFACE)
+
+        source = Path("jarvis/runtime/operator.py").read_text(encoding="utf-8")
+        self.assertIn("--local-server-live-smoke", source)
+        self.assertIn("_local_server_live_endpoint_smoke_main", source)
 
 
 if __name__ == "__main__":
