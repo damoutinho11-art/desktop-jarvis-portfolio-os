@@ -22,6 +22,7 @@ from jarvis.runtime.stock_candidate_universe_expansion import main as _stock_can
 from jarvis.runtime.cross_lane_dynamic_allocation_preflight import main as _cross_lane_dynamic_allocation_preflight_main
 from jarvis.runtime.dynamic_quality_allocator import main as _dynamic_quality_allocator_main
 from jarvis.runtime.multi_candidate_instrument_selector import main as _multi_candidate_instrument_selector_main
+from jarvis.runtime.data_readiness_status import main as _data_readiness_status_main
 
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
@@ -66,9 +67,9 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v94.0"
+ACTIVE_RUNTIME_STAGE = "v95.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "dynamic_candidate_scoring_fast_product_context"
+CURRENT_OPERATOR_SURFACE = "data_readiness_status"
 ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE = "jarvis.runtime.platform_data_completeness_gate"
 ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE = "jarvis.runtime.monthly_expenses_intake"
 
@@ -119,6 +120,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_stock_candidate_universe_expansion_module": "jarvis.runtime.stock_candidate_universe_expansion",
         "active_cross_lane_dynamic_allocation_preflight_module": "jarvis.runtime.cross_lane_dynamic_allocation_preflight",
         "active_dynamic_quality_allocator_module": "jarvis.runtime.dynamic_quality_allocator",
+        "active_data_readiness_status_module": "jarvis.runtime.data_readiness_status",
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -143,6 +145,8 @@ def main(argv: list[str] | None = None) -> int:
     """Run the stable active J.A.R.V.I.S. operator surface."""
 
     args = list(sys.argv[1:] if argv is None else argv)
+    if "--data-readiness-status" in args:
+        return _data_readiness_status_main(args)
     if "--multi-candidate-instrument-selector" in args:
         return _multi_candidate_instrument_selector_main(args)
     if "--dynamic-quality-allocator" in args:
