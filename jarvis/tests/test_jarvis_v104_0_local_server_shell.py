@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from pathlib import Path
 from types import SimpleNamespace
@@ -92,7 +92,7 @@ class JarvisV1040LocalServerShellTests(unittest.TestCase):
 
     def test_operator_keeps_local_server_route_after_v104(self) -> None:
         self.assertTrue(operator.ACTIVE_RUNTIME_STAGE.startswith("v"))
-        self.assertIn(operator.CURRENT_OPERATOR_SURFACE, {"local_browser_chat_page", "browser_chat_ux_polish"})
+        self.assertIn(operator.CURRENT_OPERATOR_SURFACE, {"local_browser_chat_page", "browser_chat_ux_polish", "assistant_tool_registry"})
 
         source = Path("jarvis/runtime/operator.py").read_text(encoding="utf-8")
         self.assertIn("--local-server", source)

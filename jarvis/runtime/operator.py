@@ -30,6 +30,7 @@ from jarvis.runtime.dashboard_contract import main as _dashboard_contract_main
 from jarvis.runtime.chat_interface_contract import main as _chat_interface_contract_main
 from jarvis.runtime.local_server import main as _local_server_main
 from jarvis.runtime.local_server_live_endpoint_smoke import main as _local_server_live_endpoint_smoke_main
+from jarvis.runtime.assistant_tool_registry import main as _assistant_tool_registry_main
 
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
@@ -74,9 +75,9 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v107.0"
+ACTIVE_RUNTIME_STAGE = "v108.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "browser_chat_ux_polish"
+CURRENT_OPERATOR_SURFACE = "assistant_tool_registry"
 ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE = "jarvis.runtime.platform_data_completeness_gate"
 ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE = "jarvis.runtime.monthly_expenses_intake"
 
@@ -136,6 +137,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_local_server_module": "jarvis.runtime.local_server",
         "active_local_server_live_endpoint_smoke_module": "jarvis.runtime.local_server_live_endpoint_smoke",
         "active_local_browser_chat_page_module": "jarvis.runtime.local_server",
+        "active_assistant_tool_registry_module": "jarvis.runtime.assistant_tool_registry",
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -162,6 +164,8 @@ def main(argv: list[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
     if "--local-server-live-smoke" in args:
         return _local_server_live_endpoint_smoke_main(args)
+    if "--assistant-tool-registry" in args:
+        return _assistant_tool_registry_main(args)
     if "--local-server" in args or "--local-server-smoke" in args:
         return _local_server_main(args)
     if "--ask" in args:
