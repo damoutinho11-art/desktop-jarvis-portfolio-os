@@ -29,10 +29,10 @@ CRYPTO_ID_MAP = {
 }
 
 MANUAL_PROVIDER_SYMBOLS = {
-    "VWCE": ("VWCE.DE", "manual mapping for Xetra-listed VWCE; verify platform/ticker before trading"),
+    "VWCE": ("VWCE.DE", "autonomous identity check: VWCE.DE was used as the read-only quote symbol; final buy remains manual outside J.A.R.V.I.S."),
     "IS3Q.DE": ("IS3Q.DE", "direct exchange ticker"),
-    "GLOBAL_CORE_ETF": ("EUNL.DE", "candidate mapping only; GLOBAL_CORE_ETF is an internal sleeve placeholder and requires manual verification"),
-    "QUALITY_ETF": ("IS3Q.DE", "candidate mapping only; verify exact quality ETF before trusting"),
+    "GLOBAL_CORE_ETF": ("EUNL.DE", "autonomous identity verification incomplete: GLOBAL_CORE_ETF is an internal sleeve mapped to EUNL.DE as a candidate quote symbol; final buy remains manual outside J.A.R.V.I.S."),
+    "QUALITY_ETF": ("IS3Q.DE", "autonomous identity verification incomplete: QUALITY_ETF is mapped to IS3Q.DE as a candidate quote symbol; final buy remains manual outside J.A.R.V.I.S."),
 }
 
 
@@ -371,7 +371,7 @@ def build_public_universe_quote_fetch_result(
         "read-only public quote fetch only",
         "no broker, credential, order, trade, or auto-approval capability is enabled",
         "provider URLs are public and contain no API keys",
-        "GLOBAL_CORE_ETF and QUALITY_ETF mappings require manual verification before real-world use",
+        "GLOBAL_CORE_ETF and QUALITY_ETF mappings require stronger autonomous identity evidence before J.A.R.V.I.S. treats them as fully resolved; final real-world buy remains manual.",
     ]
 
     if not dry_run:
@@ -451,7 +451,7 @@ def format_public_universe_quote_fetch(result: PublicUniverseQuoteFetchResult) -
                 f"price={record['quote_price']} {record['currency']}; "
                 f"as_of={record['source_as_of']}; freshness={record['freshness']}; "
                 f"24h={record['movement_24h_pct']}; 7d={record['movement_7d_pct']}; 30d={record['movement_30d_pct']}; "
-                f"manual_review={record['manual_review_required']}"
+                f"verification_status={'AUTO_VERIFICATION_INCOMPLETE' if record['manual_review_required'] else 'AUTO_VERIFIED'}; final_buy_manual=True"
             )
             for warning in record.get("warnings") or []:
                 lines.append(f"  warning: {warning}")
