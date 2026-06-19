@@ -12,6 +12,7 @@ from jarvis.runtime.assistant_asset_lookup import (
     build_assistant_asset_lookup_result,
 )
 from jarvis.runtime.assistant_data_source_registry import build_assistant_data_source_registry_result
+from jarvis.runtime.assistant_market_data_bridge import find_market_data_record
 from jarvis.runtime.product_api import build_product_api_result
 
 
@@ -50,22 +51,27 @@ class AssistantMarketContextResult:
         return asdict(self)
 
 
-def _asset_summary(result: AssistantAssetLookupResult) -> dict[str, Any]:
+def _asset_summary(result: AssistantAssetLookupResult, current_date: str) -> dict[str, Any]:
+    market_record = find_market_data_record(result.matched_symbol or "", current_date=current_date) or {}
     return {
         "symbol": result.matched_symbol,
         "name": result.matched_name,
         "lane": result.lane,
         "selected_in_plan": result.selected_in_plan,
         "recommended_amount_eur": result.recommended_amount_eur,
-        "price": result.price,
-        "currency": result.currency,
-        "source": result.source,
-        "as_of": result.as_of,
+        "price": result.price if result.price is not None else market_record.get("current_price"),
+        "currency": result.currency or market_record.get("currency"),
+        "source": result.source or market_record.get("source"),
+        "as_of": result.as_of or market_record.get("as_of"),
         "freshness": result.freshness,
         "confidence": result.confidence,
         "candidate_score": result.candidate_score,
         "rank": result.rank,
-        "warnings": list(result.warnings),
+        "movement_24h_pct": market_record.get("movement_24h_pct"),
+        "movement_7d_pct": market_record.get("movement_7d_pct"),
+        "movement_available": bool(market_record.get("movement_available")),
+        "missing_fields": list(market_record.get("missing_fields", []) or []),
+        "warnings": list(dict.fromkeys(list(result.warnings) + list(market_record.get("warnings", []) or []))),
         "blockers": list(result.blockers),
     }
 
@@ -118,7 +124,7 @@ def _build_readonly_assistant_market_context_result(
         build_assistant_asset_lookup_result(asset=symbol, current_date=current_date)
         for symbol in symbols
     ]
-    assets = [_asset_summary(result) for result in lookup_results if result.matched_symbol]
+    assets = [_asset_summary(result, current_date) for result in lookup_results if result.matched_symbol]
 
     source_ids = {
         "crypto": ["crypto_prices", "macro_news"],
@@ -147,15 +153,47 @@ def _build_readonly_assistant_market_context_result(
         warnings.append("live news is unavailable; manual news review is required")
 
     crypto_amount = sum(float(item.get("amount_eur") or 0.0) for item in selected if item.get("lane") == "crypto")
-    total_amount = sum(float(item.get("amount_eur") or 0.0) for item in selected)
+    investable_amount = sum(float(item.get("amount_eur") or 0.0) for item in selected)
+    monthly_value = (
+        product.week_plan.get("monthly_contribution_eur")
+        or product.week_plan.get("monthly_amount_eur")
+        or product.week_plan.get("monthly_eur")
+        or product.week_plan.get("total_monthly_amount_eur")
+        or product.week_plan.get("total_amount_eur")
+    )
+    try:
+        monthly_amount = float(monthly_value)
+    except (TypeError, ValueError):
+        monthly_amount = investable_amount + 75.0
+    emergency_value = product.week_plan.get("emergency_top_up_eur") or product.week_plan.get("emergency_amount_eur")
+    try:
+        emergency_amount = float(emergency_value)
+    except (TypeError, ValueError):
+        emergency_amount = max(monthly_amount - investable_amount, 0.0)
+
     portfolio_impact = (
-        f"Crypto selected amount is EUR {crypto_amount:.2f}; total selected manual plan amount is EUR {total_amount:.2f}. "
+        f"Crypto selected amount is EUR {crypto_amount:.2f}; crypto remains capped at 20% / EUR 100.00 this cycle. "
+        f"Selected investable instruments total EUR {investable_amount:.2f}; full monthly manual plan is EUR {monthly_amount:.2f}, "
+        f"including EUR {emergency_amount:.2f} emergency top-up if applicable. "
         "J.A.R.V.I.S. can describe local plan exposure but does not change allocations or create orders."
     )
-    movement_summary = (
-        "Local data does not include enough current price-history context; today's movement cannot be determined from this cache. "
-        "Manually check latest quotes and source timestamps before acting externally."
-    )
+    movement_assets = [asset for asset in assets if asset.get("movement_available")]
+    if movement_assets:
+        movement_bits = []
+        for asset in movement_assets:
+            value = asset.get("movement_24h_pct")
+            if value is not None:
+                movement_bits.append(f"{asset.get('symbol')} 24h {float(value):+.2f}%")
+        movement_summary = (
+            "Local normalized cache shows: "
+            + ("; ".join(movement_bits) if movement_bits else "movement fields present but not printable")
+            + ". This is local cache movement, not a live headline or claimed cause."
+        )
+    else:
+        movement_summary = (
+            "Local data does not include enough current price-history context; today's movement cannot be determined from this cache. "
+            "Manually check latest quotes and source timestamps before acting externally."
+        )
     news_summary = (
         "Live news fetch is not enabled. I can only report local readiness and cached/source availability; no headline or cause is claimed."
     )
@@ -210,8 +248,13 @@ def format_assistant_market_context(result: AssistantMarketContextResult) -> str
     for asset in result.assets:
         amount = asset.get("recommended_amount_eur")
         amount_text = f"EUR {float(amount):.2f}" if amount is not None else "not selected"
+        movement = asset.get("movement_24h_pct")
+        movement_text = f"; 24h={float(movement):+.2f}%" if movement is not None else "; 24h=not available"
+        price = asset.get("price")
+        currency = asset.get("currency")
+        price_text = f"{price} {currency}" if price is not None and currency else "not available"
         asset_lines.append(
-            f"- {asset.get('symbol')}: {amount_text}; price={asset.get('price') or 'not available'}; "
+            f"- {asset.get('symbol')}: {amount_text}; price={price_text}{movement_text}; "
             f"source={asset.get('source')}; as_of={asset.get('as_of')}; freshness={asset.get('freshness')}"
         )
     return "\n".join(

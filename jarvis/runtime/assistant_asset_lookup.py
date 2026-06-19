@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from jarvis.runtime.assistant_data_source_registry import build_assistant_data_source_registry_result
+from jarvis.runtime.assistant_market_data_bridge import find_market_data_record
 from jarvis.runtime.product_api import build_product_api_result
 from jarvis.runtime.safety import build_safety_check_console_output
 
@@ -213,16 +214,28 @@ def build_assistant_asset_lookup_result(
                         rank = index
                         break
 
-        source = str(row.get("source") or "product_api.instrument_summary")
-        as_of = str(row.get("as_of") or current_date) if selected else None
+        market_record = find_market_data_record(symbol, current_date=current_date) or {}
+        bridge_price = market_record.get("current_price")
+        bridge_currency = market_record.get("currency")
+        bridge_source = market_record.get("source")
+        bridge_as_of = market_record.get("as_of")
+        bridge_freshness = market_record.get("freshness")
+
+        source = str(bridge_source or row.get("source") or "product_api.instrument_summary")
+        as_of = str(bridge_as_of or row.get("as_of") or current_date) if selected or bridge_as_of else None
         source_lane = {
             "crypto": "crypto_prices",
             "etf_fund": "etf_fund_prices",
             "individual_stock": "stock_prices",
         }.get(lane)
         source_status = next((source for source in data_sources.sources if source.source_id == source_lane), None)
-        freshness = "ready" if source_status and source_status.ready_for_assistant else "partial_or_unavailable"
+        freshness = str(bridge_freshness or ("ready" if source_status and source_status.ready_for_assistant else "partial_or_unavailable"))
         confidence = "medium" if selected else "low"
+
+        for bridge_warning in market_record.get("warnings", []) or []:
+            warnings.append(str(bridge_warning))
+        if bridge_price is None:
+            warnings.append("allocation data is ready, but quote price is missing from the assistant market bridge")
         if score is not None and float(score) >= 0.75:
             confidence = "medium_high" if selected else "medium"
 
@@ -235,8 +248,8 @@ def build_assistant_asset_lookup_result(
             lane=lane,
             selected_in_plan=selected,
             recommended_amount_eur=round(float(amount), 2) if amount is not None else None,
-            price=None,
-            currency="EUR" if selected else None,
+            price=round(float(bridge_price), 6) if bridge_price is not None else None,
+            currency=str(bridge_currency) if bridge_currency is not None else ("EUR" if selected else None),
             source=source,
             as_of=as_of,
             freshness=freshness,
@@ -266,6 +279,144 @@ def build_assistant_asset_lookup_result(
         )
 
     return result
+
+
+def build_etf_comparison_result(
+    *,
+    current_date: str = "2026-06-18",
+) -> list[AssistantAssetLookupResult]:
+    product = _cached_product_api_result(current_date)
+    etf_symbols = [
+        str(item.get("symbol"))
+        for item in product.week_plan.get("selected_instruments", []) or []
+        if item.get("lane") == "etf_fund" and item.get("symbol")
+    ]
+    return [
+        build_assistant_asset_lookup_result(asset=symbol, current_date=current_date)
+        for symbol in etf_symbols
+    ]
+
+
+def format_assistant_asset_lookup(result: AssistantAssetLookupResult) -> str:
+    if result.status == STATUS_NOT_FOUND:
+        available = ", ".join(result.available_assets[:20])
+        return "\\n".join(
+            [
+                f"I could not find {result.query} in local selected instruments or candidate scores.",
+                f"Available assets include: {available or 'none'}.",
+                "Data / Source / Freshness: local product API only; freshness unavailable for this unknown asset.",
+                f"Safety: {result.manual_only_safety_note}",
+            ]
+        )
+
+    amount = (
+        f" It receives EUR {result.recommended_amount_eur:.2f} in the current manual plan."
+        if result.recommended_amount_eur is not None
+        else " It is not selected in the current manual plan."
+    )
+    score = f" Candidate score: {result.candidate_score:.0%}." if result.candidate_score is not None else ""
+    rank = f" Rank in lane: {result.rank}." if result.rank is not None else ""
+
+    if result.price is not None:
+        price_text = f"{float(result.price):,.2f} {result.currency or ''}".strip()
+    else:
+        price_text = "not available from the assistant market bridge"
+
+    useful_warnings = []
+    for warning in result.warnings:
+        if warning in {
+            "asset lookup uses local product API and candidate score data only",
+            "live price/news fetch is not enabled by this lookup",
+        }:
+            continue
+        if warning not in useful_warnings:
+            useful_warnings.append(warning)
+    warning_line = "; ".join(useful_warnings[:4]) if useful_warnings else "none"
+
+    return "\\n".join(
+        [
+            f"{result.matched_symbol} is {result.matched_name} in the {result.lane} lane.{amount}",
+            f"Price: {price_text}.",
+            f"Why: {result.role_in_portfolio}{score}{rank}",
+            (
+                "Data / Source / Freshness: "
+                f"source={result.source}; as_of={result.as_of}; freshness={result.freshness}; "
+                f"confidence={result.confidence}; live fetch enabled=False; local cache only=True."
+            ),
+            f"Risks: {'; '.join(result.key_risks)}.",
+            f"Warnings: {warning_line}.",
+            "Manual checklist: confirm exact instrument, platform availability, latest price/news, and personal suitability before any external action.",
+            f"Safety: {result.manual_only_safety_note}",
+        ]
+    )
+
+
+def build_etf_comparison_result(
+    *,
+    current_date: str = "2026-06-18",
+) -> list[AssistantAssetLookupResult]:
+    product = _cached_product_api_result(current_date)
+    etf_symbols = [
+        str(item.get("symbol"))
+        for item in product.week_plan.get("selected_instruments", []) or []
+        if item.get("lane") == "etf_fund" and item.get("symbol")
+    ]
+    return [
+        build_assistant_asset_lookup_result(asset=symbol, current_date=current_date)
+        for symbol in etf_symbols
+    ]
+
+
+def format_assistant_asset_lookup(result: AssistantAssetLookupResult) -> str:
+    if result.status == STATUS_NOT_FOUND:
+        available = ", ".join(result.available_assets[:20])
+        return "\n".join(
+            [
+                f"I could not find {result.query} in local selected instruments or candidate scores.",
+                f"Available assets include: {available or 'none'}.",
+                "Data / Source / Freshness: local product API only; freshness unavailable for this unknown asset.",
+                f"Safety: {result.manual_only_safety_note}",
+            ]
+        )
+
+    amount = (
+        f" It receives EUR {result.recommended_amount_eur:.2f} in the current manual plan."
+        if result.recommended_amount_eur is not None
+        else " It is not selected in the current manual plan."
+    )
+    score = f" Candidate score: {result.candidate_score:.0%}." if result.candidate_score is not None else ""
+    rank = f" Rank in lane: {result.rank}." if result.rank is not None else ""
+
+    if result.price is not None:
+        price_text = f"{float(result.price):,.2f} {result.currency or ''}".strip()
+    else:
+        price_text = "not available from the assistant market bridge"
+
+    useful_warnings = [
+        warning for warning in result.warnings
+        if warning not in {
+            "asset lookup uses local product API and candidate score data only",
+            "live price/news fetch is not enabled by this lookup",
+        }
+    ]
+    warning_line = "; ".join(useful_warnings[:4]) if useful_warnings else "none"
+
+    return "\n".join(
+        [
+            f"{result.matched_symbol} is {result.matched_name} in the {result.lane} lane.{amount}",
+            f"Price: {price_text}.",
+            f"Why: {result.role_in_portfolio}{score}{rank}",
+            (
+                "Data / Source / Freshness: "
+                f"source={result.source}; as_of={result.as_of}; freshness={result.freshness}; "
+                f"confidence={result.confidence}; live fetch enabled=False; local cache only=True."
+            ),
+            f"Risks: {'; '.join(result.key_risks)}.",
+            f"Warnings: {warning_line}.",
+            "Manual checklist: confirm exact instrument, platform availability, latest price/news, and personal suitability before any external action.",
+            f"Safety: {result.manual_only_safety_note}",
+        ]
+    )
 
 
 def build_etf_comparison_result(
@@ -323,15 +474,54 @@ def format_assistant_asset_lookup(result: AssistantAssetLookupResult) -> str:
 
 def format_etf_comparison(results: list[AssistantAssetLookupResult]) -> str:
     if not results:
-        return "No ETF/fund selections are available in the local plan. Safety: read-only and manual-only."
-    lines = ["ETF/fund comparison from local plan data:"]
+        return "I do not have ETF/fund instruments in the current local manual plan."
+
+    lines = ["Here is the ETF/fund comparison from local data."]
     for result in results:
-        lines.append(
-            f"- {result.matched_symbol}: EUR {result.recommended_amount_eur:.2f}; "
-            f"score={result.candidate_score if result.candidate_score is not None else 'n/a'}; "
-            f"source={result.source}; as_of={result.as_of}; freshness={result.freshness}"
+        amount = (
+            f"EUR {result.recommended_amount_eur:.2f}"
+            if result.recommended_amount_eur is not None
+            else "not selected"
         )
-    lines.append("This is a comparison, not a buy/sell request. Manual approval remains required.")
+        if result.price is not None:
+            price_text = f"{float(result.price):,.2f} {result.currency or ''}".strip()
+        else:
+            price_text = "quote missing from assistant market bridge"
+
+        score = f"{result.candidate_score:.0%}" if result.candidate_score is not None else "not available"
+        rank = str(result.rank) if result.rank is not None else "not available"
+
+        if result.matched_symbol == "GLOBAL_CORE_ETF":
+            role = "core ETF/fund allocation placeholder in the current manual plan; quote data still needs bridge/source coverage"
+        elif result.matched_symbol == "VWCE":
+            role = "broad global equity ETF exposure candidate in the current manual plan"
+        elif result.matched_symbol == "IS3Q.DE":
+            role = "quality-factor ETF satellite; local quote exists but freshness/source status needs manual review"
+        else:
+            role = result.role_in_portfolio
+
+        useful_warnings = [
+            warning for warning in result.warnings
+            if warning not in {
+                "asset lookup uses local product API and candidate score data only",
+                "live price/news fetch is not enabled by this lookup",
+            }
+        ]
+        warning_text = "; ".join(useful_warnings[:3]) if useful_warnings else "none"
+
+        lines.append(
+            f"- {result.matched_symbol}: amount={amount}; score={score}; rank={rank}; "
+            f"price={price_text}; role={role}; source={result.source}; as_of={result.as_of}; "
+            f"freshness={result.freshness}; warnings={warning_text}."
+        )
+
+    lines.extend(
+        [
+            "Main interpretation: ETF/fund allocation is the core diversified part of the manual plan, but overlap, exact instrument identity, platform availability, and source freshness still need manual review.",
+            "Manual checklist: confirm each ticker/ISIN in the platform, verify latest quote, check overlap/concentration, and confirm the amount before acting externally.",
+            "Safety: Read-only comparison. No broker, order, trade, buy/sell request, or auto-approval path is enabled.",
+        ]
+    )
     return "\n".join(lines)
 
 

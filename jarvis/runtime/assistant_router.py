@@ -143,6 +143,12 @@ def build_assistant_router_result(
     if intent == "asset_lookup":
         tool = build_assistant_asset_lookup_result(asset=_extract_asset_query(query), current_date=current_date)
         reply = format_assistant_asset_lookup(tool)
+        if tool.price is not None and "Price:" not in reply:
+            price_line = f"Price: {float(tool.price):,.2f} {tool.currency or ''}."
+            reply_lines = reply.splitlines()
+            insert_at = 1 if reply_lines else 0
+            reply_lines.insert(insert_at, price_line)
+            reply = "\n".join(reply_lines)
         source = str(tool.source)
         as_of = str(tool.as_of or current_date)
         freshness = tool.freshness

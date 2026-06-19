@@ -81,9 +81,9 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v115.0"
+ACTIVE_RUNTIME_STAGE = "v116.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "assistant_system_audit"
+CURRENT_OPERATOR_SURFACE = "assistant_market_data_upgrade"
 ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE = "jarvis.runtime.platform_data_completeness_gate"
 ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE = "jarvis.runtime.monthly_expenses_intake"
 
@@ -183,6 +183,10 @@ def main(argv: list[str] | None = None) -> int:
         return _assistant_data_source_registry_main(args)
     if "--assistant-asset-lookup" in args:
         return _assistant_asset_lookup_main(args)
+    if "--assistant-market-data-bridge" in args:
+        from jarvis.runtime.assistant_market_data_bridge import main as _assistant_market_data_bridge_main
+        bridge_args = [arg for arg in args if arg != "--assistant-market-data-bridge"]
+        return _assistant_market_data_bridge_main(bridge_args)
     if "--assistant-market-context" in args:
         return _assistant_market_context_main(args)
     if "--assistant-news-context" in args:
