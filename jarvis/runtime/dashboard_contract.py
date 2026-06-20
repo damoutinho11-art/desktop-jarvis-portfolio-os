@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import argparse
 import html
@@ -14,7 +14,7 @@ from jarvis.runtime.manual_holdings_update import DEFAULT_MANUAL_HOLDINGS_PATH
 from jarvis.runtime.live_news_fetcher import DEFAULT_LIVE_NEWS_CACHE_PATH
 from jarvis.runtime.product_api import _preserve_tracked_approval_ticket, build_product_api_result
 
-STATUS_READY = "JARVIS_V127_0_DASHBOARD_UX_FINAL_POLISH_READY_SAFE"
+STATUS_READY = "JARVIS_V140_0_DASHBOARD_DAILY_UI_CLEANUP_READY_SAFE"
 STATUS_REVIEW_REQUIRED = "JARVIS_V99_0_DASHBOARD_CONTRACT_REVIEW_REQUIRED_SAFE"
 DEFAULT_OUTPUT_PATH = "outputs/dashboard_contract_latest.json"
 DEFAULT_DASHBOARD_PATH = "outputs/dashboard_latest.html"
@@ -160,6 +160,70 @@ def _build_sections(product_api: dict[str, Any], audit: dict[str, Any], finance:
     }
 
 
+def _display_ready_label(result: DashboardContractResult) -> str:
+    return "READY FOR MANUAL USE" if result.dashboard_contract_ready and not result.blockers else "REVIEW REQUIRED"
+
+
+def _yes_no(value: Any) -> str:
+    return "Yes" if bool(value) else "No"
+
+
+def _friendly_lane(value: Any) -> str:
+    mapping = {
+        "crypto": "Crypto",
+        "etf_fund": "ETF/Fund",
+        "individual_stock": "Stock",
+        "emergency": "Emergency",
+    }
+    return mapping.get(str(value), str(value or ""))
+
+
+def _friendly_market_status(item: Mapping[str, Any]) -> tuple[str, str]:
+    classification = str(item.get("classification") or "").strip().lower()
+    freshness = str(item.get("freshness") or "").strip().lower()
+    next_action = str(item.get("next_action") or "").strip().lower()
+    trusted = bool(item.get("trusted_quote"))
+
+    if "placeholder" in classification:
+        return "Setup note", "Sleeve placeholder only; not a tradable instrument."
+    if "missing" in classification or "missing" in next_action:
+        return "Needs quote source", "Quote source is not connected yet."
+    if "partial" in classification or "partial" in freshness or "unavailable" in freshness:
+        return "Needs review", "Movement data is partial or unavailable."
+    if trusted and any(token in freshness for token in ("ready", "fresh", "current")):
+        return "Ready", "Fresh trusted public quote available."
+    if trusted:
+        return "Usable", "Trusted quote is available; check source freshness before acting."
+    return "Needs review", "Check source freshness before any manual action."
+
+
+
+def _friendly_freshness(value: Any) -> str:
+    text = str(value or "").strip().lower()
+    if not text:
+        return "check source"
+    if "partial" in text or "unavailable" in text:
+        return "needs review"
+    if "ready" in text or "fresh" in text or "current" in text:
+        return "fresh"
+    return str(value)
+
+def _calm_dashboard_notes(result: DashboardContractResult, holdings: Mapping[str, Any], news: Mapping[str, Any]) -> list[str]:
+    notes: list[str] = []
+    if result.blockers:
+        notes.append("Review required. Resolve blockers before using the manual plan.")
+    else:
+        notes.append("Ready for manual use. No blockers found.")
+
+    if not news.get("cache_loaded"):
+        notes.append("Live news is optional context. Missing headlines do not block today's plan.")
+    if not holdings.get("file_exists"):
+        notes.append("Holdings can be added manually after external buys; missing holdings do not block daily use.")
+
+    notes.append("Manual-only safety is active: no broker, credentials, orders, trades, buy/sell requests, or auto-approval.")
+    return _dedupe(notes)[:4]
+
+
 def render_dashboard_html(result: DashboardContractResult) -> str:
     sections = result.sections
     status = sections["status"]
@@ -175,7 +239,7 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
     for item in week.get("selected_instruments", []) or []:
         rows.append(
             "<tr>"
-            f"<td>{html.escape(str(item.get('lane', '')))}</td>"
+            f"<td>{html.escape(_friendly_lane(item.get('lane', '')))}</td>"
             f"<td>{html.escape(str(item.get('symbol', '')))}</td>"
             f"<td>{html.escape(_money(item.get('amount_eur')))}</td>"
             "</tr>"
@@ -194,18 +258,19 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
     etf_summary = lane_summary("etf_fund")
     stock_summary = lane_summary("individual_stock")
     trust = finance.get("data_trust_summary", {}) or {}
+
     coverage_rows = []
     for item in finance.get("selected_instrument_coverage", []) or []:
+        status_label, note = _friendly_market_status(item)
         coverage_rows.append(
             "<tr>"
             f"<td>{html.escape(str(item.get('symbol', '')))}</td>"
-            f"<td>{html.escape(str(item.get('classification', '')))}</td>"
-            f"<td>{html.escape(str(item.get('trusted_quote', '')))}</td>"
-            f"<td>{html.escape(str(item.get('freshness', '')))}</td>"
-            f"<td>{html.escape(str(item.get('next_action', '')))}</td>"
+            f"<td>{html.escape(status_label)}</td>"
+            f"<td>{html.escape(_friendly_freshness(item.get('freshness')))}</td>"
+            f"<td>{html.escape(note)}</td>"
             "</tr>"
         )
-    coverage_table = "".join(coverage_rows) if coverage_rows else "<tr><td colspan='5'>none</td></tr>"
+    coverage_table = "".join(coverage_rows) if coverage_rows else "<tr><td colspan='4'>none</td></tr>"
 
     holdings_rows = []
     for item in holdings.get("positions", []) or []:
@@ -213,7 +278,7 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
             "<tr>"
             f"<td>{html.escape(str(item.get('symbol', '')))}</td>"
             f"<td>{html.escape(str(item.get('name', '')))}</td>"
-            f"<td>{html.escape(str(item.get('lane', '')))}</td>"
+            f"<td>{html.escape(_friendly_lane(item.get('lane', '')))}</td>"
             f"<td>{html.escape(str(item.get('quantity', '')))}</td>"
             f"<td>{html.escape(_money(item.get('cost_basis_eur')))}</td>"
             f"<td>{html.escape(_money(item.get('market_value_eur')) if item.get('market_value_eur') is not None else 'not available')}</td>"
@@ -249,22 +314,28 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
         if holdings.get("file_exists")
         else "Holdings not entered yet. Use the template command after Diogo buys manually outside J.A.R.V.I.S."
     )
+    display_status = _display_ready_label(result)
+    display_status_class = "ok" if display_status == "READY FOR MANUAL USE" else "warn"
+    blockers_label = "None — ready for manual use" if not result.blockers else "; ".join(result.blockers)
+    daily_notes = "".join(f"<li>{html.escape(item)}</li>" for item in _calm_dashboard_notes(result, holdings, news))
 
     css = """
-    :root { color-scheme: light; --bg:#f5f7fa; --panel:#ffffff; --ink:#17202a; --muted:#627085; --line:#dbe1ea; --ok:#0f7a45; --warn:#9a6500; --risk:#b42318; --accent:#0b6f88; }
+    :root { color-scheme: light; --bg:#f6f7f4; --panel:#ffffff; --ink:#17202a; --muted:#687386; --line:#dfe4dc; --ok:#0f7a45; --warn:#9a6500; --risk:#b42318; --accent:#2f6f63; --soft:#eef6f2; }
     * { box-sizing:border-box; }
     body { margin:0; font-family:Segoe UI, Arial, sans-serif; background:var(--bg); color:var(--ink); }
-    header, main { max-width:1220px; margin:0 auto; padding:20px; }
-    h1 { margin:0 0 6px; font-size:clamp(28px,4vw,42px); letter-spacing:0; }
-    h2 { margin:0 0 14px; font-size:20px; letter-spacing:0; }
+    header, main { max-width:1180px; margin:0 auto; padding:20px; }
+    h1 { margin:0 0 6px; font-size:clamp(28px,4vw,42px); letter-spacing:-.02em; }
+    h2 { margin:0 0 14px; font-size:20px; letter-spacing:-.01em; }
     p { color:#39475a; line-height:1.5; }
     .subtitle { color:var(--muted); }
-    .safety-banner { margin-top:18px; border:1px solid #86d4b1; background:#eaf8f1; color:#10492e; border-radius:8px; padding:14px 16px; font-weight:700; }
+    .safety-banner { margin-top:18px; border:1px solid #9bd8b8; background:#eaf8f1; color:#10492e; border-radius:14px; padding:14px 16px; font-weight:700; }
+    .status-hero { margin-top:18px; background:var(--soft); border:1px solid #bddccc; border-radius:18px; padding:18px; display:grid; gap:6px; }
+    .status-hero strong { font-size:clamp(28px,4vw,44px); letter-spacing:-.03em; }
     main { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; padding-top:0; }
-    .card { grid-column:span 6; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:18px; box-shadow:0 1px 2px rgba(20,32,50,.06); }
+    .card { grid-column:span 6; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:18px; box-shadow:0 1px 2px rgba(20,32,50,.05); }
     .wide { grid-column:span 12; }
     .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
-    .metric { min-height:74px; border-left:4px solid var(--accent); padding:8px 10px; background:#f8fafc; }
+    .metric { min-height:74px; border-left:4px solid var(--accent); padding:9px 11px; background:#fafbf8; border-radius:10px; }
     .label { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.06em; }
     .value { font-size:21px; font-weight:750; margin-top:5px; overflow-wrap:anywhere; }
     .ok { color:var(--ok); }
@@ -273,15 +344,16 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
     .badge { display:inline-block; padding:4px 8px; border-radius:999px; background:#edf7fa; color:#0b5e72; border:1px solid #b8dfe8; font-size:12px; font-weight:700; }
     .headline-list { list-style:none; padding:0; margin:0; display:grid; gap:10px; }
     .headline-list li { border-top:1px solid var(--line); padding-top:10px; display:grid; gap:3px; }
-    .headline-list span, .command-list span { color:var(--muted); font-size:13px; }
-    .command-list { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
-    .command-list li { padding:10px; background:#f8fafc; border:1px solid var(--line); border-radius:6px; }
-    code { font-family:Cascadia Mono, Consolas, monospace; background:#eef2f7; border:1px solid #d7deea; border-radius:4px; padding:2px 5px; }
+    .headline-list span, .action-card span { color:var(--muted); font-size:13px; }
+    .action-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+    .action-card { padding:13px; background:#fafbf8; border:1px solid var(--line); border-radius:12px; display:grid; gap:6px; }
+    .action-card strong { font-size:15px; }
+    code { font-family:Cascadia Mono, Consolas, monospace; background:#eef2f7; border:1px solid #d7deea; border-radius:6px; padding:3px 6px; font-size:12px; }
     table { width:100%; border-collapse:collapse; margin-top:14px; }
     th, td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
     th { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.06em; }
     ul { margin:0; padding-left:20px; color:#39475a; }
-    @media (max-width:820px) { header, main { padding:14px; } .card { grid-column:span 12; } .grid, .command-list { grid-template-columns:1fr; } .value { font-size:19px; } }
+    @media (max-width:820px) { header, main { padding:14px; } .card { grid-column:span 12; } .grid, .action-grid { grid-template-columns:1fr; } .value { font-size:19px; } }
     """
 
     return f"""<!doctype html>
@@ -297,6 +369,7 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <h1>J.A.R.V.I.S. Portfolio Dashboard</h1>
 <div class="subtitle">Generated locally from the read-only product API. Current date: {html.escape(result.current_date)}</div>
 <div class="safety-banner">Manual-only safety: Diogo buys outside J.A.R.V.I.S. No broker connection, credentials, orders, trades, buy/sell requests, or auto-approval.</div>
+<div class="status-hero"><span>App Status</span><strong class="{display_status_class}">{display_status}</strong><span>{html.escape(blockers_label)}</span></div>
 </header>
 <main>
 <section class="card wide">
@@ -306,7 +379,7 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <div class="metric"><div class="label">Crypto</div><div class="value">{_money(week.get("crypto_eur"))}</div></div>
 <div class="metric"><div class="label">ETF/Fund</div><div class="value">{_money(week.get("etf_fund_eur"))}</div></div>
 <div class="metric"><div class="label">Stock</div><div class="value">{_money(week.get("individual_stock_eur"))}</div></div>
-<div class="metric"><div class="label">Safety</div><div class="value ok">{safety.get("safety_check_blocked_execution")}</div></div>
+<div class="metric"><div class="label">Safety Block</div><div class="value ok">{_yes_no(safety.get("safety_check_blocked_execution"))}</div></div>
 <div class="metric"><div class="label">Blockers</div><div class="value ok">{len(result.blockers)}</div></div>
 </div>
 <ul>
@@ -318,15 +391,8 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 </section>
 
 <section class="card wide">
-<h2>Top Status / Readiness</h2>
-<div class="grid">
-<div class="metric"><div class="label">Dashboard</div><div class="value ok">{status.get("dashboard_ready")}</div></div>
-<div class="metric"><div class="label">Chat</div><div class="value ok">{status.get("chat_ready")}</div></div>
-<div class="metric"><div class="label">Voice</div><div class="value ok">{status.get("voice_ready")}</div></div>
-<div class="metric"><div class="label">Audit</div><div class="value warn">{html.escape(str(status.get("audit_verdict")))}</div></div>
-<div class="metric"><div class="label">Contract</div><div class="value ok">{result.dashboard_contract_ready}</div></div>
-<div class="metric"><div class="label">Manual Only</div><div class="value ok">{result.manual_only}</div></div>
-</div>
+<h2>Daily Notes</h2>
+<ul>{daily_notes}</ul>
 </section>
 
 <section class="card wide">
@@ -344,8 +410,8 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <section class="card wide">
 <h2>Holdings Status</h2>
 <div class="grid">
-<div class="metric"><div class="label">File Exists</div><div class="value warn">{holdings.get("file_exists")}</div></div>
-<div class="metric"><div class="label">Holdings Ready</div><div class="value warn">{holdings.get("holdings_ready")}</div></div>
+<div class="metric"><div class="label">File Entered</div><div class="value warn">{_yes_no(holdings.get("file_exists"))}</div></div>
+<div class="metric"><div class="label">Holdings Ready</div><div class="value warn">{_yes_no(holdings.get("holdings_ready"))}</div></div>
 <div class="metric"><div class="label">Positions</div><div class="value">{html.escape(str(holdings.get("positions_count")))}</div></div>
 <div class="metric"><div class="label">Confirmed</div><div class="value">{html.escape(str(holdings.get("confirmed_positions_count")))}</div></div>
 <div class="metric"><div class="label">Cost Basis</div><div class="value">{_money(holdings.get("total_cost_basis_eur"))}</div></div>
@@ -359,7 +425,7 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 </section>
 
 <section class="card"><h2>Market Data</h2><ul>
-<li>Ready: {data.get("data_readiness_ready")}</li>
+<li>Ready: {_yes_no(data.get("data_readiness_ready"))}</li>
 <li>Crypto candidates: {data.get("crypto_candidates")}</li>
 <li>ETF/fund candidates: {data.get("etf_candidates")}</li>
 <li>Stock candidates: {data.get("stock_candidates")}</li>
@@ -370,7 +436,7 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <section class="card"><h2>Live News / Headline Context</h2>
 <div class="grid">
 <div class="metric"><div class="label">Headlines</div><div class="value">{html.escape(str(news.get("headline_count") or 0))}</div></div>
-<div class="metric"><div class="label">Cache Loaded</div><div class="value">{news.get("cache_loaded")}</div></div>
+<div class="metric"><div class="label">Cache Loaded</div><div class="value">{_yes_no(news.get("cache_loaded"))}</div></div>
 <div class="metric"><div class="label">Source Failures</div><div class="value warn">{source_failures}</div></div>
 </div>
 <p><span class="badge">Possible context only</span> Headlines do not prove why prices moved. Check source time, URL, and relevance before any manual action.</p>
@@ -380,54 +446,47 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <section class="card wide"><h2>Market Movement</h2>
 <div class="grid">
 <div class="metric"><div class="label">Trusted Records</div><div class="value">{html.escape(str(trust.get("trusted_records")))}</div></div>
-<div class="metric"><div class="label">Partial Records</div><div class="value warn">{html.escape(str(trust.get("partial_records")))}</div></div>
-<div class="metric"><div class="label">FX Conversion</div><div class="value warn">{html.escape(str((finance.get("fx_summary") or {}).get("conversion_available")))}</div></div>
+<div class="metric"><div class="label">Review Records</div><div class="value warn">{html.escape(str(trust.get("partial_records")))}</div></div>
+<div class="metric"><div class="label">FX Conversion</div><div class="value warn">{_yes_no((finance.get("fx_summary") or {}).get("conversion_available"))}</div></div>
 </div>
 <p>{html.escape(str(finance.get("market_movement_summary") or ""))}</p>
-<table><thead><tr><th>Symbol</th><th>Classification</th><th>Trusted</th><th>Freshness</th><th>Next Action</th></tr></thead><tbody>{coverage_table}</tbody></table>
+<table><thead><tr><th>Symbol</th><th>Status</th><th>Freshness</th><th>Note</th></tr></thead><tbody>{coverage_table}</tbody></table>
 </section>
 
 <section class="card"><h2>Risk & Safety</h2><ul>
-<li>Safety-check blocked execution: {safety.get("safety_check_blocked_execution")}</li>
-<li>Manual approval required: {safety.get("manual_approval_required")}</li>
-<li>Execution forbidden: {safety.get("execution_forbidden")}</li>
-<li>Broker connection: {safety.get("broker_connection")}</li>
-<li>Credentials used: {safety.get("credentials_used")}</li>
-<li>Order created: {safety.get("order_created")}</li>
-<li>Trade executed: {safety.get("trade_executed")}</li>
+<li>Safety-check blocked execution: {_yes_no(safety.get("safety_check_blocked_execution"))}</li>
+<li>Manual approval required: {_yes_no(safety.get("manual_approval_required"))}</li>
+<li>Execution forbidden: {_yes_no(safety.get("execution_forbidden"))}</li>
+<li>Broker connection: {_yes_no(safety.get("broker_connection"))}</li>
+<li>Credentials used: {_yes_no(safety.get("credentials_used"))}</li>
+<li>Order created: {_yes_no(safety.get("order_created"))}</li>
+<li>Trade executed: {_yes_no(safety.get("trade_executed"))}</li>
 </ul></section>
 
-<section class="card"><h2>Audit</h2><ul>
-<li>Formula invariants ready: {audit.get("formula_invariants_ready")}</li>
-<li>Data readiness ready: {audit.get("data_readiness_ready")}</li>
-<li>News coverage ready: {audit.get("news_coverage_ready")}</li>
-<li>Safety ready: {audit.get("safety_ready")}</li>
-<li>Speed ready: {audit.get("speed_ready")}</li>
+<section class="card"><h2>System Checks</h2><ul>
+<li>Plan math ready: {_yes_no(audit.get("formula_invariants_ready"))}</li>
+<li>Data ready: {_yes_no(audit.get("data_readiness_ready"))}</li>
+<li>News context ready: {_yes_no(audit.get("news_coverage_ready"))}</li>
+<li>Safety ready: {_yes_no(audit.get("safety_ready"))}</li>
+<li>Speed ready: {_yes_no(audit.get("speed_ready"))}</li>
 </ul></section>
 
-<section class="card wide"><h2>Blockers / Warnings</h2><details open><summary>Review dashboard warnings</summary><ul>{_html_list(result.warnings)}</ul></details></section>
-<section class="card wide"><h2>Blockers</h2><ul>{_html_list(result.blockers)}</ul></section>
 <section class="card wide"><h2>How to Use Today</h2><ul>
-<li>Confirm the weekly manual plan total matches the contribution.</li>
-<li>Confirm BTC, ETH, ETF/fund, and stock rows are visible.</li>
-<li>Confirm Holdings Status is visible; if missing, it says holdings not entered yet.</li>
-<li>Confirm Live News / Headline Context shows source and freshness labels when available.</li>
-<li>Confirm Market Movement shows data trust honestly.</li>
-<li>Confirm safety shows no broker, credentials, orders, or trades.</li>
+<li>Open J.A.R.V.I.S. and read the manual plan.</li>
+<li>Check quote freshness and headline context if you want extra confidence.</li>
+<li>Make any buy manually outside J.A.R.V.I.S. only after your own review.</li>
+<li>Update holdings manually after an external buy.</li>
 </ul></section>
-<section class="card wide"><h2>Useful Commands</h2>
-<ul class="command-list">
-<li><code>Start Jarvis.bat</code><span>Open the local app launcher.</span></li>
-<li><code>python .\\jarvis_operator.py --daily-operator --current-date {html.escape(result.current_date)} --skip-refresh</code><span>Run the daily manual operator.</span></li>
-<li><code>python .\\jarvis_operator.py --holdings-status --current-date {html.escape(result.current_date)}</code><span>Check manual holdings status.</span></li>
-<li><code>python .\\jarvis_operator.py --write-holdings-template --current-date {html.escape(result.current_date)}</code><span>Create the blank holdings template.</span></li>
-<li><code>python .\\jarvis_operator.py --post-app-acceptance-gate --current-date {html.escape(result.current_date)}</code><span>Verify the app is ready for manual use.</span></li>
-</ul></section>
+<section class="card wide"><h2>Useful Actions</h2>
+<div class="action-grid">
+<div class="action-card"><strong>Open J.A.R.V.I.S.</strong><code>Start Jarvis.bat</code><span>Launch dashboard and chat.</span></div>
+<div class="action-card"><strong>Update holdings</strong><code>--holdings-template</code><span>Create the manual holdings template.</span></div>
+<div class="action-card"><strong>Safety check</strong><code>--safety-check</code><span>Confirm execution stays blocked.</span></div>
+</div></section>
 </main>
 </body>
 </html>
 """
-
 
 def build_dashboard_contract_result(
     *,
