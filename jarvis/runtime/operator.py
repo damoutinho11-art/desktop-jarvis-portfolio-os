@@ -305,7 +305,7 @@ def main(argv: list[str] | None = None) -> int:
     ):
         return _jarvis_session_memory_main(args)
 
-    if "--voice-briefing" in args or "--voice-briefing-text" in args:
+    if "--voice-briefing" in args or "--voice-briefing-text" in args or "--voice-briefing-speak" in args:
         return _voice_briefing_main(args)
 
     if "--what-changed" in args:

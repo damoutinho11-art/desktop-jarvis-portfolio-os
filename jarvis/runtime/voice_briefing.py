@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import argparse
+import os
+import platform
+import subprocess
 from dataclasses import asdict, dataclass
 from typing import Any, Mapping
 
@@ -33,6 +36,8 @@ class VoiceBriefingResult:
     audio_requested: bool
     audio_rendered: bool
     tts_available: bool
+    tts_backend: str
+    tts_warning: str | None
     no_speech_commands_added: bool
     safety_check_blocks_execution: bool
     manual_only: bool
@@ -44,6 +49,18 @@ class VoiceBriefingResult:
     blockers: list[str]
     warnings: list[str]
     proof: dict[str, Any]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class LocalTTSPlaybackResult:
+    audio_requested: bool
+    audio_rendered: bool
+    tts_available: bool
+    tts_backend: str
+    warning: str | None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -110,10 +127,82 @@ def _safety_check_ready() -> bool:
     return "BLOCKED:" in text and "No execution action was taken" in text
 
 
+def speak_text_locally(text: str, *, timeout_seconds: int = 30) -> LocalTTSPlaybackResult:
+    """Play generated briefing text through a local OS TTS backend when available."""
+
+    if os.environ.get("JARVIS_DISABLE_TTS") == "1":
+        return LocalTTSPlaybackResult(
+            audio_requested=True,
+            audio_rendered=False,
+            tts_available=False,
+            tts_backend="disabled",
+            warning="local TTS is disabled by JARVIS_DISABLE_TTS; showing text only",
+        )
+
+    if platform.system().lower() != "windows":
+        return LocalTTSPlaybackResult(
+            audio_requested=True,
+            audio_rendered=False,
+            tts_available=False,
+            tts_backend="text_only",
+            warning="local Windows TTS is unavailable on this platform; showing text only",
+        )
+
+    script = """
+$ErrorActionPreference = 'Stop'
+Add-Type -AssemblyName System.Speech
+$synth = New-Object System.Speech.Synthesis.SpeechSynthesizer
+try {
+    $text = [Console]::In.ReadToEnd()
+    if ([string]::IsNullOrWhiteSpace($text)) { exit 2 }
+    $synth.Speak($text)
+} finally {
+    $synth.Dispose()
+}
+""".strip()
+
+    try:
+        completed = subprocess.run(
+            ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script],
+            input=text,
+            text=True,
+            capture_output=True,
+            timeout=timeout_seconds,
+            check=False,
+        )
+    except (FileNotFoundError, subprocess.SubprocessError, OSError) as exc:
+        return LocalTTSPlaybackResult(
+            audio_requested=True,
+            audio_rendered=False,
+            tts_available=False,
+            tts_backend="windows_sapi",
+            warning=f"local TTS playback was unavailable: {exc}",
+        )
+
+    if completed.returncode == 0:
+        return LocalTTSPlaybackResult(
+            audio_requested=True,
+            audio_rendered=True,
+            tts_available=True,
+            tts_backend="windows_sapi",
+            warning=None,
+        )
+
+    detail = (completed.stderr or completed.stdout or f"exit code {completed.returncode}").strip()
+    return LocalTTSPlaybackResult(
+        audio_requested=True,
+        audio_rendered=False,
+        tts_available=False,
+        tts_backend="windows_sapi",
+        warning=f"local TTS playback failed safely: {detail}",
+    )
+
+
 def build_voice_briefing_result(
     *,
     current_date: str = "2026-06-20",
     audio_requested: bool = False,
+    play_audio: bool = False,
     product_api_result: Any | None = None,
 ) -> VoiceBriefingResult:
     blockers: list[str] = []
@@ -136,8 +225,18 @@ def build_voice_briefing_result(
 
     tts_available = False
     audio_rendered = False
-    if audio_requested:
-        warnings.append("audio was requested, but no local TTS renderer is enabled in the safe shell")
+    tts_backend = "text_only"
+    tts_warning: str | None = None
+    if audio_requested and play_audio:
+        playback = speak_text_locally(text)
+        tts_available = playback.tts_available
+        audio_rendered = playback.audio_rendered
+        tts_backend = playback.tts_backend
+        tts_warning = playback.warning
+        if playback.warning:
+            warnings.append(playback.warning)
+    elif audio_requested:
+        warnings.append("audio was requested, but playback was not enabled; use --voice-briefing-speak for local TTS")
 
     blockers = _dedupe(blockers)
     ready = not blockers
@@ -149,6 +248,8 @@ def build_voice_briefing_result(
         audio_requested=audio_requested,
         audio_rendered=audio_rendered,
         tts_available=tts_available,
+        tts_backend=tts_backend,
+        tts_warning=tts_warning,
         no_speech_commands_added=True,
         safety_check_blocks_execution=safety_ready,
         manual_only=True,
@@ -165,6 +266,8 @@ def build_voice_briefing_result(
             "data_ready": (product.get("data_readiness") or {}).get("data_readiness_ready"),
             "headline_count": (product.get("live_news_context") or {}).get("usable_count"),
             "safety_blocked": safety_ready,
+            "tts_backend": tts_backend,
+            "tts_warning": tts_warning,
         },
     )
 
@@ -180,6 +283,8 @@ def format_voice_briefing(result: VoiceBriefingResult, *, text_only: bool = Fals
         f"audio requested: {result.audio_requested}",
         f"audio rendered: {result.audio_rendered}",
         f"tts available: {result.tts_available}",
+        f"tts backend: {result.tts_backend}",
+        f"tts warning: {result.tts_warning or 'none'}",
         "",
         "BRIEFING TEXT:",
         result.text,
@@ -207,12 +312,14 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run the J.A.R.V.I.S. safe voice briefing shell.")
     parser.add_argument("--voice-briefing", action="store_true")
     parser.add_argument("--voice-briefing-text", action="store_true")
+    parser.add_argument("--voice-briefing-speak", action="store_true")
     parser.add_argument("--current-date", default="2026-06-20")
     args = parser.parse_args(argv)
 
     result = build_voice_briefing_result(
         current_date=args.current_date,
-        audio_requested=bool(args.voice_briefing and not args.voice_briefing_text),
+        audio_requested=bool((args.voice_briefing or args.voice_briefing_speak) and not args.voice_briefing_text),
+        play_audio=bool(args.voice_briefing_speak and not args.voice_briefing_text),
     )
     print(format_voice_briefing(result, text_only=bool(args.voice_briefing_text)))
     return 0 if result.voice_briefing_ready else 1
@@ -222,9 +329,11 @@ __all__ = [
     "FORBIDDEN_VOICE_PHRASES",
     "STATUS_READY",
     "STATUS_REVIEW_REQUIRED",
+    "LocalTTSPlaybackResult",
     "VoiceBriefingResult",
     "build_voice_briefing_result",
     "format_voice_briefing",
+    "speak_text_locally",
     "main",
 ]
 
