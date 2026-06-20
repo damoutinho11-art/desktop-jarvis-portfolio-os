@@ -12,7 +12,7 @@ from jarvis.runtime.full_system_audit import build_full_system_audit_result
 from jarvis.runtime.finance_intelligence_core import build_finance_intelligence_core_result
 from jarvis.runtime.product_api import _preserve_tracked_approval_ticket, build_product_api_result
 
-STATUS_READY = "JARVIS_V99_0_DASHBOARD_CONTRACT_READY_SAFE"
+STATUS_READY = "JARVIS_V127_0_DASHBOARD_UX_FINAL_POLISH_READY_SAFE"
 STATUS_REVIEW_REQUIRED = "JARVIS_V99_0_DASHBOARD_CONTRACT_REVIEW_REQUIRED_SAFE"
 DEFAULT_OUTPUT_PATH = "outputs/dashboard_contract_latest.json"
 DEFAULT_DASHBOARD_PATH = "outputs/dashboard_latest.html"
@@ -427,6 +427,52 @@ def _build_dashboard_contract_result_unprotected(
     return result
 
 
+
+def _v127_clean_dashboard_warnings(warnings: list[str]) -> list[str]:
+    """Keep the dashboard contract user-facing while preserving safety honesty."""
+    if not warnings:
+        return ["none"]
+
+    drop_contains = (
+        "dashboard HTML is generated only when",
+        "data readiness status aggregates existing",
+        "this command does not fetch data",
+        "fast product summary uses dynamic candidate scoring",
+        "full system audit is read-only",
+        "finance intelligence core is read-only",
+        "news is a contract/readiness layer",
+        "product-mode audit warning:",
+        "ignored non-data preflight blocker",
+    )
+
+    cleaned: list[str] = []
+    for warning in warnings:
+        text = str(warning).strip()
+        if not text:
+            continue
+        if any(fragment in text for fragment in drop_contains):
+            continue
+        if text not in cleaned:
+            cleaned.append(text)
+
+    priority = [
+        "dashboard contract is local/static and does not start a web server",
+        "product API is read-only and exposes dashboard/chat/voice payloads only",
+        "manual approval remains required; no execution path is created",
+        "product mode is manual-only; Diogo performs any buy outside J.A.R.V.I.S.",
+        "no broker, credentials, order, trade, or auto-approval path is enabled",
+        "live news fetching is not enabled in v98; this is a policy/readiness coverage contract",
+        "manual review remains required before acting on any headline or recommendation",
+        "local cache data can be stale; source/as_of/freshness must be shown in answers",
+    ]
+
+    ordered = [item for item in priority if item in cleaned]
+    ordered.extend(item for item in cleaned if item not in ordered)
+
+    return ordered[:8] or ["none"]
+
+
+
 def format_dashboard_contract(result: DashboardContractResult) -> str:
     dashboard_open_path = result.dashboard_path.replace("/", "\\")
     lines = [
@@ -456,7 +502,7 @@ def format_dashboard_contract(result: DashboardContractResult) -> str:
     lines.extend(f"- {key}: {value.get('title')}" for key, value in result.sections.items())
     lines.append("")
     lines.append("WARNINGS:")
-    lines.extend(f"- {item}" for item in result.warnings or ["none"])
+    lines.extend(f"- {item}" for item in _v127_clean_dashboard_warnings(list(result.warnings or [])))
     lines.append("")
     lines.append("BLOCKERS:")
     lines.extend(f"- {item}" for item in result.blockers or ["none"])
