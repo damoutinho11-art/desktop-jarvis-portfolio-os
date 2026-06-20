@@ -44,6 +44,7 @@ from jarvis.runtime.fx_assistant_bridge import main as _fx_assistant_bridge_main
 from jarvis.runtime.news_intelligence_contract import main as _news_intelligence_contract_main
 from jarvis.runtime.current_runtime_fast_gate import main as _current_runtime_fast_gate_main
 from jarvis.runtime.manual_holdings_update import main as _manual_holdings_update_main
+from jarvis.runtime.user_runbook import main as _user_runbook_main
 
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
@@ -94,6 +95,7 @@ ACTIVE_FX_ASSISTANT_BRIDGE_MODULE = "jarvis.runtime.fx_assistant_bridge"
 ACTIVE_NEWS_INTELLIGENCE_CONTRACT_MODULE = "jarvis.runtime.news_intelligence_contract"
 ACTIVE_CURRENT_RUNTIME_FAST_GATE_MODULE = "jarvis.runtime.current_runtime_fast_gate"
 ACTIVE_MANUAL_HOLDINGS_UPDATE_MODULE = "jarvis.runtime.manual_holdings_update"
+ACTIVE_USER_RUNBOOK_MODULE = "jarvis.runtime.user_runbook"
 
 
 def get_active_runtime_surface() -> dict[str, str]:
@@ -164,6 +166,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_news_intelligence_contract_module": ACTIVE_NEWS_INTELLIGENCE_CONTRACT_MODULE,
         "active_current_runtime_fast_gate_module": ACTIVE_CURRENT_RUNTIME_FAST_GATE_MODULE,
         "active_manual_holdings_update_module": ACTIVE_MANUAL_HOLDINGS_UPDATE_MODULE,
+        "active_user_runbook_module": ACTIVE_USER_RUNBOOK_MODULE,
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -246,6 +249,9 @@ def main(argv: list[str] | None = None) -> int:
         return _chat_interface_contract_main(args)
     if "--daily-operator" in args:
         return _daily_operator_main(args)
+
+    if "--user-runbook" in args:
+        return _user_runbook_main(args)
 
     if any(
         flag in args
@@ -341,6 +347,7 @@ __all__ = [
     "ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE",
     "ACTIVE_NEWS_INTELLIGENCE_CONTRACT_MODULE",
     "ACTIVE_MANUAL_HOLDINGS_UPDATE_MODULE",
+    "ACTIVE_USER_RUNBOOK_MODULE",
     "ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE",
     "ACTIVE_RUNTIME_MODULE",
     "ACTIVE_SELECTED_INSTRUMENT_RESOLVER_MODULE",
