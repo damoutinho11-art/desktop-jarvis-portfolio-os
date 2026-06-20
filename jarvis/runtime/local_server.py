@@ -21,6 +21,7 @@ from jarvis.runtime.assistant_router import build_assistant_router_result
 from jarvis.runtime.dashboard_contract import build_dashboard_contract_result
 from jarvis.runtime.finance_intelligence_core import build_finance_intelligence_core_result
 from jarvis.runtime.product_api import build_product_api_result
+from jarvis.runtime.voice_briefing import build_voice_briefing_result
 
 STATUS_READY = "JARVIS_V107_0_BROWSER_CHAT_UX_POLISH_READY_SAFE"
 STATUS_REVIEW_REQUIRED = "JARVIS_V107_0_BROWSER_CHAT_UX_POLISH_REVIEW_REQUIRED_SAFE"
@@ -33,6 +34,7 @@ ROUTES = {
     "GET /chat": "local browser chat page backed by POST /api/chat",
     "GET /api/status": "read-only product API payload",
     "GET /api/finance-intelligence": "read-only finance intelligence core payload",
+    "GET /api/voice-briefing": "read-only voice briefing text payload",
     "POST /api/chat": "read-only chat reply payload",
 }
 
@@ -166,6 +168,10 @@ def render_chat_page() -> str:
     textarea { width: 100%; min-height: 122px; border-radius: 8px; border: 1px solid #3a4150; background: #0d1119; color: #f2f4f8; padding: 14px; font-size: 16px; box-sizing: border-box; line-height: 1.45; }
     .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 12px; }
     .primary { border: 0; border-radius: 8px; padding: 12px 18px; font-weight: 800; cursor: pointer; background: #f2f6ff; color: #101216; }
+    .voice-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
+    .voice-button { border: 1px solid #476184; border-radius: 8px; padding: 10px 12px; background: #111a28; color: #eef4ff; font-weight: 800; cursor: pointer; }
+    .voice-button:hover, .voice-button:focus { border-color: #91ace0; outline: none; }
+    .voice-status { min-height: 22px; color: #aeb8c8; font-size: 14px; line-height: 1.45; }
     button:disabled { opacity: .55; cursor: not-allowed; }
     .dashboard-link { display: inline-block; border: 1px solid #5876aa; border-radius: 8px; padding: 11px 14px; color: #e7f0ff; text-decoration: none; font-weight: 800; }
     .reply-card { background: #101622; border: 1px solid #303b4d; border-radius: 8px; padding: 16px; min-height: 168px; }
@@ -211,6 +217,13 @@ def render_chat_page() -> str:
           <button id="askButton" class="primary" type="button">Ask J.A.R.V.I.S.</button>
           <a class="dashboard-link" href="/dashboard">Open dashboard</a>
         </div>
+        <div class="voice-actions" aria-label="Voice controls">
+          <button id="voiceDraftButton" class="voice-button" type="button">Voice input</button>
+          <button id="readBriefingButton" class="voice-button" type="button">Read briefing aloud</button>
+          <button id="speakReplyButton" class="voice-button" type="button">Speak reply</button>
+          <button id="stopVoiceButton" class="voice-button" type="button">Stop voice</button>
+        </div>
+        <div id="audioStatus" class="voice-status" role="status">Voice is output-only until you press Ask manually.</div>
       </section>
 
       <section class="card">
@@ -234,6 +247,82 @@ def render_chat_page() -> str:
     const reply = document.getElementById("reply");
     const button = document.getElementById("askButton");
     const loading = document.getElementById("loadingState");
+    const audioStatus = document.getElementById("audioStatus");
+    const readBriefingButton = document.getElementById("readBriefingButton");
+    const speakReplyButton = document.getElementById("speakReplyButton");
+    const stopVoiceButton = document.getElementById("stopVoiceButton");
+    const voiceDraftButton = document.getElementById("voiceDraftButton");
+    const canSpeak = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+
+    function setAudioStatus(message) {
+      audioStatus.textContent = message;
+    }
+
+    function speakText(text) {
+      if (!canSpeak) {
+        setAudioStatus("Audio unavailable in this browser. Text remains available.");
+        return;
+      }
+      const cleanText = (text || "").trim();
+      if (!cleanText) {
+        setAudioStatus("Nothing to read yet.");
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.onstart = () => setAudioStatus("Speaking...");
+      utterance.onend = () => setAudioStatus("Voice ready.");
+      utterance.onerror = () => setAudioStatus("Audio unavailable. Text remains available.");
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function stopVoice() {
+      if (canSpeak) {
+        window.speechSynthesis.cancel();
+      }
+      if (recognition) {
+        recognition.stop();
+      }
+      setAudioStatus("Voice stopped.");
+    }
+
+    async function readBriefingAloud() {
+      try {
+        const response = await fetch("/api/voice-briefing");
+        const payload = await response.json();
+        const briefing = payload.text || "";
+        reply.textContent = briefing || "Briefing text unavailable.";
+        speakText(briefing);
+      } catch (error) {
+        setAudioStatus("Audio unavailable. Briefing text could not be loaded.");
+      }
+    }
+
+    function startVoiceDraft() {
+      if (!SpeechRecognition) {
+        setAudioStatus("Microphone input unavailable in this browser.");
+        return;
+      }
+      recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = "en-US";
+      recognition.onstart = () => setAudioStatus("Listening...");
+      recognition.onresult = (event) => {
+        const transcript = event.results && event.results[0] && event.results[0][0]
+          ? event.results[0][0].transcript
+          : "";
+        question.value = transcript;
+        setAudioStatus("Voice draft ready. Press Ask J.A.R.V.I.S. manually.");
+      };
+      recognition.onerror = () => setAudioStatus("Microphone input unavailable in this browser.");
+      recognition.onend = () => {
+        recognition = null;
+      };
+      recognition.start();
+    }
 
     async function askJarvis() {
       button.disabled = true;
@@ -256,6 +345,10 @@ def render_chat_page() -> str:
     }
 
     button.addEventListener("click", askJarvis);
+    readBriefingButton.addEventListener("click", readBriefingAloud);
+    speakReplyButton.addEventListener("click", () => speakText(reply.textContent));
+    stopVoiceButton.addEventListener("click", stopVoice);
+    voiceDraftButton.addEventListener("click", startVoiceDraft);
     document.querySelectorAll(".preset").forEach((preset) => {
       preset.addEventListener("click", () => {
         if (preset.dataset.action === "dashboard") {
@@ -304,6 +397,11 @@ def make_handler(*, host: str, port: int, current_date: str) -> type[BaseHTTPReq
             if path == "/api/finance-intelligence":
                 finance = build_finance_intelligence_core_result(current_date=current_date)
                 _json_response(self, _plain(finance))
+                return
+
+            if path == "/api/voice-briefing":
+                briefing = build_voice_briefing_result(current_date=current_date)
+                _json_response(self, _plain(briefing))
                 return
 
             if path == "/api/chat":
