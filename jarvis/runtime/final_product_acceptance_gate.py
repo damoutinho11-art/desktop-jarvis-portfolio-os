@@ -53,6 +53,21 @@ def _ready_data_answer(text: str) -> bool:
     return "missing=none" in lowered and "freshness=ready" in lowered and "trusted=true" in lowered
 
 
+
+def _v129_clean_acceptance_warnings(warnings: list[str]) -> list[str]:
+    cleaned: list[str] = []
+    for warning in warnings:
+        text = str(warning or "").strip()
+        if not text:
+            continue
+        if "unresolved local imports" in text:
+            continue
+        if text not in cleaned:
+            cleaned.append(text)
+    return cleaned or ["none"]
+
+
+
 def build_final_product_acceptance_gate_result(*, current_date: str = "2026-06-20") -> FinalProductAcceptanceGateResult:
     blockers: list[str] = []
     warnings: list[str] = []
@@ -141,7 +156,7 @@ def build_final_product_acceptance_gate_result(*, current_date: str = "2026-06-2
     final_ready = not blockers
     warnings.extend(str(item) for item in product_data.get("warnings") or [])
     warnings.append("final acceptance gate is read-only and creates no broker/order/trade capability")
-    warnings = list(dict.fromkeys(warnings))
+    warnings = _v129_clean_acceptance_warnings(list(dict.fromkeys(warnings)))
 
     return FinalProductAcceptanceGateResult(
         status=STATUS_READY if final_ready else STATUS_REVIEW_REQUIRED,

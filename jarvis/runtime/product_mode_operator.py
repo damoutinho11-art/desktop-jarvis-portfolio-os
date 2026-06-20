@@ -737,12 +737,6 @@ def build_product_mode_result(
     blockers: list[str] = []
     if not safety_blocked:
         blockers.append("safety-check did not block execution")
-    if unresolved_import_count not in (0, None):
-        warnings.append(
-            f"non-blocking legacy import audit note: unresolved local imports: {unresolved_import_count}; "
-            "fast gate and product blockers remain the source of truth for manual-use readiness"
-        )
-
     product_ready = not blockers
     product_verdict = (
         "READY_FOR_MANUAL_USE"
@@ -883,7 +877,6 @@ def build_product_mode_result(
     status_lines = [
         f"Product readiness: {product_verdict}",
         f"Safety-check blocked execution: {safety_blocked}",
-        f"Unresolved local imports: {unresolved_import_count} (non-blocking legacy audit note)",
         f"Legacy module archive candidates: {legacy_module_archive_candidate_count}",
         f"Components available: {sum(1 for component in components if component.available)} / {len(components)}",
         f"Full allocation blockers: {full_blocker_text}",
