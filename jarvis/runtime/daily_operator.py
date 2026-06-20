@@ -12,6 +12,10 @@ from jarvis.runtime.final_product_acceptance_gate import (
     format_final_product_acceptance_gate,
 )
 from jarvis.runtime.manual_holdings_update import DEFAULT_MANUAL_HOLDINGS_PATH
+from jarvis.runtime.live_news_fetcher import (
+    DEFAULT_LIVE_NEWS_CACHE_PATH,
+    build_live_news_fetcher_result,
+)
 from jarvis.runtime.product_mode_operator import build_product_mode_result
 from jarvis.runtime.public_universe_quote_fetcher import main as _quote_fetcher_main
 from jarvis.runtime.safety import build_safety_check_console_output
@@ -98,6 +102,9 @@ def build_daily_operator_result(
     write_dashboard: bool = True,
     max_targets: int = 10,
     manual_holdings_path: str | Path = DEFAULT_MANUAL_HOLDINGS_PATH,
+    include_news: bool = False,
+    require_news: bool = False,
+    news_cache_path: str | Path = DEFAULT_LIVE_NEWS_CACHE_PATH,
 ) -> DailyOperatorResult:
     blockers: list[str] = []
     warnings: list[str] = []
@@ -114,6 +121,29 @@ def build_daily_operator_result(
             blockers.append(f"quote refresh raised {type(exc).__name__}: {exc}")
     else:
         warnings.append("quote refresh skipped by operator flag")
+
+    news_data: dict[str, Any] = {
+        "status": "SKIPPED_SAFE",
+        "fetch_attempted": False,
+        "usable_count": 0,
+        "source_failures": [],
+    }
+    if include_news:
+        try:
+            news_result = build_live_news_fetcher_result(
+                current_date=current_date,
+                cache_path=news_cache_path,
+                fetch_news=True,
+                write_cache=False,
+                timeout_seconds=3.0,
+            )
+            news_data = news_result.to_dict()
+            warnings.extend(_clean_warnings([f"live news: {item}" for item in news_data.get("warnings") or []]))
+        except Exception as exc:
+            news_data = {"status": "JARVIS_V135_0_LIVE_NEWS_FETCHER_REVIEW_REQUIRED_SAFE", "fetch_attempted": True, "usable_count": 0, "source_failures": [{"source": "live_news_fetcher", "error": f"{type(exc).__name__}: {exc}"}]}
+            warnings.append(f"live news fetch raised {type(exc).__name__}: {exc}")
+    else:
+        warnings.append("live news skipped by operator flag")
 
     dashboard_written, dashboard_path, dashboard_data = _build_dashboard(current_date, write_dashboard, manual_holdings_path)
     if write_dashboard and not dashboard_written:
@@ -134,6 +164,11 @@ def build_daily_operator_result(
     if not safety_ready:
         blockers.append("safety check did not block execution")
 
+    news_ready = "READY_SAFE" in str(news_data.get("status") or "") and int(news_data.get("usable_count") or 0) > 0
+    if require_news and not news_ready:
+        blockers.append("required_live_news_not_ready")
+    elif include_news and not news_ready:
+        warnings.append("live news not ready; news is a review note, not a daily blocker")
     holdings = ((dashboard_data.get("sections") or {}).get("manual_holdings") or {})
     if not bool(holdings.get("holdings_ready")):
         warnings.append("manual holdings not ready; holdings are a review note, not a daily blocker")
@@ -170,6 +205,11 @@ def build_daily_operator_result(
             "holdings_status": holdings.get("status"),
             "holdings_ready": holdings.get("holdings_ready"),
             "holdings_file_exists": holdings.get("file_exists"),
+            "news_attempted": bool(news_data.get("fetch_attempted")),
+            "news_ready": news_ready,
+            "news_status": news_data.get("status"),
+            "news_headline_count": int(news_data.get("usable_count") or 0),
+            "news_source_failures": len(news_data.get("source_failures") or []),
         },
     )
 
@@ -191,6 +231,10 @@ def format_daily_operator(result: DailyOperatorResult) -> str:
         f"- safety ready: {result.safety_ready}",
         f"- holdings ready: {result.proof.get('holdings_ready')}",
         f"- holdings file exists: {result.proof.get('holdings_file_exists')}",
+        f"- news attempted: {result.proof.get('news_attempted')}",
+        f"- news ready: {result.proof.get('news_ready')}",
+        f"- headline count: {result.proof.get('news_headline_count')}",
+        f"- news source failures: {result.proof.get('news_source_failures')}",
         "",
         "PROOF:",
         f"- final acceptance status: {result.proof.get('final_acceptance_status')}",
@@ -198,6 +242,7 @@ def format_daily_operator(result: DailyOperatorResult) -> str:
         f"- dashboard status: {result.proof.get('dashboard_status')}",
         f"- safety blocked: {result.proof.get('safety_blocked')}",
         f"- holdings status: {result.proof.get('holdings_status')}",
+        f"- news status: {result.proof.get('news_status')}",
         "",
         "WARNINGS:",
         *[f"- {warning}" for warning in result.warnings or ["none"]],
@@ -228,6 +273,9 @@ def main(argv: list[str] | None = None) -> int:
     refresh_quotes = "--skip-refresh" not in args
     write_dashboard = "--no-write-dashboard" not in args
     manual_holdings_path = _arg_value(args, "--holdings-path", DEFAULT_MANUAL_HOLDINGS_PATH)
+    include_news = "--include-news" in args and "--skip-news" not in args
+    require_news = "--require-news" in args
+    news_cache_path = _arg_value(args, "--news-cache-path", DEFAULT_LIVE_NEWS_CACHE_PATH)
 
     result = build_daily_operator_result(
         current_date=current_date,
@@ -235,6 +283,9 @@ def main(argv: list[str] | None = None) -> int:
         write_dashboard=write_dashboard,
         max_targets=max_targets,
         manual_holdings_path=manual_holdings_path,
+        include_news=include_news,
+        require_news=require_news,
+        news_cache_path=news_cache_path,
     )
     print(format_daily_operator(result))
     return 0 if result.daily_operator_ready else 1

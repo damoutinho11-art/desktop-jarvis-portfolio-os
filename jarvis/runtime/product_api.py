@@ -12,6 +12,10 @@ from jarvis.runtime.manual_holdings_update import (
     DEFAULT_MANUAL_HOLDINGS_PATH,
     build_manual_holdings_update_result,
 )
+from jarvis.runtime.live_news_fetcher import (
+    DEFAULT_LIVE_NEWS_CACHE_PATH,
+    build_live_news_fetcher_result,
+)
 from jarvis.runtime.multi_candidate_instrument_selector import build_fast_product_instrument_summary
 from jarvis.runtime.news_coverage_readiness import build_news_coverage_readiness_result
 from jarvis.runtime.product_mode_operator import build_product_mode_result
@@ -37,6 +41,7 @@ class ProductApiResult:
     status_summary: dict[str, Any]
     data_readiness: dict[str, Any]
     news_coverage: dict[str, Any]
+    live_news_context: dict[str, Any]
     instrument_summary: dict[str, Any]
     manual_holdings: dict[str, Any]
     candidate_scores: list[dict[str, Any]]
@@ -113,6 +118,7 @@ def build_product_api_result(
     output_path: str | Path = DEFAULT_OUTPUT_PATH,
     write_report: bool = False,
     manual_holdings_path: str | Path = DEFAULT_MANUAL_HOLDINGS_PATH,
+    live_news_cache_path: str | Path = DEFAULT_LIVE_NEWS_CACHE_PATH,
 ) -> ProductApiResult:
     with _preserve_tracked_approval_ticket():
         return _build_product_api_result_unprotected(
@@ -120,6 +126,7 @@ def build_product_api_result(
             output_path=output_path,
             write_report=write_report,
             manual_holdings_path=manual_holdings_path,
+            live_news_cache_path=live_news_cache_path,
         )
 
 
@@ -129,6 +136,7 @@ def _build_product_api_result_unprotected(
     output_path: str | Path = DEFAULT_OUTPUT_PATH,
     write_report: bool = False,
     manual_holdings_path: str | Path = DEFAULT_MANUAL_HOLDINGS_PATH,
+    live_news_cache_path: str | Path = DEFAULT_LIVE_NEWS_CACHE_PATH,
 ) -> ProductApiResult:
     today = build_product_mode_result(mode="today", current_date=current_date)
     week = build_product_mode_result(mode="week", current_date=current_date)
@@ -157,6 +165,12 @@ def _build_product_api_result_unprotected(
         current_date=current_date, holdings_path=manual_holdings_path
     )
     manual_holdings_data = manual_holdings_result.to_dict()
+    live_news_result = build_live_news_fetcher_result(
+        current_date=current_date,
+        cache_path=live_news_cache_path,
+        fetch_news=False,
+    )
+    live_news_data = live_news_result.to_dict()
 
     product_mode_blockers = [str(item) for item in (week_data.get("blockers") or [])]
     api_relevant_product_blockers = [
@@ -176,6 +190,8 @@ def _build_product_api_result_unprotected(
         blockers.append("safety_check_did_not_block_execution")
     if "BLOCKED_SAFE" in str(manual_holdings_data.get("status") or ""):
         blockers.append("manual_holdings_status_blocked")
+    if "BLOCKED_SAFE" in str(live_news_data.get("status") or ""):
+        blockers.append("live_news_status_blocked")
 
     blockers = list(dict.fromkeys(item for item in blockers if item))
 
@@ -204,6 +220,11 @@ def _build_product_api_result_unprotected(
         )
     else:
         warnings.append("manual holdings are present as read-only local user-entered data")
+    warnings.extend(f"live news: {item}" for item in (live_news_data.get("warnings") or []))
+    if not bool(live_news_data.get("usable_count")):
+        warnings.append("live news cache not ready; this is context-only and not a daily blocker")
+    else:
+        warnings.append("live news cache available as read-only headline context")
     warnings = list(dict.fromkeys(item for item in warnings if item))
 
     result = ProductApiResult(
@@ -238,6 +259,7 @@ def _build_product_api_result_unprotected(
         },
         data_readiness=data_readiness_data,
         news_coverage=news_coverage_data,
+        live_news_context=live_news_data,
         instrument_summary=instrument_summary_data,
         manual_holdings=manual_holdings_data,
         candidate_scores=instrument_summary_data.get("candidate_scores", []),
@@ -316,6 +338,22 @@ def format_product_api(result: ProductApiResult) -> str:
             f"- live news fetch enabled: {result.news_coverage.get('live_news_fetch_enabled')}",
             f"- covered categories: {', '.join(result.news_coverage.get('covered_categories') or []) or 'none'}",
             "",
+            "LIVE NEWS CONTEXT:",
+            f"- status: {result.live_news_context.get('status')}",
+            f"- cache loaded: {result.live_news_context.get('cache_loaded')}",
+            f"- headline count: {result.live_news_context.get('usable_count')}",
+            f"- source failures: {len(result.live_news_context.get('source_failures') or [])}",
+        ]
+    )
+    top_news = result.live_news_context.get("top_headlines") or []
+    if top_news:
+        for item in top_news[:5]:
+            lines.append(f"- headline context: {item.get('title')} | source={item.get('source')} | freshness={item.get('freshness_status')} | url={item.get('url') or 'n/a'}")
+    else:
+        lines.append("- headline context: none")
+    lines.extend(
+        [
+            "",
             "DATA READINESS:",
             f"- readiness ready: {result.data_readiness.get('data_readiness_ready')}",
             f"- missing data: {', '.join(result.data_readiness.get('missing_data') or []) or 'none'}",
@@ -346,6 +384,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--product-api-status", action="store_true")
     parser.add_argument("--current-date", default="2026-06-18")
     parser.add_argument("--write-report", action="store_true")
+    parser.add_argument("--news-cache-path", default=DEFAULT_LIVE_NEWS_CACHE_PATH)
     parser.add_argument("--output-path", default=DEFAULT_OUTPUT_PATH)
     parser.add_argument("--holdings-path", default=DEFAULT_MANUAL_HOLDINGS_PATH)
     args = parser.parse_args(argv)
@@ -353,6 +392,7 @@ def main(argv: list[str] | None = None) -> int:
     result = build_product_api_result(
         current_date=args.current_date,
         write_report=args.write_report,
+        live_news_cache_path=args.news_cache_path,
         output_path=args.output_path,
         manual_holdings_path=args.holdings_path,
     )

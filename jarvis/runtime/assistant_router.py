@@ -26,7 +26,6 @@ from jarvis.runtime.finance_intelligence_core import (
     answer_finance_intelligence_question,
     build_finance_intelligence_core_result,
 )
-from jarvis.runtime.news_intelligence_contract import build_news_intelligence_contract_result
 
 
 STATUS_READY = "JARVIS_V113_0_ASSISTANT_ROUTER_READY_SAFE"
@@ -203,22 +202,15 @@ def build_assistant_router_result(
         confidence = "medium"
         warnings.extend(core.warnings)
     elif intent == "news_context":
-        tool = build_news_intelligence_contract_result(current_date=current_date)
-        reply = "\n".join(
-            [
-                tool.answer_summary,
-                (
-                    "Data / Source / Freshness: source=news_intelligence_contract; "
-                    f"as_of={tool.current_date}; live_news_fetch_enabled={tool.live_news_fetch_enabled}; "
-                    f"local_cached_news_available={tool.local_cached_news_available}; cached_headline_count={tool.cached_headline_count}."
-                ),
-                "Manual checklist: check reputable external headlines, timestamps, URLs, and relevance before any external action.",
-            ]
-        )
-        source = "news_intelligence_contract"
+        tool = build_assistant_news_context_result(current_date=current_date)
+        reply = format_assistant_news_context(tool)
+        source = tool.source
         as_of = tool.current_date
-        freshness = "news_contract_no_live_fetch"
-        confidence = "medium_for_contract_low_for_headlines"
+        freshness = tool.freshness
+        confidence = tool.confidence
+        live_fetch_enabled = bool(tool.live_fetch_enabled)
+        local_cache_only = not bool(tool.live_fetch_enabled)
+        warnings.extend(tool.warnings)
         blockers.extend(tool.blockers)
     elif intent in {"finance_intelligence", "data_freshness", "blockers"}:
         core = build_finance_intelligence_core_result(current_date=current_date)
