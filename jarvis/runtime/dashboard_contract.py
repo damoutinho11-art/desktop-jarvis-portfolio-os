@@ -11,6 +11,7 @@ from typing import Any, Mapping
 from jarvis.runtime.full_system_audit import build_full_system_audit_result
 from jarvis.runtime.finance_intelligence_core import build_finance_intelligence_core_result
 from jarvis.runtime.manual_holdings_update import DEFAULT_MANUAL_HOLDINGS_PATH
+from jarvis.runtime.live_news_fetcher import DEFAULT_LIVE_NEWS_CACHE_PATH
 from jarvis.runtime.product_api import _preserve_tracked_approval_ticket, build_product_api_result
 
 STATUS_READY = "JARVIS_V127_0_DASHBOARD_UX_FINAL_POLISH_READY_SAFE"
@@ -72,6 +73,7 @@ def _build_sections(product_api: dict[str, Any], audit: dict[str, Any], finance:
     news = product_api.get("news_coverage", {}) or {}
     safety = product_api.get("safety_status", {}) or {}
     holdings = product_api.get("manual_holdings", {}) or {}
+    live_news = product_api.get("live_news_context", {}) or {}
 
     return {
         "status": {
@@ -106,6 +108,12 @@ def _build_sections(product_api: dict[str, Any], audit: dict[str, Any], finance:
             "live_news_fetch_enabled": news.get("live_news_fetch_enabled"),
             "manual_review_required": news.get("manual_review_required"),
             "covered_categories": list(news.get("covered_categories", []) or []),
+            "live_news_status": live_news.get("status"),
+            "cache_loaded": live_news.get("cache_loaded"),
+            "headline_count": live_news.get("usable_count"),
+            "source_failures": list(live_news.get("source_failures", []) or []),
+            "top_headlines": list(live_news.get("top_headlines", []) or []),
+            "warnings": list(live_news.get("warnings", []) or []),
         },
         "finance_intelligence": {
             "title": "Finance Intelligence",
@@ -221,26 +229,59 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
         if holdings.get("total_market_value_available")
         else "not available"
     )
+    headline_rows = []
+    for item in news.get("top_headlines", []) or []:
+        headline_rows.append(
+            "<li>"
+            f"<strong>{html.escape(str(item.get('title', '')))}</strong>"
+            f"<span>source={html.escape(str(item.get('source') or 'n/a'))} · "
+            f"freshness={html.escape(str(item.get('freshness_status') or 'n/a'))}</span>"
+            f"<a href=\"{html.escape(str(item.get('url') or '#'))}\">source</a>"
+            "</li>"
+        )
+    headline_list = "".join(headline_rows) if headline_rows else (
+        "<li><strong>No local live news cache yet</strong>"
+        "<span>Run live news fetch when you want public headline context; missing news is not a blocker.</span></li>"
+    )
+    source_failures = len(news.get("source_failures") or [])
+    setup_note = (
+        "Holdings file detected. Review positions before any manual external action."
+        if holdings.get("file_exists")
+        else "Holdings not entered yet. Use the template command after Diogo buys manually outside J.A.R.V.I.S."
+    )
 
     css = """
-    body { margin:0; font-family:Segoe UI, Arial, sans-serif; background:#0b0f14; color:#edf3fb; }
-    header, main { max-width:1180px; margin:0 auto; padding:24px; }
-    h1 { margin-bottom:6px; }
-    .subtitle { color:#9fb0c3; }
-    main { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
-    .card { grid-column:span 6; background:#111823; border:1px solid #27364a; border-radius:18px; padding:20px; }
+    :root { color-scheme: light; --bg:#f5f7fa; --panel:#ffffff; --ink:#17202a; --muted:#627085; --line:#dbe1ea; --ok:#0f7a45; --warn:#9a6500; --risk:#b42318; --accent:#0b6f88; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Segoe UI, Arial, sans-serif; background:var(--bg); color:var(--ink); }
+    header, main { max-width:1220px; margin:0 auto; padding:20px; }
+    h1 { margin:0 0 6px; font-size:clamp(28px,4vw,42px); letter-spacing:0; }
+    h2 { margin:0 0 14px; font-size:20px; letter-spacing:0; }
+    p { color:#39475a; line-height:1.5; }
+    .subtitle { color:var(--muted); }
+    .safety-banner { margin-top:18px; border:1px solid #86d4b1; background:#eaf8f1; color:#10492e; border-radius:8px; padding:14px 16px; font-weight:700; }
+    main { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; padding-top:0; }
+    .card { grid-column:span 6; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:18px; box-shadow:0 1px 2px rgba(20,32,50,.06); }
     .wide { grid-column:span 12; }
-    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-    .metric { background:#162131; border:1px solid #27364a; border-radius:14px; padding:14px; }
-    .label { color:#9fb0c3; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
-    .value { font-size:22px; font-weight:700; margin-top:5px; }
-    .ok { color:#8ef0b0; }
-    .warn { color:#ffd166; }
+    .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+    .metric { min-height:74px; border-left:4px solid var(--accent); padding:8px 10px; background:#f8fafc; }
+    .label { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.06em; }
+    .value { font-size:21px; font-weight:750; margin-top:5px; overflow-wrap:anywhere; }
+    .ok { color:var(--ok); }
+    .warn { color:var(--warn); }
+    .risk { color:var(--risk); }
+    .badge { display:inline-block; padding:4px 8px; border-radius:999px; background:#edf7fa; color:#0b5e72; border:1px solid #b8dfe8; font-size:12px; font-weight:700; }
+    .headline-list { list-style:none; padding:0; margin:0; display:grid; gap:10px; }
+    .headline-list li { border-top:1px solid var(--line); padding-top:10px; display:grid; gap:3px; }
+    .headline-list span, .command-list span { color:var(--muted); font-size:13px; }
+    .command-list { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .command-list li { padding:10px; background:#f8fafc; border:1px solid var(--line); border-radius:6px; }
+    code { font-family:Cascadia Mono, Consolas, monospace; background:#eef2f7; border:1px solid #d7deea; border-radius:4px; padding:2px 5px; }
     table { width:100%; border-collapse:collapse; margin-top:14px; }
-    th, td { text-align:left; padding:10px 8px; border-bottom:1px solid #27364a; }
-    th { color:#9fb0c3; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
-    ul { margin:0; padding-left:20px; color:#c7d3e2; }
-    @media (max-width:820px) { .card { grid-column:span 12; } .grid { grid-template-columns:1fr; } }
+    th, td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+    th { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.06em; }
+    ul { margin:0; padding-left:20px; color:#39475a; }
+    @media (max-width:820px) { header, main { padding:14px; } .card { grid-column:span 12; } .grid, .command-list { grid-template-columns:1fr; } .value { font-size:19px; } }
     """
 
     return f"""<!doctype html>
@@ -255,10 +296,11 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <header>
 <h1>J.A.R.V.I.S. Portfolio Dashboard</h1>
 <div class="subtitle">Generated locally from the read-only product API. Current date: {html.escape(result.current_date)}</div>
+<div class="safety-banner">Manual-only safety: Diogo buys outside J.A.R.V.I.S. No broker connection, credentials, orders, trades, buy/sell requests, or auto-approval.</div>
 </header>
 <main>
 <section class="card wide">
-<h2>Today's Manual Action Summary</h2>
+<h2>Today's Manual Plan</h2>
 <div class="grid">
 <div class="metric"><div class="label">Emergency Top-up</div><div class="value">{_money(week.get("emergency_top_up_eur"))}</div></div>
 <div class="metric"><div class="label">Crypto</div><div class="value">{_money(week.get("crypto_eur"))}</div></div>
@@ -276,7 +318,7 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 </section>
 
 <section class="card wide">
-<h2>Readiness</h2>
+<h2>Top Status / Readiness</h2>
 <div class="grid">
 <div class="metric"><div class="label">Dashboard</div><div class="value ok">{status.get("dashboard_ready")}</div></div>
 <div class="metric"><div class="label">Chat</div><div class="value ok">{status.get("chat_ready")}</div></div>
@@ -300,7 +342,7 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 </section>
 
 <section class="card wide">
-<h2>Manual Holdings</h2>
+<h2>Holdings Status</h2>
 <div class="grid">
 <div class="metric"><div class="label">File Exists</div><div class="value warn">{holdings.get("file_exists")}</div></div>
 <div class="metric"><div class="label">Holdings Ready</div><div class="value warn">{holdings.get("holdings_ready")}</div></div>
@@ -310,14 +352,13 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <div class="metric"><div class="label">Market Value</div><div class="value">{html.escape(holdings_market_value)}</div></div>
 </div>
 <ul>
-<li>Status: {html.escape(str(holdings.get("status")))}</li>
-<li>{'holdings not entered yet' if not holdings.get("file_exists") else 'holdings file detected; review values before acting manually'}</li>
+<li>{html.escape(setup_note)}</li>
 <li>This section is read-only and records Diogo manual entries only.</li>
 </ul>
 <table><thead><tr><th>Symbol</th><th>Name</th><th>Lane</th><th>Quantity</th><th>Cost Basis</th><th>Market Value</th><th>Platform</th></tr></thead><tbody>{holdings_table}</tbody></table>
 </section>
 
-<section class="card"><h2>Data</h2><ul>
+<section class="card"><h2>Market Data</h2><ul>
 <li>Ready: {data.get("data_readiness_ready")}</li>
 <li>Crypto candidates: {data.get("crypto_candidates")}</li>
 <li>ETF/fund candidates: {data.get("etf_candidates")}</li>
@@ -326,14 +367,17 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <li>Missing universe: {html.escape(", ".join(data.get("missing_universe") or []) or "none")}</li>
 </ul></section>
 
-<section class="card"><h2>News</h2><ul>
-<li>Coverage ready: {news.get("news_coverage_ready")}</li>
-<li>Live fetch enabled: {news.get("live_news_fetch_enabled")}</li>
-<li>Manual review required: {news.get("manual_review_required")}</li>
-<li>Covered: {html.escape(", ".join(news.get("covered_categories") or []) or "none")}</li>
-</ul></section>
+<section class="card"><h2>Live News / Headline Context</h2>
+<div class="grid">
+<div class="metric"><div class="label">Headlines</div><div class="value">{html.escape(str(news.get("headline_count") or 0))}</div></div>
+<div class="metric"><div class="label">Cache Loaded</div><div class="value">{news.get("cache_loaded")}</div></div>
+<div class="metric"><div class="label">Source Failures</div><div class="value warn">{source_failures}</div></div>
+</div>
+<p><span class="badge">Possible context only</span> Headlines do not prove why prices moved. Check source time, URL, and relevance before any manual action.</p>
+<ul class="headline-list">{headline_list}</ul>
+</section>
 
-<section class="card wide"><h2>Finance Intelligence</h2>
+<section class="card wide"><h2>Market Movement</h2>
 <div class="grid">
 <div class="metric"><div class="label">Trusted Records</div><div class="value">{html.escape(str(trust.get("trusted_records")))}</div></div>
 <div class="metric"><div class="label">Partial Records</div><div class="value warn">{html.escape(str(trust.get("partial_records")))}</div></div>
@@ -343,7 +387,7 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <table><thead><tr><th>Symbol</th><th>Classification</th><th>Trusted</th><th>Freshness</th><th>Next Action</th></tr></thead><tbody>{coverage_table}</tbody></table>
 </section>
 
-<section class="card"><h2>Safety</h2><ul>
+<section class="card"><h2>Risk & Safety</h2><ul>
 <li>Safety-check blocked execution: {safety.get("safety_check_blocked_execution")}</li>
 <li>Manual approval required: {safety.get("manual_approval_required")}</li>
 <li>Execution forbidden: {safety.get("execution_forbidden")}</li>
@@ -361,16 +405,23 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <li>Speed ready: {audit.get("speed_ready")}</li>
 </ul></section>
 
-<section class="card wide"><h2>Warnings & Manual Review Notes</h2><details open><summary>Review dashboard warnings</summary><ul>{_html_list(result.warnings)}</ul></details></section>
+<section class="card wide"><h2>Blockers / Warnings</h2><details open><summary>Review dashboard warnings</summary><ul>{_html_list(result.warnings)}</ul></details></section>
 <section class="card wide"><h2>Blockers</h2><ul>{_html_list(result.blockers)}</ul></section>
-<section class="card wide"><h2>Manual QA Checklist</h2><ul>
+<section class="card wide"><h2>How to Use Today</h2><ul>
 <li>Confirm the weekly manual plan total matches the contribution.</li>
 <li>Confirm BTC, ETH, ETF/fund, and stock rows are visible.</li>
-<li>Confirm Manual Holdings is visible; if missing, it says holdings not entered yet.</li>
-<li>Confirm news coverage is ready, while live news fetch remains disabled.</li>
-<li>Confirm finance intelligence shows ETF gaps and data trust honestly.</li>
+<li>Confirm Holdings Status is visible; if missing, it says holdings not entered yet.</li>
+<li>Confirm Live News / Headline Context shows source and freshness labels when available.</li>
+<li>Confirm Market Movement shows data trust honestly.</li>
 <li>Confirm safety shows no broker, credentials, orders, or trades.</li>
-<li>Open command: start .\\outputs\\dashboard_latest.html</li>
+</ul></section>
+<section class="card wide"><h2>Useful Commands</h2>
+<ul class="command-list">
+<li><code>Start Jarvis.bat</code><span>Open the local app launcher.</span></li>
+<li><code>python .\\jarvis_operator.py --daily-operator --current-date {html.escape(result.current_date)} --skip-refresh</code><span>Run the daily manual operator.</span></li>
+<li><code>python .\\jarvis_operator.py --holdings-status --current-date {html.escape(result.current_date)}</code><span>Check manual holdings status.</span></li>
+<li><code>python .\\jarvis_operator.py --write-holdings-template --current-date {html.escape(result.current_date)}</code><span>Create the blank holdings template.</span></li>
+<li><code>python .\\jarvis_operator.py --post-app-acceptance-gate --current-date {html.escape(result.current_date)}</code><span>Verify the app is ready for manual use.</span></li>
 </ul></section>
 </main>
 </body>
@@ -386,6 +437,7 @@ def build_dashboard_contract_result(
     write_report: bool = False,
     write_dashboard: bool = False,
     manual_holdings_path: str | Path = DEFAULT_MANUAL_HOLDINGS_PATH,
+    live_news_cache_path: str | Path = DEFAULT_LIVE_NEWS_CACHE_PATH,
 ) -> DashboardContractResult:
     with _preserve_tracked_approval_ticket():
         return _build_dashboard_contract_result_unprotected(
@@ -395,6 +447,7 @@ def build_dashboard_contract_result(
             write_report=write_report,
             write_dashboard=write_dashboard,
             manual_holdings_path=manual_holdings_path,
+            live_news_cache_path=live_news_cache_path,
         )
 
 
@@ -406,9 +459,14 @@ def _build_dashboard_contract_result_unprotected(
     write_report: bool = False,
     write_dashboard: bool = False,
     manual_holdings_path: str | Path = DEFAULT_MANUAL_HOLDINGS_PATH,
+    live_news_cache_path: str | Path = DEFAULT_LIVE_NEWS_CACHE_PATH,
 ) -> DashboardContractResult:
     started = time.perf_counter()
-    product_api_result = build_product_api_result(current_date=current_date, manual_holdings_path=manual_holdings_path)
+    product_api_result = build_product_api_result(
+        current_date=current_date,
+        manual_holdings_path=manual_holdings_path,
+        live_news_cache_path=live_news_cache_path,
+    )
     product_api_elapsed_seconds = round(time.perf_counter() - started, 3)
     product_api = _plain(product_api_result)
     audit = _plain(
@@ -583,6 +641,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output-path", default=DEFAULT_OUTPUT_PATH)
     parser.add_argument("--dashboard-path", default=DEFAULT_DASHBOARD_PATH)
     parser.add_argument("--holdings-path", default=DEFAULT_MANUAL_HOLDINGS_PATH)
+    parser.add_argument("--news-cache-path", default=DEFAULT_LIVE_NEWS_CACHE_PATH)
     args = parser.parse_args(argv)
 
     result = build_dashboard_contract_result(
@@ -592,6 +651,7 @@ def main(argv: list[str] | None = None) -> int:
         write_report=args.write_report,
         write_dashboard=args.write_dashboard,
         manual_holdings_path=args.holdings_path,
+        live_news_cache_path=args.news_cache_path,
     )
     print(format_dashboard_contract(result))
     return 0 if not result.blockers else 1
