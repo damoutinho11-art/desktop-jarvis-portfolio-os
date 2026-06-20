@@ -368,7 +368,7 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <header>
 <h1>J.A.R.V.I.S. Portfolio Dashboard</h1>
 <div class="subtitle">Generated locally from the read-only product API. Current date: {html.escape(result.current_date)}</div>
-<div class="safety-banner">Manual-only safety: Diogo buys outside J.A.R.V.I.S. No broker connection, credentials, orders, trades, buy/sell requests, or auto-approval.</div>
+<div class="safety-banner">Manual-only safety: Diogo buys outside J.A.R.V.I.S. No broker. No credentials. No orders. No trades. No buy/sell requests. No auto-approval.</div>
 <div class="status-hero"><span>App Status</span><strong class="{display_status_class}">{display_status}</strong><span>{html.escape(blockers_label)}</span></div>
 </header>
 <main>
