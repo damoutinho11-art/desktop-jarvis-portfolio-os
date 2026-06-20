@@ -346,7 +346,10 @@ def build_assistant_router_result(
         confidence = "high"
         warnings.extend(product_warnings)
     elif intent == "what_changed":
-        reply = _what_changed_reply()
+        from jarvis.runtime.what_changed_since_last_time import build_what_changed_since_last_time_result
+
+        changed = build_what_changed_since_last_time_result(current_date=current_date)
+        reply = _jarvis_close(f"Good evening, Diogo. {changed.summary_text}")
         source = "jarvis_session_memory"
         freshness = "local_memory"
         confidence = "medium"
