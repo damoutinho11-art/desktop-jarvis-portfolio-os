@@ -45,10 +45,22 @@ if exist "%~dp0outputs\dashboard_latest.html" (
 )
 
 echo.
+if /I "%JARVIS_OPEN_CHAT%"=="1" (
+    echo Opening local chat at http://127.0.0.1:8765/chat ...
+    start "J.A.R.V.I.S. Chat Server" cmd /k python "%~dp0jarvis_operator.py" --local-server --current-date %JARVIS_CURRENT_DATE% --host 127.0.0.1 --port 8765
+    timeout /t 2 /nobreak >nul
+    start "" "http://127.0.0.1:8765/chat"
+) else (
+    echo Optional chat is off. To open it, run:
+    echo set JARVIS_OPEN_CHAT=1
+    echo Start Jarvis.bat
+)
+
+echo.
 echo Safety reminder:
 echo - Manual approval required.
-echo - Buy outside J.A.R.V.I.S.
-echo - No broker, credential, order, trade, or auto-approval path is enabled.
+echo - Diogo makes any real-world purchase outside J.A.R.V.I.S.
+echo - No broker. No credentials. No orders. No trades. No auto-approval.
 echo.
 pause
 endlocal

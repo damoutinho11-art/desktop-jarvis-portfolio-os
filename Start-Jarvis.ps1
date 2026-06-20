@@ -43,9 +43,30 @@ if (Test-Path $dashboard) {
 }
 
 Write-Host ""
+if ($env:JARVIS_OPEN_CHAT -eq "1") {
+    Write-Host "Opening local chat at http://127.0.0.1:8765/chat ..."
+    Start-Process -WindowStyle Hidden python -ArgumentList @(
+        "$PSScriptRoot\jarvis_operator.py",
+        "--local-server",
+        "--current-date",
+        $currentDate,
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8765"
+    )
+    Start-Sleep -Seconds 2
+    Start-Process "http://127.0.0.1:8765/chat"
+} else {
+    Write-Host "Optional chat is off. To open it:"
+    Write-Host '$env:JARVIS_OPEN_CHAT = "1"'
+    Write-Host ".\Start-Jarvis.ps1"
+}
+
+Write-Host ""
 Write-Host "Safety reminder:"
 Write-Host "- Manual approval required."
-Write-Host "- Buy outside J.A.R.V.I.S."
-Write-Host "- No broker, credential, order, trade, or auto-approval path is enabled."
+Write-Host "- Diogo makes any real-world purchase outside J.A.R.V.I.S."
+Write-Host "- No broker. No credentials. No orders. No trades. No auto-approval."
 Write-Host ""
 Read-Host "Press Enter to exit"
