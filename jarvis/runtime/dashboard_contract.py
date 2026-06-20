@@ -314,21 +314,30 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
         if holdings.get("total_market_value_available")
         else "not available"
     )
-    headline_rows = []
+    headline_chips = []
     for item in (news.get("top_headlines", []) or [])[:8]:
         tag = _headline_tag(item)
-        headline_rows.append(
-            "<li>"
+        headline_chips.append(
+            "<article class=\"headline-chip\">"
             f"<span class=\"headline-tag\">{html.escape(tag)}</span>"
             f"<strong>{html.escape(str(item.get('title', '')))}</strong>"
             f"<span>{html.escape(str(item.get('source') or 'public source'))} | "
             f"{html.escape(str(item.get('freshness_status') or 'freshness unknown'))}</span>"
             f"<a href=\"{html.escape(str(item.get('url') or '#'))}\">source</a>"
-            "</li>"
+            "</article>"
         )
-    headline_list = "".join(headline_rows) if headline_rows else (
-        "<li class=\"headline-empty\"><strong>News unavailable &mdash; not blocking today's manual plan.</strong>"
-        "<span>Public headlines are optional context and never an action signal.</span></li>"
+    headline_items = "".join(headline_chips)
+    headline_ticker = (
+        "<div class=\"headline-ticker\" aria-label=\"Market headlines ticker\">"
+        f"<div class=\"headline-track\">{headline_items}{headline_items}</div>"
+        "</div>"
+        if headline_chips
+        else (
+            "<div class=\"headline-ticker headline-ticker-empty\">"
+            "<strong>Headlines are quiet - not blocking today's manual plan.</strong>"
+            "<span>Public headlines are optional context and never an action signal.</span>"
+            "</div>"
+        )
     )
     source_failures = len(news.get("source_failures") or [])
     setup_note = (
@@ -364,11 +373,14 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
     .warn { color:var(--warn); }
     .risk { color:var(--risk); }
     .badge { display:inline-block; padding:4px 8px; border-radius:999px; background:#edf7fa; color:#0b5e72; border:1px solid #b8dfe8; font-size:12px; font-weight:700; }
-    .headline-list { list-style:none; padding:0; margin:0; display:flex; flex-wrap:wrap; gap:10px; }
-    .headline-list li { min-width:min(100%, 250px); flex:1 1 250px; border:1px solid var(--line); background:#fbfcf9; border-radius:12px; padding:11px; display:grid; gap:5px; }
-    .headline-list span, .action-card span { color:var(--muted); font-size:13px; }
+    .headline-ticker { width:100%; overflow:hidden; border:1px solid var(--line); background:#fbfcf9; border-radius:12px; padding:10px; }
+    .headline-track { display:flex; width:max-content; gap:10px; animation:ticker-scroll 44s linear infinite; }
+    .headline-ticker:hover .headline-track { animation-play-state:paused; }
+    .headline-chip { min-width:280px; max-width:380px; border:1px solid var(--line); background:#fff; border-radius:10px; padding:11px; display:grid; gap:5px; }
+    .headline-chip span, .action-card span, .headline-ticker-empty span { color:var(--muted); font-size:13px; }
     .headline-tag { width:max-content; color:#174f43 !important; background:#e6f4ee; border:1px solid #bee1d1; border-radius:999px; padding:3px 7px; font-size:11px !important; font-weight:800; }
-    .headline-empty { flex-basis:100%; }
+    .headline-ticker-empty { display:grid; gap:5px; }
+    @keyframes ticker-scroll { from { transform:translateX(0); } to { transform:translateX(-50%); } }
     .action-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
     .action-card { padding:13px; background:#fafbf8; border:1px solid var(--line); border-radius:12px; display:grid; gap:6px; }
     .action-card strong { font-size:15px; }
@@ -464,7 +476,7 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <div class="metric"><div class="label">Source Failures</div><div class="value warn">{source_failures}</div></div>
 </div>
 <p><span class="badge">Possible context only</span> Public headlines are optional and never recommend action from headline alone.</p>
-<ul class="headline-list">{headline_list}</ul>
+{headline_ticker}
 </section>
 
 <section class="card wide"><h2>Market Movement</h2>
