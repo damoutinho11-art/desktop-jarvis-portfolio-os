@@ -47,6 +47,7 @@ from jarvis.runtime.manual_holdings_update import main as _manual_holdings_updat
 from jarvis.runtime.user_runbook import main as _user_runbook_main
 from jarvis.runtime.post_app_acceptance_gate import main as _post_app_acceptance_gate_main
 from jarvis.runtime.live_news_fetcher import main as _live_news_fetcher_main
+from jarvis.runtime.dashboard_noise_audit import main as _dashboard_noise_audit_main
 
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
@@ -101,6 +102,7 @@ ACTIVE_MANUAL_HOLDINGS_UPDATE_MODULE = "jarvis.runtime.manual_holdings_update"
 ACTIVE_USER_RUNBOOK_MODULE = "jarvis.runtime.user_runbook"
 ACTIVE_POST_APP_ACCEPTANCE_GATE_MODULE = "jarvis.runtime.post_app_acceptance_gate"
 ACTIVE_LIVE_NEWS_FETCHER_MODULE = "jarvis.runtime.live_news_fetcher"
+ACTIVE_DASHBOARD_NOISE_AUDIT_MODULE = "jarvis.runtime.dashboard_noise_audit"
 
 
 def get_active_runtime_surface() -> dict[str, str]:
@@ -175,6 +177,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_user_runbook_module": ACTIVE_USER_RUNBOOK_MODULE,
         "active_post_app_acceptance_gate_module": ACTIVE_POST_APP_ACCEPTANCE_GATE_MODULE,
         "active_live_news_fetcher_module": ACTIVE_LIVE_NEWS_FETCHER_MODULE,
+        "active_dashboard_noise_audit_module": ACTIVE_DASHBOARD_NOISE_AUDIT_MODULE,
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -267,6 +270,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if "--live-news-fetch" in args or "--live-news-status" in args:
         return _live_news_fetcher_main(args)
+
+    if "--dashboard-noise-audit" in args:
+        return _dashboard_noise_audit_main(args)
 
     if "--user-runbook" in args:
         return _user_runbook_main(args)
@@ -368,6 +374,7 @@ __all__ = [
     "ACTIVE_USER_RUNBOOK_MODULE",
     "ACTIVE_POST_APP_ACCEPTANCE_GATE_MODULE",
     "ACTIVE_LIVE_NEWS_FETCHER_MODULE",
+    "ACTIVE_DASHBOARD_NOISE_AUDIT_MODULE",
     "ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE",
     "ACTIVE_RUNTIME_MODULE",
     "ACTIVE_SELECTED_INSTRUMENT_RESOLVER_MODULE",
