@@ -226,6 +226,7 @@ def render_chat_page() -> str:
         <div class="preset-grid" aria-label="Preset questions">
           <button class="preset" type="button" data-question="What is my plan today?">What is my plan today?</button>
           <button class="preset" type="button" data-question="What happened today?">What happened today?</button>
+          <button class="preset" type="button" data-question="What changed since last time?">What changed since last time?</button>
           <button class="preset" type="button" data-question="Why these instruments?">Why these instruments?</button>
           <button class="preset" type="button" data-question="Can I trust this data?">Can I trust this data?</button>
           <button class="preset" type="button" data-question="What news matters to my portfolio?">What news matters?</button>

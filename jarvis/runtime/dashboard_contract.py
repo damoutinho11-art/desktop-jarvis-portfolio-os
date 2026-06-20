@@ -13,6 +13,13 @@ from jarvis.runtime.finance_intelligence_core import build_finance_intelligence_
 from jarvis.runtime.manual_holdings_update import DEFAULT_MANUAL_HOLDINGS_PATH
 from jarvis.runtime.live_news_fetcher import DEFAULT_LIVE_NEWS_CACHE_PATH
 from jarvis.runtime.product_api import _preserve_tracked_approval_ticket, build_product_api_result
+from jarvis.runtime.jarvis_session_memory import (
+    DEFAULT_SESSION_MEMORY_PATH,
+    build_safe_session_snapshot,
+    load_session_memory,
+    summarize_session_memory,
+)
+from jarvis.runtime.what_changed_since_last_time import build_what_changed_since_last_time_result
 
 STATUS_READY = "JARVIS_V140_0_DASHBOARD_DAILY_UI_CLEANUP_READY_SAFE"
 STATUS_REVIEW_REQUIRED = "JARVIS_V99_0_DASHBOARD_CONTRACT_REVIEW_REQUIRED_SAFE"
@@ -67,13 +74,25 @@ def _html_list(items: list[Any]) -> str:
     return "".join(f"<li>{html.escape(str(item))}</li>" for item in items)
 
 
-def _build_sections(product_api: dict[str, Any], audit: dict[str, Any], finance: dict[str, Any]) -> dict[str, Any]:
+def _build_sections(
+    product_api: dict[str, Any],
+    audit: dict[str, Any],
+    finance: dict[str, Any],
+    *,
+    current_date: str = "2026-06-20",
+) -> dict[str, Any]:
     week = product_api.get("week_plan", {}) or {}
     data = product_api.get("data_readiness", {}) or {}
     news = product_api.get("news_coverage", {}) or {}
     safety = product_api.get("safety_status", {}) or {}
     holdings = product_api.get("manual_holdings", {}) or {}
     live_news = product_api.get("live_news_context", {}) or {}
+    memory_snapshot = load_session_memory()
+    current_snapshot = build_safe_session_snapshot(current_date=current_date, product_api_result=product_api)
+    changed = build_what_changed_since_last_time_result(
+        current_date=current_date,
+        current_snapshot=current_snapshot,
+    )
 
     return {
         "status": {
@@ -156,6 +175,24 @@ def _build_sections(product_api: dict[str, Any], audit: dict[str, Any], finance:
             "safety_ready": audit.get("safety_ready"),
             "speed_ready": audit.get("speed_ready"),
             "warnings": list(audit.get("warnings", []) or []),
+        },
+        "session_memory": {
+            "title": "Last Session",
+            "first_run": memory_snapshot is None,
+            "memory_exists": bool(memory_snapshot),
+            "memory_path": DEFAULT_SESSION_MEMORY_PATH,
+            "summary_text": summarize_session_memory(memory_snapshot),
+            "safe_derived_summary_only": True,
+        },
+        "what_changed": {
+            "title": "What Changed Since Last Time",
+            "first_run": changed.first_run,
+            "comparison_available": changed.comparison_available,
+            "summary_text": changed.summary_text,
+            "changes": list(changed.changes or []),
+            "manual_only": changed.manual_only,
+            "blockers": list(changed.blockers or []),
+            "warnings": list(changed.warnings or []),
         },
     }
 
@@ -254,6 +291,8 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
     holdings = sections["manual_holdings"]
     safety = sections["safety"]
     audit = sections["audit"]
+    memory = sections.get("session_memory", {})
+    changed = sections.get("what_changed", {})
 
     rows = []
     for item in week.get("selected_instruments", []) or []:
@@ -349,6 +388,17 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
     display_status_class = "ok" if display_status == "READY FOR MANUAL USE" else "warn"
     blockers_label = "None — ready for manual use" if not result.blockers else "; ".join(result.blockers)
     daily_notes = "".join(f"<li>{html.escape(item)}</li>" for item in _calm_dashboard_notes(result, holdings, news))
+    memory_label = "First run" if memory.get("first_run", True) else "Memory found"
+    memory_summary = str(
+        memory.get("summary_text")
+        or "First run: no previous J.A.R.V.I.S. session memory exists yet. This is safe and not a blocker."
+    )
+    changed_label = "First run" if changed.get("first_run", True) else "Comparison ready"
+    changed_summary = str(
+        changed.get("summary_text")
+        or "Since last time: first run. No previous safe snapshot exists yet, so no comparison is available."
+    )
+    changed_rows = _html_list(list(changed.get("changes") or ["No previous safe snapshot exists yet."]))
 
     css = """
     :root { color-scheme: light; --bg:#f6f7f4; --panel:#ffffff; --ink:#17202a; --muted:#687386; --line:#dfe4dc; --ok:#0f7a45; --warn:#9a6500; --risk:#b42318; --accent:#2f6f63; --soft:#eef6f2; }
@@ -429,6 +479,21 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <section class="card wide">
 <h2>Daily Notes</h2>
 <ul>{daily_notes}</ul>
+</section>
+
+<section class="card"><h2>Last Session</h2>
+<p><span class="badge">{html.escape(memory_label)}</span></p>
+<p>{html.escape(memory_summary)}</p>
+<ul>
+<li>Safe derived summaries only.</li>
+<li>Memory path: <code>{html.escape(str(memory.get("memory_path") or DEFAULT_SESSION_MEMORY_PATH))}</code></li>
+</ul>
+</section>
+
+<section class="card"><h2>What Changed Since Last Time</h2>
+<p><span class="badge">{html.escape(changed_label)}</span></p>
+<p>{html.escape(changed_summary)}</p>
+<ul>{changed_rows}</ul>
 </section>
 
 <section class="card wide">
@@ -573,7 +638,7 @@ def _build_dashboard_contract_result_unprotected(
     )
     finance_result = build_finance_intelligence_core_result(current_date=current_date)
     finance = _plain(finance_result)
-    sections = _build_sections(product_api, audit, finance)
+    sections = _build_sections(product_api, audit, finance, current_date=current_date)
     safety = sections["safety"]
 
     manual_only = bool(
