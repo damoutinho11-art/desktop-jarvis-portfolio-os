@@ -50,6 +50,7 @@ from jarvis.runtime.live_news_fetcher import main as _live_news_fetcher_main
 from jarvis.runtime.dashboard_noise_audit import main as _dashboard_noise_audit_main
 from jarvis.runtime.dashboard_calm_ui_freeze_gate import main as _dashboard_calm_ui_freeze_gate_main
 from jarvis.runtime.jarvis_session_memory import main as _jarvis_session_memory_main
+from jarvis.runtime.voice_briefing import main as _voice_briefing_main
 
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
@@ -107,6 +108,7 @@ ACTIVE_LIVE_NEWS_FETCHER_MODULE = "jarvis.runtime.live_news_fetcher"
 ACTIVE_DASHBOARD_NOISE_AUDIT_MODULE = "jarvis.runtime.dashboard_noise_audit"
 ACTIVE_DASHBOARD_CALM_UI_FREEZE_GATE_MODULE = "jarvis.runtime.dashboard_calm_ui_freeze_gate"
 ACTIVE_JARVIS_SESSION_MEMORY_MODULE = "jarvis.runtime.jarvis_session_memory"
+ACTIVE_VOICE_BRIEFING_MODULE = "jarvis.runtime.voice_briefing"
 
 
 def get_active_runtime_surface() -> dict[str, str]:
@@ -184,6 +186,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_dashboard_noise_audit_module": ACTIVE_DASHBOARD_NOISE_AUDIT_MODULE,
         "active_dashboard_calm_ui_freeze_gate_module": ACTIVE_DASHBOARD_CALM_UI_FREEZE_GATE_MODULE,
         "active_jarvis_session_memory_module": ACTIVE_JARVIS_SESSION_MEMORY_MODULE,
+        "active_voice_briefing_module": ACTIVE_VOICE_BRIEFING_MODULE,
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -293,6 +296,9 @@ def main(argv: list[str] | None = None) -> int:
     ):
         return _jarvis_session_memory_main(args)
 
+    if "--voice-briefing" in args or "--voice-briefing-text" in args:
+        return _voice_briefing_main(args)
+
     if "--user-runbook" in args:
         return _user_runbook_main(args)
 
@@ -396,6 +402,7 @@ __all__ = [
     "ACTIVE_DASHBOARD_NOISE_AUDIT_MODULE",
     "ACTIVE_DASHBOARD_CALM_UI_FREEZE_GATE_MODULE",
     "ACTIVE_JARVIS_SESSION_MEMORY_MODULE",
+    "ACTIVE_VOICE_BRIEFING_MODULE",
     "ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE",
     "ACTIVE_RUNTIME_MODULE",
     "ACTIVE_SELECTED_INSTRUMENT_RESOLVER_MODULE",
