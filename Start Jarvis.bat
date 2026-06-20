@@ -33,27 +33,26 @@ if errorlevel 1 (
 echo.
 echo ============================================================
 echo  J.A.R.V.I.S. daily operator completed.
-echo  Opening dashboard...
+echo  Opening local app dashboard and chat...
 echo ============================================================
 echo.
 
-if exist "%~dp0outputs\dashboard_latest.html" (
-    start "" "%~dp0outputs\dashboard_latest.html"
-) else (
-    echo Dashboard file was not found:
-    echo "%~dp0outputs\dashboard_latest.html"
-)
+echo Starting local app server at http://127.0.0.1:8765 ...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$argsList = @('%~dp0jarvis_operator.py','--local-server','--current-date','%JARVIS_CURRENT_DATE%','--host','127.0.0.1','--port','8765'); Start-Process -WindowStyle Hidden python -ArgumentList $argsList"
+timeout /t 2 /nobreak >nul
 
-echo.
-if /I "%JARVIS_OPEN_CHAT%"=="1" (
-    echo Opening local chat at http://127.0.0.1:8765/chat ...
-    start "J.A.R.V.I.S. Chat Server" cmd /k python "%~dp0jarvis_operator.py" --local-server --current-date %JARVIS_CURRENT_DATE% --host 127.0.0.1 --port 8765
-    timeout /t 2 /nobreak >nul
-    start "" "http://127.0.0.1:8765/chat"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $r = Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:8765/health' -TimeoutSec 5; if ($r.StatusCode -eq 200) { exit 0 } else { exit 1 } } catch { exit 1 }"
+if errorlevel 1 (
+    echo Local app was not ready yet. Opening static dashboard fallback if available...
+    if exist "%~dp0outputs\dashboard_latest.html" (
+        start "" "%~dp0outputs\dashboard_latest.html"
+    ) else (
+        echo Dashboard fallback file was not found:
+        echo "%~dp0outputs\dashboard_latest.html"
+    )
 ) else (
-    echo Optional chat is off. To open it, run:
-    echo set JARVIS_OPEN_CHAT=1
-    echo Start Jarvis.bat
+    start "" "http://127.0.0.1:8765/dashboard"
+    start "" "http://127.0.0.1:8765/chat"
 )
 
 echo.

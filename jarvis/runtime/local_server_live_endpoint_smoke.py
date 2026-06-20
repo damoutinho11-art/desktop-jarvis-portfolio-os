@@ -28,6 +28,7 @@ class LocalServerLiveEndpointSmokeResult:
     bound_port: int
     health_ready: bool
     dashboard_ready: bool
+    chat_page_ready: bool
     api_status_ready: bool
     api_finance_intelligence_ready: bool
     api_chat_ready: bool
@@ -75,6 +76,31 @@ class _SafeFixtureChatResult:
             "open_dashboard_command": self.open_dashboard_command,
             "warnings": list(self.warnings),
             "blockers": list(self.blockers),
+        }
+
+
+@dataclass
+class _SafeFixtureAssistantRouterResult:
+    query: str
+    reply: str = (
+        "Safety is active. Safety-check blocked execution: True. "
+        "Manual approval required: True. Execution forbidden: True. "
+        "Broker connection: False. Credentials used: False. "
+        "Order created: False. Trade executed: False."
+    )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "status": "JARVIS_V149_SAFE_FIXTURE_ASSISTANT_ROUTER_READY",
+            "query": self.query,
+            "reply": self.reply,
+            "manual_only": True,
+            "broker_connection": False,
+            "credentials_used": False,
+            "order_created": False,
+            "trade_executed": False,
+            "warnings": ["safe fixture assistant router payload for live endpoint smoke"],
+            "blockers": [],
         }
 
 
@@ -147,6 +173,10 @@ def _safe_fixture_chat_contract(*, query: str = "", **kwargs: Any) -> _SafeFixtu
     return _SafeFixtureChatResult(query=query)
 
 
+def _safe_fixture_assistant_router(*, query: str = "", **kwargs: Any) -> _SafeFixtureAssistantRouterResult:
+    return _SafeFixtureAssistantRouterResult(query=query)
+
+
 def _safe_fixture_product_api(*args: Any, **kwargs: Any) -> _SafeFixtureProductApiResult:
     return _SafeFixtureProductApiResult()
 
@@ -210,6 +240,7 @@ def build_local_server_live_endpoint_smoke_result(
 
     with ExitStack() as stack:
         stack.enter_context(patch("jarvis.runtime.local_server.build_chat_interface_contract_result", _safe_fixture_chat_contract))
+        stack.enter_context(patch("jarvis.runtime.local_server.build_assistant_router_result", _safe_fixture_assistant_router))
         stack.enter_context(patch("jarvis.runtime.local_server.build_dashboard_contract_result", _safe_fixture_dashboard_contract))
         stack.enter_context(patch("jarvis.runtime.local_server.build_product_api_result", _safe_fixture_product_api))
         stack.enter_context(patch("jarvis.runtime.local_server.build_finance_intelligence_core_result", _safe_fixture_finance_intelligence))
@@ -237,6 +268,12 @@ def build_local_server_live_endpoint_smoke_result(
                 method="GET",
                 path="/dashboard",
             )
+            chat_page_status, chat_page_html = _request_text(
+                host=host,
+                port=bound_port,
+                method="GET",
+                path="/chat",
+            )
         finally:
             server.shutdown()
             server.server_close()
@@ -261,6 +298,12 @@ def build_local_server_live_endpoint_smoke_result(
         and not bool(api_chat.get("trade_executed"))
     )
     dashboard_ready = dashboard_status == 200 and "J.A.R.V.I.S. Portfolio Dashboard" in dashboard_html
+    chat_page_ready = (
+        chat_page_status == 200
+        and "J.A.R.V.I.S. Local Chat" in chat_page_html
+        and "no broker" in chat_page_html.lower()
+        and "no trades" in chat_page_html.lower()
+    )
 
     manual_only = bool(health.get("manual_only"))
     execution_forbidden = bool(health.get("execution_forbidden"))
@@ -275,6 +318,7 @@ def build_local_server_live_endpoint_smoke_result(
         "GET /api/finance-intelligence": {"status": api_finance_code, "ready": api_finance_ready},
         "POST /api/chat": {"status": api_chat_code, "ready": api_chat_ready},
         "GET /dashboard": {"status": dashboard_status, "ready": dashboard_ready},
+        "GET /chat": {"status": chat_page_status, "ready": chat_page_ready},
     }
 
     if not health_ready:
@@ -287,6 +331,8 @@ def build_local_server_live_endpoint_smoke_result(
         blockers.append("api_chat_endpoint_not_ready")
     if not dashboard_ready:
         blockers.append("dashboard_endpoint_not_ready")
+    if not chat_page_ready:
+        blockers.append("chat_page_endpoint_not_ready")
     if not manual_only:
         blockers.append("manual_only_not_confirmed")
     if not execution_forbidden:
@@ -312,6 +358,7 @@ def build_local_server_live_endpoint_smoke_result(
         bound_port=bound_port,
         health_ready=health_ready,
         dashboard_ready=dashboard_ready,
+        chat_page_ready=chat_page_ready,
         api_status_ready=api_status_ready,
         api_finance_intelligence_ready=api_finance_ready,
         api_chat_ready=api_chat_ready,

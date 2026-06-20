@@ -31,6 +31,7 @@ class JarvisV1050LocalServerLiveEndpointSmokeTests(unittest.TestCase):
         self.assertTrue(self.result.api_status_ready)
         self.assertTrue(self.result.api_chat_ready)
         self.assertTrue(self.result.dashboard_ready)
+        self.assertTrue(self.result.chat_page_ready)
 
         for check in self.result.http_checks.values():
             self.assertEqual(check["status"], 200)
@@ -52,6 +53,7 @@ class JarvisV1050LocalServerLiveEndpointSmokeTests(unittest.TestCase):
         self.assertIn("GET /api/status", output)
         self.assertIn("POST /api/chat", output)
         self.assertIn("GET /dashboard", output)
+        self.assertIn("GET /chat", output)
         self.assertIn("trade executed: False", output)
         self.assertIn("BLOCKERS:", output)
 
@@ -59,7 +61,7 @@ class JarvisV1050LocalServerLiveEndpointSmokeTests(unittest.TestCase):
         self.assertTrue(operator.ACTIVE_RUNTIME_STAGE.startswith("v"))
         self.assertIn(
             operator.CURRENT_OPERATOR_SURFACE,
-            {"local_browser_chat_page", "browser_chat_ux_polish", "assistant_tool_registry", "assistant_data_source_registry", "assistant_asset_lookup", "assistant_market_context", "assistant_news_context", "assistant_router", "assistant_answer_style_polish", "assistant_system_audit"},
+            {"local_browser_chat_page", "browser_chat_ux_polish", "assistant_tool_registry", "assistant_data_source_registry", "assistant_asset_lookup", "assistant_market_context", "assistant_news_context", "assistant_router", "assistant_answer_style_polish", "assistant_system_audit", "live_news_ui_acceptance_gate"},
         )
 
         source = Path("jarvis/runtime/operator.py").read_text(encoding="utf-8")

@@ -28,39 +28,47 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $dashboard = Join-Path $PSScriptRoot "outputs\dashboard_latest.html"
+$appBaseUrl = "http://127.0.0.1:8765"
 
 Write-Host ""
 Write-Host "============================================================"
 Write-Host " J.A.R.V.I.S. daily operator completed."
-Write-Host " Opening dashboard..."
+Write-Host " Opening local app dashboard and chat..."
 Write-Host "============================================================"
 Write-Host ""
 
-if (Test-Path $dashboard) {
-    Start-Process $dashboard
-} else {
-    Write-Host "Dashboard file was not found: $dashboard"
+Write-Host "Starting local app server at $appBaseUrl ..."
+Start-Process -WindowStyle Hidden python -ArgumentList @(
+    "$PSScriptRoot\jarvis_operator.py",
+    "--local-server",
+    "--current-date",
+    $currentDate,
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "8765"
+)
+
+Start-Sleep -Seconds 2
+
+$appReady = $false
+try {
+    $health = Invoke-WebRequest -UseBasicParsing -Uri "$appBaseUrl/health" -TimeoutSec 5
+    $appReady = $health.StatusCode -eq 200
+} catch {
+    $appReady = $false
 }
 
-Write-Host ""
-if ($env:JARVIS_OPEN_CHAT -eq "1") {
-    Write-Host "Opening local chat at http://127.0.0.1:8765/chat ..."
-    Start-Process -WindowStyle Hidden python -ArgumentList @(
-        "$PSScriptRoot\jarvis_operator.py",
-        "--local-server",
-        "--current-date",
-        $currentDate,
-        "--host",
-        "127.0.0.1",
-        "--port",
-        "8765"
-    )
-    Start-Sleep -Seconds 2
-    Start-Process "http://127.0.0.1:8765/chat"
+if ($appReady) {
+    Start-Process "$appBaseUrl/dashboard"
+    Start-Process "$appBaseUrl/chat"
 } else {
-    Write-Host "Optional chat is off. To open it:"
-    Write-Host '$env:JARVIS_OPEN_CHAT = "1"'
-    Write-Host ".\Start-Jarvis.ps1"
+    Write-Host "Local app was not ready yet. Opening static dashboard fallback if available..."
+    if (Test-Path $dashboard) {
+        Start-Process $dashboard
+    } else {
+        Write-Host "Dashboard fallback file was not found: $dashboard"
+    }
 }
 
 Write-Host ""
