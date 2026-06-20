@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 
-STATUS_READY = "JARVIS_V124_0_SELECTED_INSTRUMENT_MOVEMENT_COMPLETENESS_READY_SAFE"
+STATUS_READY = "JARVIS_V126_0_PRODUCT_UX_STATUS_AND_MSFT_MOVEMENT_READY_SAFE"
 DEFAULT_CACHE_PATH = "jarvis/local/public_data/v120_public_universe_quote_cache.local.json"
 DEFAULT_OUTPUT_PATH = "outputs/public_universe_quote_fetch_latest.json"
 
@@ -30,6 +30,7 @@ CRYPTO_ID_MAP = {
 
 CORE_CRYPTO_REFRESH_SYMBOLS = ("BTC", "ETH")
 SELECTED_ETF_MOVEMENT_REFRESH_SYMBOLS = ("GLOBAL_CORE_ETF", "IS3Q.DE", "VWCE")
+SELECTED_STOCK_MOVEMENT_REFRESH_SYMBOLS = ("MSFT",)
 
 UNRESOLVED_PROVIDER_SYMBOLS = {
     "GROWTH_NASDAQ_ETF": "autonomous identity unresolved: generic growth/Nasdaq sleeve has no verified tradable ticker/ISIN yet",
@@ -484,6 +485,14 @@ def build_quote_fetch_targets(current_date: str, max_targets: int = 30) -> tuple
         if target is not None:
             targets.append(target)
             seen.add(etf_symbol)
+
+    for stock_symbol in SELECTED_STOCK_MOVEMENT_REFRESH_SYMBOLS:
+        if stock_symbol in seen:
+            continue
+        target = _target_from_symbol(stock_symbol, "individual_stock")
+        if target is not None:
+            targets.append(target)
+            seen.add(stock_symbol)
 
     return targets, unresolved
 
