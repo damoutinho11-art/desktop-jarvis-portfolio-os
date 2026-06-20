@@ -53,6 +53,7 @@ from jarvis.runtime.jarvis_session_memory import main as _jarvis_session_memory_
 from jarvis.runtime.voice_briefing import main as _voice_briefing_main
 from jarvis.runtime.what_changed_since_last_time import main as _what_changed_since_last_time_main
 from jarvis.runtime.local_app_packaging_polish import main as _local_app_packaging_polish_main
+from jarvis.runtime.final_safe_jarvis_experience_gate import main as _final_safe_jarvis_experience_gate_main
 
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
@@ -113,6 +114,7 @@ ACTIVE_JARVIS_SESSION_MEMORY_MODULE = "jarvis.runtime.jarvis_session_memory"
 ACTIVE_VOICE_BRIEFING_MODULE = "jarvis.runtime.voice_briefing"
 ACTIVE_WHAT_CHANGED_SINCE_LAST_TIME_MODULE = "jarvis.runtime.what_changed_since_last_time"
 ACTIVE_LOCAL_APP_PACKAGING_POLISH_MODULE = "jarvis.runtime.local_app_packaging_polish"
+ACTIVE_FINAL_SAFE_JARVIS_EXPERIENCE_GATE_MODULE = "jarvis.runtime.final_safe_jarvis_experience_gate"
 
 
 def get_active_runtime_surface() -> dict[str, str]:
@@ -193,6 +195,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_voice_briefing_module": ACTIVE_VOICE_BRIEFING_MODULE,
         "active_what_changed_since_last_time_module": ACTIVE_WHAT_CHANGED_SINCE_LAST_TIME_MODULE,
         "active_local_app_packaging_polish_module": ACTIVE_LOCAL_APP_PACKAGING_POLISH_MODULE,
+        "active_final_safe_jarvis_experience_gate_module": ACTIVE_FINAL_SAFE_JARVIS_EXPERIENCE_GATE_MODULE,
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -311,6 +314,9 @@ def main(argv: list[str] | None = None) -> int:
     if "--local-app-packaging-polish" in args:
         return _local_app_packaging_polish_main(args)
 
+    if "--final-safe-jarvis-experience-gate" in args:
+        return _final_safe_jarvis_experience_gate_main(args)
+
     if "--user-runbook" in args:
         return _user_runbook_main(args)
 
@@ -417,6 +423,7 @@ __all__ = [
     "ACTIVE_VOICE_BRIEFING_MODULE",
     "ACTIVE_WHAT_CHANGED_SINCE_LAST_TIME_MODULE",
     "ACTIVE_LOCAL_APP_PACKAGING_POLISH_MODULE",
+    "ACTIVE_FINAL_SAFE_JARVIS_EXPERIENCE_GATE_MODULE",
     "ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE",
     "ACTIVE_RUNTIME_MODULE",
     "ACTIVE_SELECTED_INSTRUMENT_RESOLVER_MODULE",
