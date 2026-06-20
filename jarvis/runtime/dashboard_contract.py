@@ -10,6 +10,7 @@ from typing import Any, Mapping
 
 from jarvis.runtime.full_system_audit import build_full_system_audit_result
 from jarvis.runtime.finance_intelligence_core import build_finance_intelligence_core_result
+from jarvis.runtime.manual_holdings_update import DEFAULT_MANUAL_HOLDINGS_PATH
 from jarvis.runtime.product_api import _preserve_tracked_approval_ticket, build_product_api_result
 
 STATUS_READY = "JARVIS_V127_0_DASHBOARD_UX_FINAL_POLISH_READY_SAFE"
@@ -70,6 +71,7 @@ def _build_sections(product_api: dict[str, Any], audit: dict[str, Any], finance:
     data = product_api.get("data_readiness", {}) or {}
     news = product_api.get("news_coverage", {}) or {}
     safety = product_api.get("safety_status", {}) or {}
+    holdings = product_api.get("manual_holdings", {}) or {}
 
     return {
         "status": {
@@ -115,6 +117,19 @@ def _build_sections(product_api: dict[str, Any], audit: dict[str, Any], finance:
             "news_summary": dict(finance.get("news_summary", {}) or {}),
             "manual_qa_checklist": list(finance.get("manual_qa_checklist", []) or []),
         },
+        "manual_holdings": {
+            "title": "Manual Holdings",
+            "status": holdings.get("status"),
+            "holdings_ready": holdings.get("holdings_ready"),
+            "file_exists": holdings.get("file_exists"),
+            "positions_count": holdings.get("positions_count"),
+            "confirmed_positions_count": holdings.get("confirmed_positions_count"),
+            "total_cost_basis_eur": holdings.get("total_cost_basis_eur"),
+            "total_market_value_eur": holdings.get("total_market_value_eur"),
+            "total_market_value_available": holdings.get("total_market_value_available"),
+            "positions": list(holdings.get("positions", []) or []),
+            "warnings": list(holdings.get("warnings", []) or []),
+        },
         "safety": {
             "title": "Safety",
             "safety_check_blocked_execution": safety.get("safety_check_blocked_execution"),
@@ -144,6 +159,7 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
     data = sections["data"]
     news = sections["news"]
     finance = sections["finance_intelligence"]
+    holdings = sections["manual_holdings"]
     safety = sections["safety"]
     audit = sections["audit"]
 
@@ -182,6 +198,29 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
             "</tr>"
         )
     coverage_table = "".join(coverage_rows) if coverage_rows else "<tr><td colspan='5'>none</td></tr>"
+
+    holdings_rows = []
+    for item in holdings.get("positions", []) or []:
+        holdings_rows.append(
+            "<tr>"
+            f"<td>{html.escape(str(item.get('symbol', '')))}</td>"
+            f"<td>{html.escape(str(item.get('name', '')))}</td>"
+            f"<td>{html.escape(str(item.get('lane', '')))}</td>"
+            f"<td>{html.escape(str(item.get('quantity', '')))}</td>"
+            f"<td>{html.escape(_money(item.get('cost_basis_eur')))}</td>"
+            f"<td>{html.escape(_money(item.get('market_value_eur')) if item.get('market_value_eur') is not None else 'not available')}</td>"
+            f"<td>{html.escape(str(item.get('platform', '')))}</td>"
+            "</tr>"
+        )
+    if holdings_rows:
+        holdings_table = "".join(holdings_rows)
+    else:
+        holdings_table = "<tr><td colspan='7'>holdings not entered yet</td></tr>"
+    holdings_market_value = (
+        _money(holdings.get("total_market_value_eur"))
+        if holdings.get("total_market_value_available")
+        else "not available"
+    )
 
     css = """
     body { margin:0; font-family:Segoe UI, Arial, sans-serif; background:#0b0f14; color:#edf3fb; }
@@ -260,6 +299,24 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <table><thead><tr><th>Lane</th><th>Instrument</th><th>Amount</th></tr></thead><tbody>{selected_rows}</tbody></table>
 </section>
 
+<section class="card wide">
+<h2>Manual Holdings</h2>
+<div class="grid">
+<div class="metric"><div class="label">File Exists</div><div class="value warn">{holdings.get("file_exists")}</div></div>
+<div class="metric"><div class="label">Holdings Ready</div><div class="value warn">{holdings.get("holdings_ready")}</div></div>
+<div class="metric"><div class="label">Positions</div><div class="value">{html.escape(str(holdings.get("positions_count")))}</div></div>
+<div class="metric"><div class="label">Confirmed</div><div class="value">{html.escape(str(holdings.get("confirmed_positions_count")))}</div></div>
+<div class="metric"><div class="label">Cost Basis</div><div class="value">{_money(holdings.get("total_cost_basis_eur"))}</div></div>
+<div class="metric"><div class="label">Market Value</div><div class="value">{html.escape(holdings_market_value)}</div></div>
+</div>
+<ul>
+<li>Status: {html.escape(str(holdings.get("status")))}</li>
+<li>{'holdings not entered yet' if not holdings.get("file_exists") else 'holdings file detected; review values before acting manually'}</li>
+<li>This section is read-only and records Diogo manual entries only.</li>
+</ul>
+<table><thead><tr><th>Symbol</th><th>Name</th><th>Lane</th><th>Quantity</th><th>Cost Basis</th><th>Market Value</th><th>Platform</th></tr></thead><tbody>{holdings_table}</tbody></table>
+</section>
+
 <section class="card"><h2>Data</h2><ul>
 <li>Ready: {data.get("data_readiness_ready")}</li>
 <li>Crypto candidates: {data.get("crypto_candidates")}</li>
@@ -309,6 +366,7 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <section class="card wide"><h2>Manual QA Checklist</h2><ul>
 <li>Confirm the weekly manual plan total matches the contribution.</li>
 <li>Confirm BTC, ETH, ETF/fund, and stock rows are visible.</li>
+<li>Confirm Manual Holdings is visible; if missing, it says holdings not entered yet.</li>
 <li>Confirm news coverage is ready, while live news fetch remains disabled.</li>
 <li>Confirm finance intelligence shows ETF gaps and data trust honestly.</li>
 <li>Confirm safety shows no broker, credentials, orders, or trades.</li>
@@ -327,6 +385,7 @@ def build_dashboard_contract_result(
     dashboard_path: str | Path = DEFAULT_DASHBOARD_PATH,
     write_report: bool = False,
     write_dashboard: bool = False,
+    manual_holdings_path: str | Path = DEFAULT_MANUAL_HOLDINGS_PATH,
 ) -> DashboardContractResult:
     with _preserve_tracked_approval_ticket():
         return _build_dashboard_contract_result_unprotected(
@@ -335,6 +394,7 @@ def build_dashboard_contract_result(
             dashboard_path=dashboard_path,
             write_report=write_report,
             write_dashboard=write_dashboard,
+            manual_holdings_path=manual_holdings_path,
         )
 
 
@@ -345,9 +405,10 @@ def _build_dashboard_contract_result_unprotected(
     dashboard_path: str | Path = DEFAULT_DASHBOARD_PATH,
     write_report: bool = False,
     write_dashboard: bool = False,
+    manual_holdings_path: str | Path = DEFAULT_MANUAL_HOLDINGS_PATH,
 ) -> DashboardContractResult:
     started = time.perf_counter()
-    product_api_result = build_product_api_result(current_date=current_date)
+    product_api_result = build_product_api_result(current_date=current_date, manual_holdings_path=manual_holdings_path)
     product_api_elapsed_seconds = round(time.perf_counter() - started, 3)
     product_api = _plain(product_api_result)
     audit = _plain(
@@ -494,6 +555,7 @@ def format_dashboard_contract(result: DashboardContractResult) -> str:
         "QA CHECKLIST:",
         "- verify Weekly Manual Plan is visible",
         "- verify BTC, ETH, ETF/fund, and MSFT rows are visible",
+        "- verify Manual Holdings is visible and missing holdings are a review note",
         "- verify News and Safety sections are visible",
         "- verify Blockers is none before manual action",
         "",
@@ -520,6 +582,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--write-dashboard", action="store_true")
     parser.add_argument("--output-path", default=DEFAULT_OUTPUT_PATH)
     parser.add_argument("--dashboard-path", default=DEFAULT_DASHBOARD_PATH)
+    parser.add_argument("--holdings-path", default=DEFAULT_MANUAL_HOLDINGS_PATH)
     args = parser.parse_args(argv)
 
     result = build_dashboard_contract_result(
@@ -528,6 +591,7 @@ def main(argv: list[str] | None = None) -> int:
         dashboard_path=args.dashboard_path,
         write_report=args.write_report,
         write_dashboard=args.write_dashboard,
+        manual_holdings_path=args.holdings_path,
     )
     print(format_dashboard_contract(result))
     return 0 if not result.blockers else 1

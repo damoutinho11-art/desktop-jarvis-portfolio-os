@@ -8,6 +8,10 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from jarvis.runtime.data_readiness_status import build_data_readiness_status_result
+from jarvis.runtime.manual_holdings_update import (
+    DEFAULT_MANUAL_HOLDINGS_PATH,
+    build_manual_holdings_update_result,
+)
 from jarvis.runtime.multi_candidate_instrument_selector import build_fast_product_instrument_summary
 from jarvis.runtime.news_coverage_readiness import build_news_coverage_readiness_result
 from jarvis.runtime.product_mode_operator import build_product_mode_result
@@ -34,6 +38,7 @@ class ProductApiResult:
     data_readiness: dict[str, Any]
     news_coverage: dict[str, Any]
     instrument_summary: dict[str, Any]
+    manual_holdings: dict[str, Any]
     candidate_scores: list[dict[str, Any]]
     safety_status: dict[str, Any]
     warnings: list[str]
@@ -107,12 +112,14 @@ def build_product_api_result(
     current_date: str = "2026-06-18",
     output_path: str | Path = DEFAULT_OUTPUT_PATH,
     write_report: bool = False,
+    manual_holdings_path: str | Path = DEFAULT_MANUAL_HOLDINGS_PATH,
 ) -> ProductApiResult:
     with _preserve_tracked_approval_ticket():
         return _build_product_api_result_unprotected(
             current_date=current_date,
             output_path=output_path,
             write_report=write_report,
+            manual_holdings_path=manual_holdings_path,
         )
 
 
@@ -121,6 +128,7 @@ def _build_product_api_result_unprotected(
     current_date: str = "2026-06-18",
     output_path: str | Path = DEFAULT_OUTPUT_PATH,
     write_report: bool = False,
+    manual_holdings_path: str | Path = DEFAULT_MANUAL_HOLDINGS_PATH,
 ) -> ProductApiResult:
     today = build_product_mode_result(mode="today", current_date=current_date)
     week = build_product_mode_result(mode="week", current_date=current_date)
@@ -145,6 +153,10 @@ def _build_product_api_result_unprotected(
     instrument_summary_data = instrument_summary.to_dict()
 
     safety = _safety_status()
+    manual_holdings_result = build_manual_holdings_update_result(
+        current_date=current_date, holdings_path=manual_holdings_path
+    )
+    manual_holdings_data = manual_holdings_result.to_dict()
 
     product_mode_blockers = [str(item) for item in (week_data.get("blockers") or [])]
     api_relevant_product_blockers = [
@@ -162,6 +174,8 @@ def _build_product_api_result_unprotected(
         blockers.append("news_coverage_not_ready")
     if not safety.get("safety_check_blocked_execution"):
         blockers.append("safety_check_did_not_block_execution")
+    if "BLOCKED_SAFE" in str(manual_holdings_data.get("status") or ""):
+        blockers.append("manual_holdings_status_blocked")
 
     blockers = list(dict.fromkeys(item for item in blockers if item))
 
@@ -183,6 +197,13 @@ def _build_product_api_result_unprotected(
     warnings.extend(str(item) for item in (data_readiness_data.get("warnings") or []))
     warnings.extend(str(item) for item in (news_coverage_data.get("warnings") or []))
     warnings.extend(str(item) for item in (instrument_summary_data.get("warnings") or []))
+    warnings.extend(f"manual holdings: {item}" for item in (manual_holdings_data.get("warnings") or []))
+    if not bool(manual_holdings_data.get("holdings_ready")):
+        warnings.append(
+            "manual holdings not ready; Diogo can still use the daily operator manually after review"
+        )
+    else:
+        warnings.append("manual holdings are present as read-only local user-entered data")
     warnings = list(dict.fromkeys(item for item in warnings if item))
 
     result = ProductApiResult(
@@ -218,6 +239,7 @@ def _build_product_api_result_unprotected(
         data_readiness=data_readiness_data,
         news_coverage=news_coverage_data,
         instrument_summary=instrument_summary_data,
+        manual_holdings=manual_holdings_data,
         candidate_scores=instrument_summary_data.get("candidate_scores", []),
         safety_status=safety,
         warnings=warnings,
@@ -266,6 +288,26 @@ def format_product_api(result: ProductApiResult) -> str:
     else:
         lines.append("- none")
 
+    holdings = result.manual_holdings or {}
+    lines.extend(
+        [
+            "",
+            "MANUAL HOLDINGS:",
+            f"- status: {holdings.get('status')}",
+            f"- holdings ready: {holdings.get('holdings_ready')}",
+            f"- file exists: {holdings.get('file_exists')}",
+            f"- positions: {holdings.get('positions_count')}",
+            f"- confirmed positions: {holdings.get('confirmed_positions_count')}",
+            f"- total cost basis: EUR {float(holdings.get('total_cost_basis_eur') or 0.0):.2f}",
+        ]
+    )
+    if holdings.get("total_market_value_available"):
+        lines.append(f"- total market value: EUR {float(holdings.get('total_market_value_eur') or 0.0):.2f}")
+    else:
+        lines.append("- total market value: not available")
+    if not holdings.get("file_exists"):
+        lines.append("- holdings not entered yet")
+
     lines.extend(
         [
             "",
@@ -305,12 +347,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--current-date", default="2026-06-18")
     parser.add_argument("--write-report", action="store_true")
     parser.add_argument("--output-path", default=DEFAULT_OUTPUT_PATH)
+    parser.add_argument("--holdings-path", default=DEFAULT_MANUAL_HOLDINGS_PATH)
     args = parser.parse_args(argv)
 
     result = build_product_api_result(
         current_date=args.current_date,
         write_report=args.write_report,
         output_path=args.output_path,
+        manual_holdings_path=args.holdings_path,
     )
     print(format_product_api(result))
     return 0 if result.api_ready else 1

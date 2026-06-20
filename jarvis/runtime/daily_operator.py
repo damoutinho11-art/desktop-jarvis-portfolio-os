@@ -11,6 +11,7 @@ from jarvis.runtime.final_product_acceptance_gate import (
     build_final_product_acceptance_gate_result,
     format_final_product_acceptance_gate,
 )
+from jarvis.runtime.manual_holdings_update import DEFAULT_MANUAL_HOLDINGS_PATH
 from jarvis.runtime.product_mode_operator import build_product_mode_result
 from jarvis.runtime.public_universe_quote_fetcher import main as _quote_fetcher_main
 from jarvis.runtime.safety import build_safety_check_console_output
@@ -75,9 +76,13 @@ def _run_quote_refresh(current_date: str, max_targets: int) -> tuple[int, str]:
     return int(exit_code or 0), buffer.getvalue()
 
 
-def _build_dashboard(current_date: str, write_dashboard: bool) -> tuple[bool, str, dict[str, Any]]:
+def _build_dashboard(
+    current_date: str, write_dashboard: bool, manual_holdings_path: str | Path
+) -> tuple[bool, str, dict[str, Any]]:
     try:
-        dashboard = build_dashboard_contract_result(current_date=current_date, write_dashboard=write_dashboard)
+        dashboard = build_dashboard_contract_result(
+            current_date=current_date, write_dashboard=write_dashboard, manual_holdings_path=manual_holdings_path
+        )
     except TypeError:
         dashboard = build_dashboard_contract_result(current_date=current_date)
     data = _plain(dashboard)
@@ -92,6 +97,7 @@ def build_daily_operator_result(
     refresh_quotes: bool = True,
     write_dashboard: bool = True,
     max_targets: int = 10,
+    manual_holdings_path: str | Path = DEFAULT_MANUAL_HOLDINGS_PATH,
 ) -> DailyOperatorResult:
     blockers: list[str] = []
     warnings: list[str] = []
@@ -109,7 +115,7 @@ def build_daily_operator_result(
     else:
         warnings.append("quote refresh skipped by operator flag")
 
-    dashboard_written, dashboard_path, dashboard_data = _build_dashboard(current_date, write_dashboard)
+    dashboard_written, dashboard_path, dashboard_data = _build_dashboard(current_date, write_dashboard, manual_holdings_path)
     if write_dashboard and not dashboard_written:
         blockers.append("dashboard was not written")
 
@@ -128,9 +134,15 @@ def build_daily_operator_result(
     if not safety_ready:
         blockers.append("safety check did not block execution")
 
+    holdings = ((dashboard_data.get("sections") or {}).get("manual_holdings") or {})
+    if not bool(holdings.get("holdings_ready")):
+        warnings.append("manual holdings not ready; holdings are a review note, not a daily blocker")
+
     warnings.extend(_clean_warnings(list(product_data.get("warnings") or [])))
     warnings.extend(_clean_warnings(list(final_gate.warnings or [])))
     warnings.append("daily operator is read-only/manual-only and creates no broker/order/trade capability")
+    if not bool(holdings.get("file_exists")):
+        warnings.append("manual holdings file missing; Diogo has not entered actual buys yet")
     warnings = _clean_warnings(list(dict.fromkeys(warnings)))
 
     ready = not blockers
@@ -155,6 +167,9 @@ def build_daily_operator_result(
             "dashboard_status": dashboard_data.get("status"),
             "dashboard_path": dashboard_path,
             "safety_blocked": safety_ready,
+            "holdings_status": holdings.get("status"),
+            "holdings_ready": holdings.get("holdings_ready"),
+            "holdings_file_exists": holdings.get("file_exists"),
         },
     )
 
@@ -174,12 +189,15 @@ def format_daily_operator(result: DailyOperatorResult) -> str:
         f"- quote refresh attempted: {result.quote_refresh_attempted}",
         f"- quote refresh exit code: {result.quote_refresh_exit_code}",
         f"- safety ready: {result.safety_ready}",
+        f"- holdings ready: {result.proof.get('holdings_ready')}",
+        f"- holdings file exists: {result.proof.get('holdings_file_exists')}",
         "",
         "PROOF:",
         f"- final acceptance status: {result.proof.get('final_acceptance_status')}",
         f"- product status: {result.proof.get('product_status')}",
         f"- dashboard status: {result.proof.get('dashboard_status')}",
         f"- safety blocked: {result.proof.get('safety_blocked')}",
+        f"- holdings status: {result.proof.get('holdings_status')}",
         "",
         "WARNINGS:",
         *[f"- {warning}" for warning in result.warnings or ["none"]],
@@ -209,12 +227,14 @@ def main(argv: list[str] | None = None) -> int:
     max_targets = int(_arg_value(args, "--max-targets", "10"))
     refresh_quotes = "--skip-refresh" not in args
     write_dashboard = "--no-write-dashboard" not in args
+    manual_holdings_path = _arg_value(args, "--holdings-path", DEFAULT_MANUAL_HOLDINGS_PATH)
 
     result = build_daily_operator_result(
         current_date=current_date,
         refresh_quotes=refresh_quotes,
         write_dashboard=write_dashboard,
         max_targets=max_targets,
+        manual_holdings_path=manual_holdings_path,
     )
     print(format_daily_operator(result))
     return 0 if result.daily_operator_ready else 1
