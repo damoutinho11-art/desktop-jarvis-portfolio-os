@@ -208,6 +208,26 @@ def _friendly_freshness(value: Any) -> str:
         return "fresh"
     return str(value)
 
+
+def _headline_tag(item: Mapping[str, Any]) -> str:
+    entities = [str(value) for value in (item.get("entity_tags") or []) if value]
+    lanes = [str(value) for value in (item.get("lane_tags") or []) if value]
+    joined = " ".join(entities + lanes).lower()
+    if "btc" in joined or "bitcoin" in joined:
+        return "BTC"
+    if "eth" in joined or "ethereum" in joined:
+        return "ETH"
+    if "msft" in joined or "microsoft" in joined:
+        return "MSFT"
+    if "etf" in joined or "fund" in joined:
+        return "ETF"
+    if "macro" in joined or "rates" in joined or "central bank" in joined:
+        return "Macro"
+    if "market" in joined:
+        return "Market"
+    return "Market"
+
+
 def _calm_dashboard_notes(result: DashboardContractResult, holdings: Mapping[str, Any], news: Mapping[str, Any]) -> list[str]:
     notes: list[str] = []
     if result.blockers:
@@ -295,18 +315,20 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
         else "not available"
     )
     headline_rows = []
-    for item in news.get("top_headlines", []) or []:
+    for item in (news.get("top_headlines", []) or [])[:8]:
+        tag = _headline_tag(item)
         headline_rows.append(
             "<li>"
+            f"<span class=\"headline-tag\">{html.escape(tag)}</span>"
             f"<strong>{html.escape(str(item.get('title', '')))}</strong>"
-            f"<span>source={html.escape(str(item.get('source') or 'n/a'))} · "
-            f"freshness={html.escape(str(item.get('freshness_status') or 'n/a'))}</span>"
+            f"<span>{html.escape(str(item.get('source') or 'public source'))} | "
+            f"{html.escape(str(item.get('freshness_status') or 'freshness unknown'))}</span>"
             f"<a href=\"{html.escape(str(item.get('url') or '#'))}\">source</a>"
             "</li>"
         )
     headline_list = "".join(headline_rows) if headline_rows else (
-        "<li><strong>No local live news cache yet</strong>"
-        "<span>Run live news fetch when you want public headline context; missing news is not a blocker.</span></li>"
+        "<li class=\"headline-empty\"><strong>News unavailable &mdash; not blocking today's manual plan.</strong>"
+        "<span>Public headlines are optional context and never an action signal.</span></li>"
     )
     source_failures = len(news.get("source_failures") or [])
     setup_note = (
@@ -342,9 +364,11 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
     .warn { color:var(--warn); }
     .risk { color:var(--risk); }
     .badge { display:inline-block; padding:4px 8px; border-radius:999px; background:#edf7fa; color:#0b5e72; border:1px solid #b8dfe8; font-size:12px; font-weight:700; }
-    .headline-list { list-style:none; padding:0; margin:0; display:grid; gap:10px; }
-    .headline-list li { border-top:1px solid var(--line); padding-top:10px; display:grid; gap:3px; }
+    .headline-list { list-style:none; padding:0; margin:0; display:flex; flex-wrap:wrap; gap:10px; }
+    .headline-list li { min-width:min(100%, 250px); flex:1 1 250px; border:1px solid var(--line); background:#fbfcf9; border-radius:12px; padding:11px; display:grid; gap:5px; }
     .headline-list span, .action-card span { color:var(--muted); font-size:13px; }
+    .headline-tag { width:max-content; color:#174f43 !important; background:#e6f4ee; border:1px solid #bee1d1; border-radius:999px; padding:3px 7px; font-size:11px !important; font-weight:800; }
+    .headline-empty { flex-basis:100%; }
     .action-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
     .action-card { padding:13px; background:#fafbf8; border:1px solid var(--line); border-radius:12px; display:grid; gap:6px; }
     .action-card strong { font-size:15px; }
@@ -433,13 +457,13 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 <li>Missing universe: {html.escape(", ".join(data.get("missing_universe") or []) or "none")}</li>
 </ul></section>
 
-<section class="card"><h2>Live News / Headline Context</h2>
+<section class="card"><h2>Market Headlines</h2>
 <div class="grid">
 <div class="metric"><div class="label">Headlines</div><div class="value">{html.escape(str(news.get("headline_count") or 0))}</div></div>
 <div class="metric"><div class="label">Cache Loaded</div><div class="value">{_yes_no(news.get("cache_loaded"))}</div></div>
 <div class="metric"><div class="label">Source Failures</div><div class="value warn">{source_failures}</div></div>
 </div>
-<p><span class="badge">Possible context only</span> Headlines do not prove why prices moved. Check source time, URL, and relevance before any manual action.</p>
+<p><span class="badge">Possible context only</span> Public headlines are optional and never recommend action from headline alone.</p>
 <ul class="headline-list">{headline_list}</ul>
 </section>
 

@@ -18,6 +18,7 @@ REQUIRED_MARKERS: tuple[str, ...] = (
     "READY FOR MANUAL USE",
     "Daily Notes",
     "Today's Manual Plan",
+    "Market Headlines",
     "Market Movement",
     "Risk & Safety",
     "System Checks",
