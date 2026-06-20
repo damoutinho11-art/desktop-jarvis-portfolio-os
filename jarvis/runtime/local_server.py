@@ -155,6 +155,7 @@ def render_chat_page() -> str:
     main { max-width: 960px; margin: 0 auto; padding: 32px 20px 48px; }
     .shell { display: grid; gap: 18px; }
     .card { background: #171b24; border: 1px solid #2a3343; border-radius: 8px; padding: 22px; box-shadow: 0 18px 40px rgba(0,0,0,.26); }
+    .hero-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
     h1 { margin: 0 0 8px; font-size: 32px; letter-spacing: 0; }
     h2 { margin: 0 0 12px; font-size: 17px; letter-spacing: 0; }
     .muted { color: #aeb8c8; line-height: 1.55; }
@@ -180,14 +181,34 @@ def render_chat_page() -> str:
     .loading.active { visibility: visible; }
     pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; line-height: 1.5; color: #f5f8ff; }
     .links a { color: #d8e7ff; margin-right: 14px; }
+    .jarvis-orb { position: relative; width: 86px; height: 86px; flex: 0 0 auto; border-radius: 999px; background: radial-gradient(circle at 38% 32%, #f8fbff 0 7%, #7ee7d4 10% 24%, #2e8ccc 38%, #17233a 68%); box-shadow: 0 0 24px rgba(126,231,212,.28), inset 0 0 22px rgba(255,255,255,.14); overflow: hidden; animation: orbPulse 3.6s ease-in-out infinite; }
+    .jarvis-orb::before, .jarvis-orb::after { content: ""; position: absolute; inset: 10px; border-radius: inherit; border: 1px solid rgba(248,251,255,.28); animation: orbRing 2.6s ease-in-out infinite; }
+    .jarvis-orb::after { inset: 20px; border-color: rgba(255,217,138,.36); animation-delay: .55s; }
+    .orb-core { position: absolute; inset: 31px; border-radius: 999px; background: #f8fbff; box-shadow: 0 0 18px rgba(255,255,255,.8); }
+    .orb-status { position: absolute; left: 50%; bottom: 9px; width: 38px; height: 4px; transform: translateX(-50%); border-radius: 999px; background: rgba(248,251,255,.62); }
+    .jarvis-orb.state-idle { filter: saturate(1); }
+    .jarvis-orb.state-listening { animation-duration: 1.8s; box-shadow: 0 0 34px rgba(126,231,212,.46), inset 0 0 24px rgba(255,255,255,.18); }
+    .jarvis-orb.state-thinking { animation-duration: 1.2s; background: radial-gradient(circle at 38% 32%, #f8fbff 0 7%, #ffd98a 10% 24%, #3bb5b5 38%, #17233a 68%); }
+    .jarvis-orb.state-speaking { animation-duration: .78s; box-shadow: 0 0 42px rgba(255,217,138,.5), inset 0 0 24px rgba(255,255,255,.18); }
+    @keyframes orbPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.045); } }
+    @keyframes orbRing { 0% { opacity: .18; transform: scale(.86); } 50% { opacity: .8; transform: scale(1.04); } 100% { opacity: .18; transform: scale(.86); } }
+    @media (max-width: 640px) { .hero-row { align-items: flex-start; } .jarvis-orb { width: 64px; height: 64px; } .orb-core { inset: 23px; } }
   </style>
 </head>
 <body>
   <main>
     <div class="shell">
       <section class="card">
-        <h1>J.A.R.V.I.S. Local Chat</h1>
-        <p class="muted">Ask about today's plan, instruments, safety, blockers, or the dashboard.</p>
+        <div class="hero-row">
+          <div>
+            <h1>J.A.R.V.I.S. Local Chat</h1>
+            <p class="muted">Ask about today's plan, instruments, safety, blockers, or the dashboard.</p>
+          </div>
+          <div id="jarvisOrb" class="jarvis-orb state-idle" data-state="idle" aria-label="J.A.R.V.I.S. voice state">
+            <span class="orb-core"></span>
+            <span class="orb-status"></span>
+          </div>
+        </div>
         <div class="safety">Read-only and manual-only. No broker, credentials, orders, trades, or auto-approval path is enabled.</div>
         <div class="badges" aria-label="Safety and status badges">
           <span class="badge safe">manual-only</span>
@@ -252,6 +273,7 @@ def render_chat_page() -> str:
     const speakReplyButton = document.getElementById("speakReplyButton");
     const stopVoiceButton = document.getElementById("stopVoiceButton");
     const voiceDraftButton = document.getElementById("voiceDraftButton");
+    const jarvisOrb = document.getElementById("jarvisOrb");
     const canSpeak = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition = null;
@@ -260,21 +282,39 @@ def render_chat_page() -> str:
       audioStatus.textContent = message;
     }
 
+    function setOrbState(state) {
+      const allowed = ["idle", "listening", "thinking", "speaking"];
+      const nextState = allowed.includes(state) ? state : "idle";
+      jarvisOrb.dataset.state = nextState;
+      jarvisOrb.className = "jarvis-orb state-" + nextState;
+    }
+
     function speakText(text) {
       if (!canSpeak) {
         setAudioStatus("Audio unavailable in this browser. Text remains available.");
+        setOrbState("idle");
         return;
       }
       const cleanText = (text || "").trim();
       if (!cleanText) {
         setAudioStatus("Nothing to read yet.");
+        setOrbState("idle");
         return;
       }
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.onstart = () => setAudioStatus("Speaking...");
-      utterance.onend = () => setAudioStatus("Voice ready.");
-      utterance.onerror = () => setAudioStatus("Audio unavailable. Text remains available.");
+      utterance.onstart = () => {
+        setAudioStatus("Speaking...");
+        setOrbState("speaking");
+      };
+      utterance.onend = () => {
+        setAudioStatus("Voice ready.");
+        setOrbState("idle");
+      };
+      utterance.onerror = () => {
+        setAudioStatus("Audio unavailable. Text remains available.");
+        setOrbState("idle");
+      };
       window.speechSynthesis.speak(utterance);
     }
 
@@ -285,10 +325,12 @@ def render_chat_page() -> str:
       if (recognition) {
         recognition.stop();
       }
+      setOrbState("idle");
       setAudioStatus("Voice stopped.");
     }
 
     async function readBriefingAloud() {
+      setOrbState("thinking");
       try {
         const response = await fetch("/api/voice-briefing");
         const payload = await response.json();
@@ -297,6 +339,7 @@ def render_chat_page() -> str:
         speakText(briefing);
       } catch (error) {
         setAudioStatus("Audio unavailable. Briefing text could not be loaded.");
+        setOrbState("idle");
       }
     }
 
@@ -309,17 +352,27 @@ def render_chat_page() -> str:
       recognition.continuous = false;
       recognition.interimResults = false;
       recognition.lang = "en-US";
-      recognition.onstart = () => setAudioStatus("Listening...");
+      recognition.onstart = () => {
+        setAudioStatus("Listening...");
+        setOrbState("listening");
+      };
       recognition.onresult = (event) => {
         const transcript = event.results && event.results[0] && event.results[0][0]
           ? event.results[0][0].transcript
           : "";
         question.value = transcript;
         setAudioStatus("Voice draft ready. Press Ask J.A.R.V.I.S. manually.");
+        setOrbState("idle");
       };
-      recognition.onerror = () => setAudioStatus("Microphone input unavailable in this browser.");
+      recognition.onerror = () => {
+        setAudioStatus("Microphone input unavailable in this browser.");
+        setOrbState("idle");
+      };
       recognition.onend = () => {
         recognition = null;
+        if (jarvisOrb.dataset.state === "listening") {
+          setOrbState("idle");
+        }
       };
       recognition.start();
     }
@@ -328,6 +381,7 @@ def render_chat_page() -> str:
       button.disabled = true;
       loading.classList.add("active");
       reply.textContent = "Loading reply...";
+      setOrbState("thinking");
       try {
         const response = await fetch("/api/chat", {
           method: "POST",
@@ -341,6 +395,9 @@ def render_chat_page() -> str:
       } finally {
         button.disabled = false;
         loading.classList.remove("active");
+        if (jarvisOrb.dataset.state === "thinking") {
+          setOrbState("idle");
+        }
       }
     }
 
