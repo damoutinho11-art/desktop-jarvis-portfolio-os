@@ -85,9 +85,10 @@ ACTIVE_RUNTIME_MODULE = "jarvis.jarvis_v45_0_free_research_cache_evidence_pack_b
 ACTIVE_WEEKLY_PACKET_MODULE = "jarvis.runtime.weekly_packet"
 ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE = "jarvis.runtime.allocation_strategy_audit"
 ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE = "jarvis.runtime.manual_portfolio_snapshot"
-ACTIVE_RUNTIME_STAGE = "v130.0"
+ACTIVE_RUNTIME_STAGE = "v138.0"
 STABLE_RUNTIME_FACADE = "jarvis.runtime.operator"
-CURRENT_OPERATOR_SURFACE = "one_click_local_app_launcher"
+CURRENT_OPERATOR_SURFACE = "live_news_ui_acceptance_gate"
+ACTIVE_LIVE_NEWS_UI_ACCEPTANCE_GATE_MODULE = "jarvis.runtime.live_news_ui_acceptance_gate"
 ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE = "jarvis.runtime.platform_data_completeness_gate"
 ACTIVE_MONTHLY_EXPENSES_INTAKE_MODULE = "jarvis.runtime.monthly_expenses_intake"
 ACTIVE_FINANCE_INTELLIGENCE_CORE_MODULE = "jarvis.runtime.finance_intelligence_core"
@@ -112,6 +113,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_allocation_strategy_audit_module": ACTIVE_ALLOCATION_STRATEGY_AUDIT_MODULE,
         "active_manual_portfolio_snapshot_module": ACTIVE_MANUAL_PORTFOLIO_SNAPSHOT_MODULE,
         "active_runtime_stage": ACTIVE_RUNTIME_STAGE,
+    "active_live_news_ui_acceptance_gate_module": ACTIVE_LIVE_NEWS_UI_ACCEPTANCE_GATE_MODULE,
         "active_portfolio_exposure_audit_module": "jarvis.runtime.portfolio_exposure_audit",
         "active_dynamic_target_policy_module": "jarvis.runtime.dynamic_target_policy",
         "active_platform_lane_policy_module": "jarvis.runtime.platform_lane_policy",
@@ -196,6 +198,7 @@ def format_current_operator_result(result: FreeResearchCacheEvidencePackBridgeRe
 from jarvis.runtime.daily_operator import main as _daily_operator_main
 from jarvis.runtime.final_product_acceptance_gate import build_final_product_acceptance_gate_result, format_final_product_acceptance_gate
 from jarvis.runtime.etf_identity_resolver import main as _etf_identity_resolver_main
+from jarvis.runtime.live_news_ui_acceptance_gate import main as _live_news_ui_acceptance_gate_main
 
 def main(argv: list[str] | None = None) -> int:
     """Run the stable active J.A.R.V.I.S. operator surface."""
@@ -255,6 +258,9 @@ def main(argv: list[str] | None = None) -> int:
         return _chat_interface_contract_main(args)
     if "--daily-operator" in args:
         return _daily_operator_main(args)
+
+    if "--live-news-ui-acceptance-gate" in args:
+        return _live_news_ui_acceptance_gate_main(args)
 
     if "--post-app-acceptance-gate" in args:
         return _post_app_acceptance_gate_main(args)
@@ -365,6 +371,7 @@ __all__ = [
     "ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE",
     "ACTIVE_RUNTIME_MODULE",
     "ACTIVE_SELECTED_INSTRUMENT_RESOLVER_MODULE",
+    "ACTIVE_LIVE_NEWS_UI_ACCEPTANCE_GATE_MODULE",
     "ACTIVE_RUNTIME_STAGE",
     "ACTIVE_WEEKLY_PACKET_MODULE",
     "CURRENT_OPERATOR_SURFACE",
