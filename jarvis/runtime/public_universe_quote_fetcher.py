@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 
-STATUS_READY = "JARVIS_V122_0_QUOTE_FETCH_RESILIENCE_READY_SAFE"
+STATUS_READY = "JARVIS_V123_0_AUTONOMOUS_ETF_IDENTITY_QUOTE_BRIDGE_READY_SAFE"
 DEFAULT_CACHE_PATH = "jarvis/local/public_data/v120_public_universe_quote_cache.local.json"
 DEFAULT_OUTPUT_PATH = "outputs/public_universe_quote_fetch_latest.json"
 
@@ -387,6 +387,26 @@ def _merge_cache_records(existing_records: list[Any], new_records: list[dict[str
 def _target_from_symbol(symbol: str, lane: str) -> QuoteFetchTarget | None:
     symbol = symbol.upper()
     if symbol in UNRESOLVED_PROVIDER_SYMBOLS:
+        try:
+            from jarvis.runtime.etf_identity_resolver import resolve_etf_identity
+
+            resolution = resolve_etf_identity(symbol)
+            best = resolution.best_candidate or {}
+            provider_symbol = best.get("provider_symbol")
+            if provider_symbol:
+                return QuoteFetchTarget(
+                    symbol=symbol,
+                    lane=lane,
+                    provider="yahoo_chart_read_only",
+                    provider_symbol=str(provider_symbol),
+                    manual_review_required=True,
+                    mapping_warning=(
+                        f"autonomous identity resolver selected {best.get('symbol')} / {provider_symbol} "
+                        f"for {symbol}; final buy remains manual outside J.A.R.V.I.S."
+                    ),
+                )
+        except Exception:
+            return None
         return None
 
     if lane == "crypto" or symbol in CRYPTO_ID_MAP:

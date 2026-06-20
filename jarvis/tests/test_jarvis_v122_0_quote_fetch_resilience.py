@@ -52,7 +52,7 @@ class TestJarvisV122QuoteFetchResilience(unittest.TestCase):
         symbols = {target.symbol for target in targets}
         self.assertIn("BTC", symbols)
         self.assertIn("ETH", symbols)
-        self.assertIn("GROWTH_NASDAQ_ETF", unresolved)
+        self.assertNotIn("GROWTH_NASDAQ_ETF", unresolved)
 
     def test_cache_merge_preserves_existing_records(self):
         existing = [{"symbol": "VWCE", "quote_price": 165.44}]

@@ -472,6 +472,68 @@ def _v121_answer_today_from_normalized(current_date: str) -> str:
 
 
 
+
+def _v123_quote_cache_records_by_symbol() -> dict[str, dict]:
+    import json
+    from pathlib import Path
+
+    path = Path("jarvis/local/public_data/v120_public_universe_quote_cache.local.json")
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    records = payload.get("records") or []
+    return {
+        str(record.get("symbol") or "").upper(): record
+        for record in records
+        if isinstance(record, dict) and record.get("symbol")
+    }
+
+
+def _v123_answer_growth_nasdaq_etf(current_date: str) -> str:
+    from jarvis.runtime.etf_identity_resolver import resolve_etf_identity
+
+    resolution = resolve_etf_identity("GROWTH_NASDAQ_ETF", current_date=current_date)
+    best = resolution.best_candidate or {}
+    cache = _v123_quote_cache_records_by_symbol()
+    quote = cache.get("GROWTH_NASDAQ_ETF")
+
+    lines = [
+        "GROWTH_NASDAQ_ETF identity and quote status:",
+    ]
+
+    if best:
+        lines.append(
+            f"- identity: resolved candidate {best.get('symbol')} / {best.get('provider_symbol')}; "
+            f"name={best.get('name')}; ISIN={best.get('isin')}; "
+            f"evidence_score={best.get('evidence_score')}."
+        )
+        lines.append(
+            "- evidence: " + ", ".join(best.get("evidence_reasons") or ["none"])
+        )
+    else:
+        lines.append("- identity: unresolved; J.A.R.V.I.S. needs more autonomous evidence.")
+
+    if quote:
+        lines.append(
+            f"- quote: price={quote.get('quote_price')} {quote.get('currency')}; "
+            f"24h={_v121_fmt_pct(quote.get('movement_24h_pct'))}; "
+            f"7d={_v121_fmt_pct(quote.get('movement_7d_pct'))}; "
+            f"30d={_v121_fmt_pct(quote.get('movement_30d_pct'))}; "
+            f"source={quote.get('provider')}; provider_symbol={quote.get('provider_symbol')}; "
+            f"as_of={quote.get('source_as_of')}; freshness={quote.get('freshness')}."
+        )
+        lines.append("- trust: quote is trusted for assistant display, but identity remains a candidate bridge, not an execution approval.")
+    else:
+        lines.append("- quote: not in the local quote cache yet; run the public quote fetcher to probe the resolved candidate.")
+
+    lines.append("J.A.R.V.I.S. handles the identity and quote checks autonomously. Diogo only performs the final real-world buy manually outside the system.")
+    return "\n".join(lines)
+
+
+
 def answer_finance_intelligence_question(
     query: str,
     *,
@@ -479,6 +541,8 @@ def answer_finance_intelligence_question(
     result: FinanceIntelligenceCoreResult | None = None,
 ) -> str:
     v121_query = query.lower().strip()
+    if any(term in v121_query for term in ["growth_nasdaq_etf", "growth nasdaq", "nasdaq etf", "sxrv"]):
+        return _v123_answer_growth_nasdaq_etf(current_date)
     if any(phrase in v121_query for phrase in ["what happened today", "what changed today", "what changed since last week"]):
         return _v121_answer_today_from_normalized(current_date)
     if ("etf" in v121_query and any(word in v121_query for word in ["trust", "data", "fresh", "freshness"])) or "can i trust" in v121_query:

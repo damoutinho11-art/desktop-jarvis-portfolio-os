@@ -98,7 +98,7 @@ def _detect_intent(query: str) -> str:
             "missing data",
             "before buying",
             "manual check",
-            "tell me about vwce",
+            "growth_nasdaq_etf", "growth nasdaq", "nasdaq etf", "sxrv", "tell me about vwce",
             "tell me about global_core_etf",
             "tell me about is3q",
             "tell me about btc",
