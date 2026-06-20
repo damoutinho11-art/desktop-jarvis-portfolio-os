@@ -5,6 +5,7 @@ import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
+from jarvis.runtime.assistant_symbol_aliases import normalize_asset_symbol_from_query
 
 from jarvis.runtime.fx_assistant_bridge import build_fx_assistant_bridge_result
 from jarvis.runtime.market_data_normalized import build_normalized_market_data_result
@@ -541,6 +542,12 @@ def answer_finance_intelligence_question(
     result: FinanceIntelligenceCoreResult | None = None,
 ) -> str:
     v121_query = query.lower().strip()
+    v125_alias_symbol = normalize_asset_symbol_from_query(query)
+    if v125_alias_symbol == "GROWTH_NASDAQ_ETF":
+        return _v123_answer_growth_nasdaq_etf(current_date)
+    if v125_alias_symbol in {"GLOBAL_CORE_ETF", "IS3Q.DE", "VWCE", "BTC", "ETH", "MSFT"}:
+        return _v121_answer_asset_from_normalized(v125_alias_symbol, current_date)
+
     if any(term in v121_query for term in ["growth_nasdaq_etf", "growth nasdaq", "nasdaq etf", "sxrv"]):
         return _v123_answer_growth_nasdaq_etf(current_date)
     if any(phrase in v121_query for phrase in ["what happened today", "what changed today", "what changed since last week"]):

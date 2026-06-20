@@ -5,6 +5,7 @@ import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
+from jarvis.runtime.assistant_symbol_aliases import normalize_asset_symbol_from_query
 
 from jarvis.runtime.assistant_asset_lookup import (
     build_assistant_asset_lookup_result,
@@ -79,6 +80,9 @@ def _open_dashboard_command(path: str) -> str:
 
 def _detect_intent(query: str) -> str:
     normalized = query.lower().strip()
+    v125_alias_symbol = normalize_asset_symbol_from_query(normalized)
+    if v125_alias_symbol is not None:
+        return "finance_intelligence"
 
     if not normalized:
         return "help"

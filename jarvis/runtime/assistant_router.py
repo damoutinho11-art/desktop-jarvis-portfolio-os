@@ -5,6 +5,7 @@ import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
+from jarvis.runtime.assistant_symbol_aliases import normalize_asset_symbol_from_query
 
 from jarvis.runtime.assistant_asset_lookup import (
     build_assistant_asset_lookup_result,
@@ -86,8 +87,11 @@ def _normalize(value: str) -> str:
 
 
 def _extract_asset_query(query: str) -> str:
+    alias = normalize_asset_symbol_from_query(query)
+    if alias:
+        return alias
     upper = query.upper().replace("?", " ")
-    for candidate in ["IS3Q.DE", "GLOBAL_CORE_ETF", "VWCE", "MSFT", "BTC", "ETH", "IS3Q"]:
+    for candidate in ["GROWTH_NASDAQ_ETF", "GLOBAL_CORE_ETF", "IS3Q.DE", "VWCE", "MSFT", "BTC", "ETH", "IS3Q"]:
         if candidate in upper:
             return candidate
     return query
@@ -95,6 +99,9 @@ def _extract_asset_query(query: str) -> str:
 
 def classify_assistant_intent(query: str) -> str:
     normalized = _normalize(query)
+    v125_alias_symbol = normalize_asset_symbol_from_query(query)
+    if v125_alias_symbol is not None:
+        return "asset_lookup"
     if not normalized:
         return "help"
     if any(phrase in normalized for phrase in ["manual check", "before buying", "before any external action"]):
@@ -152,7 +159,7 @@ def build_assistant_router_result(
 
     if intent == "asset_lookup":
         asset = _extract_asset_query(query)
-        if asset.upper() in {"BTC", "ETH", "VWCE", "GLOBAL_CORE_ETF", "IS3Q", "IS3Q.DE", "MSFT"}:
+        if asset.upper() in {"BTC", "ETH", "VWCE", "GLOBAL_CORE_ETF", "GROWTH_NASDAQ_ETF", "IS3Q", "IS3Q.DE", "MSFT"}:
             core = build_finance_intelligence_core_result(current_date=current_date)
             reply = answer_finance_intelligence_question(asset, current_date=current_date, result=core)
             source = "finance_intelligence_core.normalized_market_data"
