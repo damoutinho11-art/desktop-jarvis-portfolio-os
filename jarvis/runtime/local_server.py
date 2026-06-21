@@ -25,9 +25,12 @@ from jarvis.runtime.orbital_instrument_detail_panel import (
     build_orbital_instrument_detail_result,
     render_orbital_instrument_detail_panel,
 )
+from jarvis.runtime.portfolio_health_report_card import build_portfolio_health_report_card_result
 from jarvis.runtime.portfolio_orbit_view import build_portfolio_orbit_view_result, render_portfolio_orbit_view
 from jarvis.runtime.premium_chat_voice_hud import render_chat_voice_hud_page
+from jarvis.runtime.premium_orbital_design_system import render_shell, render_status_badge
 from jarvis.runtime.product_api import build_product_api_result
+from jarvis.runtime.universe_explorer import build_universe_explorer_result
 from jarvis.runtime.jarvis_session_memory import build_jarvis_session_memory_result
 from jarvis.runtime.safety import build_safety_check_console_output
 from jarvis.runtime.voice_briefing import build_voice_briefing_result
@@ -43,7 +46,10 @@ ROUTES = {
     "GET /dashboard": "generated local static dashboard HTML artifact",
     "GET /chat": "local browser chat page backed by POST /api/chat",
     "GET /orbit": "premium read-only orbital portfolio visualization",
+    "GET /universe": "premium read-only universe explorer page",
     "GET /instruments": "premium read-only orbital instrument detail panel",
+    "GET /portfolio-health": "premium read-only portfolio health report card page",
+    "GET /settings": "premium read-only local safety settings page",
     "GET /briefing": "local voice briefing text page",
     "GET /memory": "local safe session memory summary page",
     "GET /safety": "local manual-only safety summary page",
@@ -174,14 +180,107 @@ def render_instruments_page(*, current_date: str, symbol: str = "MSFT") -> str:
     return render_orbital_instrument_detail_panel(result)
 
 
+def render_universe_page(*, query: str = "find European accumulating global ETFs") -> str:
+    result = build_universe_explorer_result(query=query)
+    rows = "".join(
+        "<tr>"
+        f"<td>{html.escape(str(item.get('symbol') or 'n/a'))}</td>"
+        f"<td>{html.escape(str(item.get('name') or 'unknown'))}</td>"
+        f"<td>{html.escape(str(item.get('asset_type') or 'unknown'))}</td>"
+        f"<td>{html.escape(str(item.get('currency') or 'unknown'))}</td>"
+        f"<td>{html.escape('; '.join(item.get('why_matched') or ['manual review context']))}</td>"
+        "</tr>"
+        for item in result.top_candidates[:8]
+    ) or "<tr><td colspan='5'>No candidates loaded.</td></tr>"
+    extra_css = """
+<style>
+.universe-grid { display:grid; gap:16px; }
+.muted { color:var(--jarvis-muted); line-height:1.55; }
+.query-box { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+.query-box input { flex:1 1 280px; min-height:42px; border-radius:var(--radius-sm); border:1px solid rgba(125,218,255,.22); background:rgba(3,7,17,.72); color:var(--jarvis-text); padding:10px 12px; }
+.query-box button { min-height:42px; border:0; border-radius:var(--radius-sm); padding:10px 13px; font-weight:900; cursor:pointer; background:linear-gradient(135deg,var(--jarvis-cyan),var(--jarvis-teal)); color:#02111c; }
+</style>
+"""
+    body = f"""
+<main class="universe-grid">
+  <section class="hud-hero">
+    {render_status_badge("Manual Review Required", "review")}
+    <h1>Universe Explorer</h1>
+    <p class="muted">Read-only instrument search. Candidate matches are evidence context, not instructions.</p>
+    <form class="query-box" method="get" action="/universe">
+      <input name="q" value="{html.escape(query)}" aria-label="Universe search query">
+      <button type="submit">Search</button>
+    </form>
+  </section>
+  <section class="glass-panel">
+    <h2>Candidate Count: {result.candidate_count}</h2>
+    <p class="muted">Manual review required: {result.manual_review_required}. Missing data notes: {html.escape('; '.join(result.missing_data_notes) if result.missing_data_notes else 'none')}</p>
+    <table class="data-table"><thead><tr><th>Symbol</th><th>Name</th><th>Type</th><th>Currency</th><th>Why Matched</th></tr></thead><tbody>{rows}</tbody></table>
+  </section>
+</main>
+"""
+    return render_shell(title="J.A.R.V.I.S. Universe Explorer", active="universe", body=body, extra_head=extra_css)
+
+
+def render_portfolio_health_page(*, current_date: str) -> str:
+    result = build_portfolio_health_report_card_result(current_date=current_date)
+    strengths = "".join(f"<li>{html.escape(str(item))}</li>" for item in result.top_strengths or ["none"])
+    notes = "".join(f"<li>{html.escape(str(item))}</li>" for item in result.review_notes or ["none"])
+    extra_css = """
+<style>
+.health-grid { display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:16px; }
+.health-hero, .wide { grid-column:span 12; }
+.health-card { grid-column:span 4; }
+.muted { color:var(--jarvis-muted); line-height:1.55; }
+.compact-list { margin:0; padding-left:18px; color:var(--jarvis-muted); line-height:1.55; }
+@media (max-width:900px) { .health-card { grid-column:span 12; } }
+</style>
+"""
+    body = f"""
+<main class="health-grid">
+  <section class="hud-hero health-hero">
+    {render_status_badge(str(result.overall_status), "ready" if result.report_card_ready else "review")}
+    <h1>Portfolio Health</h1>
+    <p class="muted">Manual-only report card. Scores are conservative context for review, not financial advice.</p>
+  </section>
+  <section class="glass-panel health-card"><span class="metric-label">Readiness</span><strong class="metric-value">{result.readiness_score}</strong></section>
+  <section class="glass-panel health-card"><span class="metric-label">Diversification</span><strong class="metric-value">{result.diversification_score}</strong></section>
+  <section class="glass-panel health-card"><span class="metric-label">Freshness</span><strong class="metric-value">{result.data_freshness_score}</strong></section>
+  <section class="glass-panel wide"><h2>Strengths</h2><ul class="compact-list">{strengths}</ul></section>
+  <section class="glass-panel wide"><h2>Review Notes</h2><ul class="compact-list">{notes}</ul></section>
+</main>
+"""
+    return render_shell(title="J.A.R.V.I.S. Portfolio Health", active="portfolio-health", body=body, extra_head=extra_css)
+
+
+def render_settings_page() -> str:
+    body = """
+<main class="glass-panel">
+  <span class="status-badge state-ready">Manual-Only Settings</span>
+  <h1>Settings</h1>
+  <p class="muted">Local safety posture is fixed for this build: no broker, no credentials, no account login, no private account ingestion, no buy/sell request creation, no order tickets, no orders, no trades, no auto-approval, no approval mutation, and no allocation mutation.</p>
+  <ul class="compact-list">
+    <li>Voice input drafts text only.</li>
+    <li>Universe and fundamentals data are read-only context.</li>
+    <li>Portfolio views prepare manual review only.</li>
+  </ul>
+</main>
+"""
+    extra_css = "<style>.muted,.compact-list{color:var(--jarvis-muted);line-height:1.55}.compact-list{padding-left:18px}</style>"
+    return render_shell(title="J.A.R.V.I.S. Settings", active="settings", body=body, extra_head=extra_css)
+
+
 APP_NAV_ITEMS = (
     ("Dashboard", "/dashboard", "dashboard"),
     ("Chat", "/chat", "chat"),
     ("Orbit", "/orbit", "orbit"),
+    ("Universe", "/universe", "universe"),
     ("Instruments", "/instruments", "instruments"),
+    ("Portfolio Health", "/portfolio-health", "portfolio-health"),
     ("Briefing", "/briefing", "briefing"),
     ("Memory", "/memory", "memory"),
     ("Safety", "/safety", "safety"),
+    ("Settings", "/settings", "settings"),
 )
 
 
@@ -621,9 +720,22 @@ def make_handler(*, host: str, port: int, current_date: str) -> type[BaseHTTPReq
                 _html_response(self, render_orbit_page(current_date=current_date))
                 return
 
+            if path == "/universe":
+                universe_query = str((query.get("q") or ["find European accumulating global ETFs"])[0])
+                _html_response(self, render_universe_page(query=universe_query))
+                return
+
             if path == "/instruments":
                 symbol = str((query.get("symbol") or ["MSFT"])[0])
                 _html_response(self, render_instruments_page(current_date=current_date, symbol=symbol))
+                return
+
+            if path == "/portfolio-health":
+                _html_response(self, render_portfolio_health_page(current_date=current_date))
+                return
+
+            if path == "/settings":
+                _html_response(self, render_settings_page())
                 return
 
             if path == "/briefing":
@@ -830,7 +942,10 @@ __all__ = [
     "format_local_server_smoke",
     "render_chat_page",
     "render_orbit_page",
+    "render_universe_page",
     "render_instruments_page",
+    "render_portfolio_health_page",
+    "render_settings_page",
     "render_briefing_page",
     "render_memory_page",
     "render_safety_page",
