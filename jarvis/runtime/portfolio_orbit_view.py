@@ -267,6 +267,7 @@ def render_portfolio_orbit_view(result: PortfolioOrbitViewResult) -> str:
       <h3>Movement</h3><p class="muted" id="detailMovement">{html.escape(str(first.get("movement", "Movement context for manual review")))}</p>
       <h3>Risk Notes</h3><p class="muted" id="detailRisk">{html.escape(str(first.get("risk_note", "Review freshness and concentration.")))}</p>
       <h3>Manual Review Note</h3><p class="manual-note" id="detailManual">{html.escape(str(first.get("manual_review_note", "Prepare Manual Review.")))}</p>
+      <p><a class="status-badge state-ready" id="detailLink" href="/instruments?symbol={html.escape(str(first.get("symbol", "MSFT")))}">Open Detail Panel</a></p>
     </section>
     <section class="glass-card">
       <h2>Legend</h2>
@@ -288,6 +289,7 @@ function updateOrbitDetail(asset) {{
   document.getElementById("detailMovement").textContent = asset.movement || "Movement context for manual review";
   document.getElementById("detailRisk").textContent = asset.risk_note || "Review freshness and concentration.";
   document.getElementById("detailManual").textContent = asset.manual_review_note || "Prepare Manual Review.";
+  document.getElementById("detailLink").href = "/instruments?symbol=" + encodeURIComponent(asset.symbol || "MSFT");
 }}
 document.querySelectorAll(".planet-focus").forEach((planet) => {{
   planet.addEventListener("click", () => {{

@@ -21,6 +21,10 @@ from jarvis.runtime.chat_interface_contract import (
 from jarvis.runtime.assistant_router import build_assistant_router_result
 from jarvis.runtime.dashboard_contract import build_dashboard_contract_result, render_dashboard_html
 from jarvis.runtime.finance_intelligence_core import build_finance_intelligence_core_result
+from jarvis.runtime.orbital_instrument_detail_panel import (
+    build_orbital_instrument_detail_result,
+    render_orbital_instrument_detail_panel,
+)
 from jarvis.runtime.portfolio_orbit_view import build_portfolio_orbit_view_result, render_portfolio_orbit_view
 from jarvis.runtime.product_api import build_product_api_result
 from jarvis.runtime.jarvis_session_memory import build_jarvis_session_memory_result
@@ -38,6 +42,7 @@ ROUTES = {
     "GET /dashboard": "generated local static dashboard HTML artifact",
     "GET /chat": "local browser chat page backed by POST /api/chat",
     "GET /orbit": "premium read-only orbital portfolio visualization",
+    "GET /instruments": "premium read-only orbital instrument detail panel",
     "GET /briefing": "local voice briefing text page",
     "GET /memory": "local safe session memory summary page",
     "GET /safety": "local manual-only safety summary page",
@@ -163,10 +168,16 @@ def render_orbit_page(*, current_date: str) -> str:
     return render_portfolio_orbit_view(result)
 
 
+def render_instruments_page(*, current_date: str, symbol: str = "MSFT") -> str:
+    result = build_orbital_instrument_detail_result(current_date=current_date, symbol=symbol)
+    return render_orbital_instrument_detail_panel(result)
+
+
 APP_NAV_ITEMS = (
     ("Dashboard", "/dashboard", "dashboard"),
     ("Chat", "/chat", "chat"),
     ("Orbit", "/orbit", "orbit"),
+    ("Instruments", "/instruments", "instruments"),
     ("Briefing", "/briefing", "briefing"),
     ("Memory", "/memory", "memory"),
     ("Safety", "/safety", "safety"),
@@ -607,6 +618,11 @@ def make_handler(*, host: str, port: int, current_date: str) -> type[BaseHTTPReq
                 _html_response(self, render_orbit_page(current_date=current_date))
                 return
 
+            if path == "/instruments":
+                symbol = str((query.get("symbol") or ["MSFT"])[0])
+                _html_response(self, render_instruments_page(current_date=current_date, symbol=symbol))
+                return
+
             if path == "/briefing":
                 _html_response(self, render_briefing_page(current_date=current_date))
                 return
@@ -811,6 +827,7 @@ __all__ = [
     "format_local_server_smoke",
     "render_chat_page",
     "render_orbit_page",
+    "render_instruments_page",
     "render_briefing_page",
     "render_memory_page",
     "render_safety_page",
