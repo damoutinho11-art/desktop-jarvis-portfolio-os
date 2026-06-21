@@ -58,6 +58,7 @@ from jarvis.runtime.jarvis_experience_parity_gate import main as _jarvis_experie
 from jarvis.runtime.finance_database_universe import main as _finance_database_universe_main
 from jarvis.runtime.finance_toolkit_fundamentals import main as _finance_toolkit_fundamentals_main
 from jarvis.runtime.universe_explorer import main as _universe_explorer_main
+from jarvis.runtime.portfolio_health_report_card import main as _portfolio_health_report_card_main
 
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
@@ -123,6 +124,7 @@ ACTIVE_JARVIS_EXPERIENCE_PARITY_GATE_MODULE = "jarvis.runtime.jarvis_experience_
 ACTIVE_FINANCE_DATABASE_UNIVERSE_MODULE = "jarvis.runtime.finance_database_universe"
 ACTIVE_FINANCE_TOOLKIT_FUNDAMENTALS_MODULE = "jarvis.runtime.finance_toolkit_fundamentals"
 ACTIVE_UNIVERSE_EXPLORER_MODULE = "jarvis.runtime.universe_explorer"
+ACTIVE_PORTFOLIO_HEALTH_REPORT_CARD_MODULE = "jarvis.runtime.portfolio_health_report_card"
 
 
 def get_active_runtime_surface() -> dict[str, str]:
@@ -208,6 +210,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_finance_database_universe_module": ACTIVE_FINANCE_DATABASE_UNIVERSE_MODULE,
         "active_finance_toolkit_fundamentals_module": ACTIVE_FINANCE_TOOLKIT_FUNDAMENTALS_MODULE,
         "active_universe_explorer_module": ACTIVE_UNIVERSE_EXPLORER_MODULE,
+        "active_portfolio_health_report_card_module": ACTIVE_PORTFOLIO_HEALTH_REPORT_CARD_MODULE,
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -341,6 +344,9 @@ def main(argv: list[str] | None = None) -> int:
     if "--universe-explorer" in args:
         return _universe_explorer_main(args)
 
+    if "--portfolio-health-report-card" in args:
+        return _portfolio_health_report_card_main(args)
+
     if "--user-runbook" in args:
         return _user_runbook_main(args)
 
@@ -452,6 +458,7 @@ __all__ = [
     "ACTIVE_FINANCE_DATABASE_UNIVERSE_MODULE",
     "ACTIVE_FINANCE_TOOLKIT_FUNDAMENTALS_MODULE",
     "ACTIVE_UNIVERSE_EXPLORER_MODULE",
+    "ACTIVE_PORTFOLIO_HEALTH_REPORT_CARD_MODULE",
     "ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE",
     "ACTIVE_RUNTIME_MODULE",
     "ACTIVE_SELECTED_INSTRUMENT_RESOLVER_MODULE",
@@ -477,6 +484,7 @@ __all__ = [
     "get_active_runtime_surface",
     "main",
 ]
+
 
 
 
