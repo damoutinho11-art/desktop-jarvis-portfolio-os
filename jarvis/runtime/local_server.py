@@ -26,6 +26,7 @@ from jarvis.runtime.orbital_instrument_detail_panel import (
     render_orbital_instrument_detail_panel,
 )
 from jarvis.runtime.portfolio_orbit_view import build_portfolio_orbit_view_result, render_portfolio_orbit_view
+from jarvis.runtime.premium_chat_voice_hud import render_chat_voice_hud_page
 from jarvis.runtime.product_api import build_product_api_result
 from jarvis.runtime.jarvis_session_memory import build_jarvis_session_memory_result
 from jarvis.runtime.safety import build_safety_check_console_output
@@ -277,6 +278,8 @@ def render_safety_page(*, current_date: str) -> str:
 
 
 def render_chat_page() -> str:
+    return render_chat_voice_hud_page()
+
     return """<!doctype html>
 <html lang="en">
 <head>

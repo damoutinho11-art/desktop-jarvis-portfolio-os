@@ -207,7 +207,7 @@ def render_nav(active: str) -> str:
     for label, href, key in NAV_ITEMS:
         class_name = "active" if key == active else ""
         links.append(f'<a class="{class_name}" href="{href}">{label}</a>')
-    return '<nav class="jarvis-nav" aria-label="J.A.R.V.I.S. orbital navigation">' + "".join(links) + "</nav>"
+    return '<nav class="jarvis-nav app-nav" aria-label="J.A.R.V.I.S. orbital navigation">' + "".join(links) + "</nav>"
 
 
 def render_status_badge(label: str, state: str = "ready") -> str:

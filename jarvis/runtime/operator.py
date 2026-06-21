@@ -63,6 +63,7 @@ from jarvis.runtime.premium_orbital_design_system import main as _premium_orbita
 from jarvis.runtime.premium_command_center_dashboard import main as _premium_command_center_dashboard_main
 from jarvis.runtime.portfolio_orbit_view import main as _portfolio_orbit_view_main
 from jarvis.runtime.orbital_instrument_detail_panel import main as _orbital_instrument_detail_panel_main
+from jarvis.runtime.premium_chat_voice_hud import main as _premium_chat_voice_hud_main
 
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
@@ -133,6 +134,7 @@ ACTIVE_PREMIUM_ORBITAL_DESIGN_SYSTEM_MODULE = "jarvis.runtime.premium_orbital_de
 ACTIVE_PREMIUM_COMMAND_CENTER_DASHBOARD_MODULE = "jarvis.runtime.premium_command_center_dashboard"
 ACTIVE_PORTFOLIO_ORBIT_VIEW_MODULE = "jarvis.runtime.portfolio_orbit_view"
 ACTIVE_ORBITAL_INSTRUMENT_DETAIL_PANEL_MODULE = "jarvis.runtime.orbital_instrument_detail_panel"
+ACTIVE_PREMIUM_CHAT_VOICE_HUD_MODULE = "jarvis.runtime.premium_chat_voice_hud"
 
 
 def get_active_runtime_surface() -> dict[str, str]:
@@ -223,6 +225,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_premium_command_center_dashboard_module": ACTIVE_PREMIUM_COMMAND_CENTER_DASHBOARD_MODULE,
         "active_portfolio_orbit_view_module": ACTIVE_PORTFOLIO_ORBIT_VIEW_MODULE,
         "active_orbital_instrument_detail_panel_module": ACTIVE_ORBITAL_INSTRUMENT_DETAIL_PANEL_MODULE,
+        "active_premium_chat_voice_hud_module": ACTIVE_PREMIUM_CHAT_VOICE_HUD_MODULE,
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -371,6 +374,9 @@ def main(argv: list[str] | None = None) -> int:
     if "--orbital-instrument-detail" in args:
         return _orbital_instrument_detail_panel_main(args)
 
+    if "--chat-voice-hud-polish" in args:
+        return _premium_chat_voice_hud_main(args)
+
     if "--user-runbook" in args:
         return _user_runbook_main(args)
 
@@ -487,6 +493,7 @@ __all__ = [
     "ACTIVE_PREMIUM_COMMAND_CENTER_DASHBOARD_MODULE",
     "ACTIVE_PORTFOLIO_ORBIT_VIEW_MODULE",
     "ACTIVE_ORBITAL_INSTRUMENT_DETAIL_PANEL_MODULE",
+    "ACTIVE_PREMIUM_CHAT_VOICE_HUD_MODULE",
     "ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE",
     "ACTIVE_RUNTIME_MODULE",
     "ACTIVE_SELECTED_INSTRUMENT_RESOLVER_MODULE",
