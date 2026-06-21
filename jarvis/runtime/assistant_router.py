@@ -27,6 +27,7 @@ from jarvis.runtime.finance_intelligence_core import (
     build_finance_intelligence_core_result,
 )
 from jarvis.runtime.product_api import build_product_api_result
+from jarvis.runtime.universe_explorer import build_universe_explorer_result, format_universe_explorer
 from jarvis.runtime.voice_briefing import build_voice_briefing_result
 
 
@@ -46,6 +47,7 @@ SUPPORTED_INTENTS = [
     "crypto_market_context",
     "market_context",
     "news_context",
+    "universe_explorer",
     "allocation_explanation",
     "risk_summary",
     "data_freshness",
@@ -206,6 +208,16 @@ def classify_assistant_intent(query: str) -> str:
         ]
     ):
         return "safety"
+    if any(phrase in normalized for phrase in [
+        "find european accumulating global etfs",
+        "find quality large-cap software stocks",
+        "find quality large cap software stocks",
+        "find eur-denominated funds",
+        "find eur denominated funds",
+        "find instruments similar to",
+        "similar to msft",
+    ]) or (normalized.startswith("find ") and any(word in normalized for word in ["etf", "fund", "stock", "stocks", "instrument", "instruments", "currency", "crypto"])):
+        return "universe_explorer"
     v125_alias_symbol = normalize_asset_symbol_from_query(query)
     if v125_alias_symbol is not None:
         return "asset_lookup"
@@ -318,6 +330,15 @@ def build_assistant_router_result(
         confidence = tool.confidence
         live_fetch_enabled = bool(tool.live_fetch_enabled)
         local_cache_only = not bool(tool.live_fetch_enabled)
+        warnings.extend(tool.warnings)
+        blockers.extend(tool.blockers)
+    elif intent == "universe_explorer":
+        tool = build_universe_explorer_result(query=query)
+        reply = _jarvis_close(format_universe_explorer(tool))
+        source = "universe_explorer.metadata_search"
+        as_of = current_date
+        freshness = "metadata_context"
+        confidence = "medium"
         warnings.extend(tool.warnings)
         blockers.extend(tool.blockers)
     elif intent in {"finance_intelligence", "data_freshness", "blockers"}:
@@ -502,3 +523,4 @@ __all__ = [
     "format_assistant_router_result",
     "main",
 ]
+
