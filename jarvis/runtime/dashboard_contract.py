@@ -405,6 +405,9 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
     * { box-sizing:border-box; }
     body { margin:0; font-family:Segoe UI, Arial, sans-serif; background:var(--bg); color:var(--ink); }
     header, main { max-width:1180px; margin:0 auto; padding:20px; }
+    .app-nav { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+    .app-nav a { color:#253244; text-decoration:none; border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-weight:800; background:#fff; }
+    .app-nav a.active, .app-nav a:hover, .app-nav a:focus { background:#17202a; color:#fff; border-color:#17202a; outline:none; }
     h1 { margin:0 0 6px; font-size:clamp(28px,4vw,42px); letter-spacing:-.02em; }
     h2 { margin:0 0 14px; font-size:20px; letter-spacing:-.01em; }
     p { color:#39475a; line-height:1.5; }
@@ -452,6 +455,13 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 </head>
 <body>
 <header>
+<nav class="app-nav" aria-label="J.A.R.V.I.S. app navigation">
+<a class="active" href="/dashboard">Dashboard</a>
+<a href="/chat">Chat</a>
+<a href="/briefing">Briefing</a>
+<a href="/memory">Memory</a>
+<a href="/safety">Safety</a>
+</nav>
 <h1>J.A.R.V.I.S. Portfolio Dashboard</h1>
 <div class="subtitle">Generated locally from the read-only product API. Current date: {html.escape(result.current_date)}</div>
 <div class="safety-banner">Manual-only safety: Diogo buys outside J.A.R.V.I.S. No broker. No credentials. No orders. No trades. No buy/sell requests. No auto-approval.</div>

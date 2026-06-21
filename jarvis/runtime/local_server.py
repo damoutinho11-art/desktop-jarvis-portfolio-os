@@ -1,6 +1,7 @@
 ﻿from __future__ import annotations
 
 import argparse
+import html
 import json
 import sys
 from dataclasses import asdict, dataclass
@@ -21,7 +22,10 @@ from jarvis.runtime.assistant_router import build_assistant_router_result
 from jarvis.runtime.dashboard_contract import build_dashboard_contract_result
 from jarvis.runtime.finance_intelligence_core import build_finance_intelligence_core_result
 from jarvis.runtime.product_api import build_product_api_result
+from jarvis.runtime.jarvis_session_memory import build_jarvis_session_memory_result
+from jarvis.runtime.safety import build_safety_check_console_output
 from jarvis.runtime.voice_briefing import build_voice_briefing_result
+from jarvis.runtime.what_changed_since_last_time import build_what_changed_since_last_time_result
 
 STATUS_READY = "JARVIS_V107_0_BROWSER_CHAT_UX_POLISH_READY_SAFE"
 STATUS_REVIEW_REQUIRED = "JARVIS_V107_0_BROWSER_CHAT_UX_POLISH_REVIEW_REQUIRED_SAFE"
@@ -32,6 +36,9 @@ ROUTES = {
     "GET /health": "local server health and safety metadata",
     "GET /dashboard": "generated local static dashboard HTML artifact",
     "GET /chat": "local browser chat page backed by POST /api/chat",
+    "GET /briefing": "local voice briefing text page",
+    "GET /memory": "local safe session memory summary page",
+    "GET /safety": "local manual-only safety summary page",
     "GET /api/status": "read-only product API payload",
     "GET /api/finance-intelligence": "read-only finance intelligence core payload",
     "GET /api/voice-briefing": "read-only voice briefing text payload",
@@ -71,6 +78,16 @@ def _plain(value: Any) -> Any:
     if hasattr(value, "__dataclass_fields__"):
         return asdict(value)
     return value
+
+
+def _yes_no(value: Any) -> str:
+    return "Yes" if bool(value) else "No"
+
+
+def _html_list(items: list[Any]) -> str:
+    if not items:
+        return "<li>none</li>"
+    return "".join(f"<li>{html.escape(str(item))}</li>" for item in items)
 
 
 def _json_response(handler: BaseHTTPRequestHandler, payload: Any, status: int = 200) -> None:
@@ -142,6 +159,107 @@ def _dashboard_html(*, current_date: str) -> str:
     return "<!doctype html><html><body><h1>J.A.R.V.I.S. dashboard unavailable</h1></body></html>"
 
 
+APP_NAV_ITEMS = (
+    ("Dashboard", "/dashboard", "dashboard"),
+    ("Chat", "/chat", "chat"),
+    ("Briefing", "/briefing", "briefing"),
+    ("Memory", "/memory", "memory"),
+    ("Safety", "/safety", "safety"),
+)
+
+
+def _app_nav(active: str) -> str:
+    links = []
+    for label, href, key in APP_NAV_ITEMS:
+        class_name = "active" if key == active else ""
+        links.append(f"<a class=\"{class_name}\" href=\"{href}\">{html.escape(label)}</a>")
+    return f"<nav class=\"app-nav\" aria-label=\"J.A.R.V.I.S. app navigation\">{''.join(links)}</nav>"
+
+
+APP_PAGE_CSS = """
+    :root { color-scheme: dark; }
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; margin: 0; background: #0f1218; color: #f4f7fb; }
+    main { max-width: 960px; margin: 0 auto; padding: 28px 20px 48px; }
+    .app-nav { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+    .app-nav a { color:#dfe9fb; text-decoration:none; border:1px solid #34435a; border-radius:8px; padding:10px 12px; font-weight:800; background:#111722; }
+    .app-nav a.active, .app-nav a:hover, .app-nav a:focus { background:#f2f6ff; color:#101216; border-color:#f2f6ff; outline:none; }
+    .panel { background:#171b24; border:1px solid #2a3343; border-radius:8px; padding:22px; box-shadow:0 18px 40px rgba(0,0,0,.22); }
+    h1 { margin:0 0 8px; font-size:30px; letter-spacing:0; }
+    h2 { margin:18px 0 10px; font-size:18px; letter-spacing:0; }
+    p, li { color:#c8d3e3; line-height:1.55; }
+    ul { margin:0; padding-left:20px; }
+    .badge { display:inline-block; border:1px solid #3c714e; background:#122117; color:#dffbe9; border-radius:999px; padding:7px 10px; font-size:13px; font-weight:800; }
+    .button-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+    .button-row a { border:1px solid #5876aa; border-radius:8px; padding:10px 12px; color:#e7f0ff; text-decoration:none; font-weight:800; }
+    pre { white-space:pre-wrap; margin:12px 0 0; padding:14px; background:#101622; border:1px solid #303b4d; border-radius:8px; color:#f5f8ff; line-height:1.5; }
+"""
+
+
+def _render_app_page(*, title: str, active: str, body: str) -> str:
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{html.escape(title)}</title>
+  <style>{APP_PAGE_CSS}</style>
+</head>
+<body>
+  <main>
+    {_app_nav(active)}
+    <section class="panel">
+      {body}
+    </section>
+  </main>
+</body>
+</html>"""
+
+
+def render_briefing_page(*, current_date: str) -> str:
+    result = build_voice_briefing_result(current_date=current_date)
+    body = (
+        "<h1>Briefing</h1>"
+        "<p><span class=\"badge\">Read-only voice briefing</span></p>"
+        f"<p>{html.escape(result.text)}</p>"
+        "<div class=\"button-row\"><a href=\"/chat\">Open Chat</a><a href=\"/api/voice-briefing\">View Briefing Data</a></div>"
+    )
+    return _render_app_page(title="J.A.R.V.I.S. Briefing", active="briefing", body=body)
+
+
+def render_memory_page(*, current_date: str) -> str:
+    memory = build_jarvis_session_memory_result(mode="summary", current_date=current_date)
+    changed = build_what_changed_since_last_time_result(current_date=current_date)
+    changes = _html_list(changed.changes or ["No previous safe snapshot exists yet."])
+    body = (
+        "<h1>Memory</h1>"
+        f"<p><span class=\"badge\">{'First run' if memory.first_run else 'Memory found'}</span></p>"
+        f"<p>{html.escape(memory.summary_text)}</p>"
+        "<h2>What Changed Since Last Time</h2>"
+        f"<p>{html.escape(changed.summary_text)}</p>"
+        f"<ul>{changes}</ul>"
+        "<div class=\"button-row\"><a href=\"/dashboard\">Open Dashboard</a><a href=\"/chat\">Ask in Chat</a></div>"
+    )
+    return _render_app_page(title="J.A.R.V.I.S. Memory", active="memory", body=body)
+
+
+def render_safety_page(*, current_date: str) -> str:
+    safety_text = build_safety_check_console_output()
+    safety_ready = "BLOCKED:" in safety_text and "No execution action was taken" in safety_text
+    body = (
+        "<h1>Safety</h1>"
+        f"<p><span class=\"badge\">Safety check blocks execution: {_yes_no(safety_ready)}</span></p>"
+        "<ul>"
+        "<li>Manual approval remains required.</li>"
+        "<li>No broker connection is enabled.</li>"
+        "<li>No credentials are required.</li>"
+        "<li>No orders or trades are created.</li>"
+        "<li>No auto-approval path is enabled.</li>"
+        "</ul>"
+        "<div class=\"button-row\"><a href=\"/dashboard\">Open Dashboard</a><a href=\"/chat\">Open Chat</a></div>"
+    )
+    return _render_app_page(title="J.A.R.V.I.S. Safety", active="safety", body=body)
+
+
 def render_chat_page() -> str:
     return """<!doctype html>
 <html lang="en">
@@ -152,7 +270,10 @@ def render_chat_page() -> str:
   <style>
     :root { color-scheme: dark; }
     body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; margin: 0; background: #0f1218; color: #f4f7fb; }
-    main { max-width: 960px; margin: 0 auto; padding: 32px 20px 48px; }
+    main { max-width: 960px; margin: 0 auto; padding: 28px 20px 48px; }
+    .app-nav { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+    .app-nav a { color:#dfe9fb; text-decoration:none; border:1px solid #34435a; border-radius:8px; padding:10px 12px; font-weight:800; background:#111722; }
+    .app-nav a.active, .app-nav a:hover, .app-nav a:focus { background:#f2f6ff; color:#101216; border-color:#f2f6ff; outline:none; }
     .shell { display: grid; gap: 18px; }
     .card { background: #171b24; border: 1px solid #2a3343; border-radius: 8px; padding: 22px; box-shadow: 0 18px 40px rgba(0,0,0,.26); }
     .hero-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
@@ -197,6 +318,7 @@ def render_chat_page() -> str:
 </head>
 <body>
   <main>
+    <!--APP_NAV-->
     <div class="shell">
       <section class="card">
         <div class="hero-row">
@@ -258,8 +380,9 @@ def render_chat_page() -> str:
         </div>
         <p class="links">
           <a href="/dashboard">Dashboard</a>
-          <a href="/health">Health</a>
-          <a href="/api/status">API status</a>
+          <a href="/briefing">Briefing</a>
+          <a href="/memory">Memory</a>
+          <a href="/safety">Safety</a>
         </p>
       </section>
     </div>
@@ -419,7 +542,7 @@ def render_chat_page() -> str:
     });
   </script>
 </body>
-</html>"""
+</html>""".replace("<!--APP_NAV-->", _app_nav("chat"))
 
 
 def _chat_payload(*, query: str, current_date: str) -> dict[str, Any]:
@@ -473,6 +596,18 @@ def make_handler(*, host: str, port: int, current_date: str) -> type[BaseHTTPReq
 
             if path == "/dashboard":
                 _html_response(self, _dashboard_html(current_date=current_date))
+                return
+
+            if path == "/briefing":
+                _html_response(self, render_briefing_page(current_date=current_date))
+                return
+
+            if path == "/memory":
+                _html_response(self, render_memory_page(current_date=current_date))
+                return
+
+            if path == "/safety":
+                _html_response(self, render_safety_page(current_date=current_date))
                 return
 
             _error_response(self, f"unknown route: {path}", status=404)
@@ -666,6 +801,9 @@ __all__ = [
     "build_local_server_smoke_result",
     "format_local_server_smoke",
     "render_chat_page",
+    "render_briefing_page",
+    "render_memory_page",
+    "render_safety_page",
     "make_handler",
     "run_server",
     "main",
