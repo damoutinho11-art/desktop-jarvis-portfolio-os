@@ -84,7 +84,9 @@ def _news_ticker_ready_or_optional() -> tuple[bool, dict[str, Any]]:
         return False, {"error": f"{type(exc).__name__}: {exc}"}
     required = [
         "Market Headlines",
-        "News unavailable &mdash; not blocking today's manual plan.",
+        "Headlines are quiet - not blocking today's manual plan.",
+        "headline-ticker",
+        "ticker-scroll",
         "never recommend action from headline alone",
         "headline-tag",
     ]

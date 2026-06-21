@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
 
-from jarvis.runtime.local_server import ROUTES
+from jarvis.runtime.local_server import ROUTES, _dashboard_html
 from jarvis.runtime.local_server_live_endpoint_smoke import build_local_server_live_endpoint_smoke_result
 
 
@@ -55,6 +58,21 @@ class JarvisV1490ChatAppLaunchFixTests(unittest.TestCase):
             self.assertIn(route, result.http_checks)
             self.assertEqual(result.http_checks[route]["status"], 200)
             self.assertTrue(result.http_checks[route]["ready"])
+
+    def test_dashboard_route_uses_existing_local_dashboard_without_rebuild(self) -> None:
+        cwd = Path.cwd()
+        with tempfile.TemporaryDirectory() as tmp:
+            os.chdir(tmp)
+            try:
+                Path("outputs").mkdir()
+                Path("outputs/dashboard_latest.html").write_text("<html>cached dashboard</html>", encoding="utf-8")
+                with patch("jarvis.runtime.local_server.build_dashboard_contract_result") as builder:
+                    html = _dashboard_html(current_date="2026-06-21")
+            finally:
+                os.chdir(cwd)
+
+        self.assertIn("cached dashboard", html)
+        builder.assert_not_called()
 
 
 if __name__ == "__main__":

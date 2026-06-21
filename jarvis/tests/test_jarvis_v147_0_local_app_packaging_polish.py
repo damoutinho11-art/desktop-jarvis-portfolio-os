@@ -16,12 +16,14 @@ class JarvisV147LocalAppPackagingPolishTests(unittest.TestCase):
     def _read(self, name: str) -> str:
         return (ROOT / name).read_text(encoding="utf-8")
 
-    def test_launcher_files_contain_safety_markers_and_optional_chat(self) -> None:
+    def test_launcher_files_contain_safety_markers_and_default_local_app(self) -> None:
         for name in ["Start Jarvis.bat", "Start-Jarvis.ps1"]:
             text = self._read(name)
-            self.assertIn("JARVIS_OPEN_CHAT", text)
+            self.assertNotIn("JARVIS_OPEN_CHAT", text)
             self.assertIn("--local-server", text)
-            self.assertIn("127.0.0.1", text)
+            self.assertIn("127.0.0.1:8765", text)
+            self.assertIn("/dashboard", text)
+            self.assertIn("/chat", text)
             self.assertIn("Manual approval required", text)
             self.assertIn("No broker", text)
             self.assertIn("No credentials", text)

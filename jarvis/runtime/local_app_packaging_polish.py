@@ -21,8 +21,10 @@ REQUIRED_MARKERS = (
     "No orders",
     "No trades",
     "No auto-approval",
-    "JARVIS_OPEN_CHAT",
     "--local-server",
+    "127.0.0.1:8765",
+    "/dashboard",
+    "/chat",
 )
 RUNBOOK_REQUIRED_MARKERS = (
     "How Diogo Uses J.A.R.V.I.S. Daily",
@@ -97,9 +99,13 @@ def build_local_app_packaging_polish_result() -> LocalAppPackagingPolishResult:
     if missing_launcher_markers:
         blockers.append("launcher_safety_markers_missing")
 
-    optional_chat_helper = "JARVIS_OPEN_CHAT" in combined_launchers and "127.0.0.1:8765/chat" in combined_launchers
+    optional_chat_helper = (
+        "127.0.0.1:8765/dashboard" in combined_launchers
+        and "127.0.0.1:8765/chat" in combined_launchers
+        and "JARVIS_OPEN_CHAT" not in combined_launchers
+    )
     if not optional_chat_helper:
-        blockers.append("optional_chat_helper_missing")
+        blockers.append("local_app_dashboard_chat_launch_missing")
 
     runbook_text = _read(RUNBOOK_PATH)
     missing_runbook_markers = [marker for marker in RUNBOOK_REQUIRED_MARKERS if marker not in runbook_text]

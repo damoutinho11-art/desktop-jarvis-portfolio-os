@@ -153,6 +153,8 @@ def _health_payload(*, host: str, port: int, current_date: str) -> dict[str, Any
 
 def _dashboard_html(*, current_date: str) -> str:
     dashboard_path = Path("outputs/dashboard_latest.html")
+    if dashboard_path.exists():
+        return dashboard_path.read_text(encoding="utf-8")
     build_dashboard_contract_result(current_date=current_date, write_dashboard=True)
     if dashboard_path.exists():
         return dashboard_path.read_text(encoding="utf-8")
