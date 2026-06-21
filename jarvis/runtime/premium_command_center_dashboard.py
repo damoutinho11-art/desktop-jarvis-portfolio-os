@@ -234,17 +234,17 @@ def _ticker(news: Mapping[str, Any]) -> str:
         tag = _headline_tag(item)
         title = str(item.get("title") or "Market context unavailable")
         chips.append(
-            '<span class="ticker-chip">'
+            '<span class="ticker-chip headline-chip">'
             f'<strong class="tag-{html.escape(tag.lower())}">{html.escape(tag)}:</strong> '
             f"{html.escape(title)}"
             "</span>"
         )
     if not chips:
         chips = [
-            '<span class="ticker-chip"><strong class="tag-btc">BTC:</strong> Headlines quiet - optional context only</span>',
-            '<span class="ticker-chip"><strong class="tag-etf">ETF:</strong> Universe context ready for manual review</span>',
-            '<span class="ticker-chip"><strong class="tag-msft">MSFT:</strong> Evidence Summary available</span>',
-            '<span class="ticker-chip"><strong class="tag-macro">MACRO:</strong> Context only - never recommend action from headline alone</span>',
+            '<span class="ticker-chip headline-chip"><strong class="tag-btc">BTC:</strong> Headlines quiet - optional context only</span>',
+            '<span class="ticker-chip headline-chip"><strong class="tag-etf">ETF:</strong> Universe context ready for manual review</span>',
+            '<span class="ticker-chip headline-chip"><strong class="tag-msft">MSFT:</strong> Evidence Summary available</span>',
+            '<span class="ticker-chip headline-chip"><strong class="tag-macro">MACRO:</strong> Context only - never recommend action from headline alone</span>',
         ]
     content = '<span class="ticker-label">MARKET HEADLINES</span>' + "".join(chips) + '<span class="live-dot">CONTEXT ONLY</span>'
     return (
