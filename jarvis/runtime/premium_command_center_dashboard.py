@@ -177,9 +177,9 @@ def _dashboard_assets(
         )
     if not assets:
         assets = [
-            {"symbol": "BTC", "name": "Bitcoin", "lane": "crypto", "lane_label": "Crypto", "amount": 100.0, "freshness": "Needs review", "status": "Manual review context", "status_state": "review", "source_note": "Fixture context."},
-            {"symbol": "VWCE", "name": "Vanguard FTSE All-World UCITS ETF", "lane": "etf_fund", "lane_label": "ETF/Fund Core", "amount": 275.0, "freshness": "Needs review", "status": "Manual review context", "status_state": "review", "source_note": "Fixture context."},
-            {"symbol": "MSFT", "name": "Microsoft Corporation", "lane": "individual_stock", "lane_label": "Stock Review", "amount": 50.0, "freshness": "Needs review", "status": "Manual review context", "status_state": "review", "source_note": "Fixture context."},
+            {"symbol": "BTC", "name": "Bitcoin", "lane": "crypto", "lane_label": "Crypto", "amount": 100.0, "freshness": "Needs review", "status": "Manual review context", "status_state": "review", "source_note": "Local cached context."},
+            {"symbol": "VWCE", "name": "Vanguard FTSE All-World UCITS ETF", "lane": "etf_fund", "lane_label": "ETF/Fund Core", "amount": 275.0, "freshness": "Needs review", "status": "Manual review context", "status_state": "review", "source_note": "Local cached context."},
+            {"symbol": "MSFT", "name": "Microsoft Corporation", "lane": "individual_stock", "lane_label": "Stock Review", "amount": 50.0, "freshness": "Needs review", "status": "Manual review context", "status_state": "review", "source_note": "Local cached context."},
         ]
     total = sum(asset["amount"] for asset in assets) or 1.0
     preferred_positions = {
@@ -248,7 +248,7 @@ def _ticker(news: Mapping[str, Any]) -> str:
         ]
     content = '<span class="ticker-label">MARKET HEADLINES</span>' + "".join(chips) + '<span class="live-dot">CONTEXT ONLY</span>'
     return (
-        '<section class="headline-ticker ticker-rail" aria-label="Market Headlines">'
+        '<section class="cockpit-ticker headline-ticker ticker-rail" aria-label="Market Headlines">'
         f'<div class="ticker-track headline-track">{content}{content}</div>'
         "</section>"
     )
@@ -372,22 +372,22 @@ def render_command_center_dashboard_html(result: Any) -> str:
 <style>
 .jarvis-shell { width:min(100% - 16px, 1680px); padding:8px 0 12px; }
 .jarvis-shell > .jarvis-nav { display:none; }
-.visual-command-center { min-height:calc(100vh - 20px); display:grid; grid-template-columns:88px minmax(620px,1fr) minmax(360px,430px); grid-template-rows:88px minmax(310px,1fr) 170px 44px 74px; gap:10px; }
-.hud-frame, .cockpit-card, .left-nav-rail, .orbit-cockpit, .selected-asset-telemetry, .headline-ticker, .assistant-strip > * {
+.jarvis-cockpit { min-height:calc(100vh - 20px); display:grid; grid-template-columns:72px minmax(620px,1fr) minmax(360px,430px); grid-template-rows:78px minmax(320px,1fr) 158px 40px 72px; gap:8px; }
+.hud-frame, .cockpit-card, .cockpit-sidebar, .cockpit-orbit, .cockpit-telemetry, .cockpit-ticker, .cockpit-assistant > * {
   position:relative; border:1px solid rgba(84,220,255,.34); background:linear-gradient(145deg,rgba(7,18,33,.82),rgba(2,8,17,.74)); box-shadow:0 0 0 1px rgba(84,220,255,.06), 0 0 32px rgba(21,183,255,.10), inset 0 1px 0 rgba(255,255,255,.08); backdrop-filter:blur(14px); overflow:hidden;
 }
-.hud-frame::before, .cockpit-card::before, .left-nav-rail::before, .orbit-cockpit::before, .selected-asset-telemetry::before, .assistant-strip > *::before {
+.hud-frame::before, .cockpit-card::before, .cockpit-sidebar::before, .cockpit-orbit::before, .cockpit-telemetry::before, .cockpit-ticker::before, .cockpit-assistant > *::before {
   content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(115deg,transparent 0 38%,rgba(100,230,255,.10) 48%,transparent 60%); transform:translateX(-120%); animation:jarvisLightSweep 10s var(--motion-soft) infinite;
 }
-.top-hud { grid-column:1/-1; display:grid; grid-template-columns:230px 280px minmax(330px,1fr) 450px 96px; align-items:center; gap:12px; padding:10px 18px; clip-path:polygon(1.5% 0,98.5% 0,100% 30%,100% 100%,0 100%,0 30%); }
+.cockpit-topbar { grid-column:1/-1; display:grid; grid-template-columns:210px 260px minmax(330px,1fr) 450px 88px; align-items:center; gap:10px; padding:8px 16px; clip-path:polygon(1.5% 0,98.5% 0,100% 30%,100% 100%,0 100%,0 30%); }
 .sys-clock { display:grid; grid-template-columns:52px 1fr; gap:10px; align-items:center; color:var(--jarvis-muted); font-family:var(--font-mono); }
 .clock-radar, .integrity-ring, .assistant-orb { border-radius:50%; background:radial-gradient(circle,#eafaff 0 8%,var(--jarvis-cyan) 12%,rgba(16,57,83,.42) 36%,transparent 63%); box-shadow:0 0 28px rgba(85,223,255,.42), inset 0 0 16px rgba(255,255,255,.16); animation:jarvisCoreBreath 4s ease-in-out infinite; }
 .clock-radar { width:44px; aspect-ratio:1; }
 .sys-clock strong { color:#dff8ff; font-size:18px; letter-spacing:0; }
 .brand-lockup { text-align:center; }
-.brand-lockup h1 { margin:0; font-size:34px; letter-spacing:.22em; text-shadow:0 0 22px rgba(178,234,255,.65); }
+.brand-lockup h1 { margin:0; font-size:32px; letter-spacing:.22em; text-shadow:0 0 22px rgba(178,234,255,.65); }
 .brand-lockup span { display:block; margin-top:3px; color:#9fdfff; font-weight:800; letter-spacing:.16em; }
-.ready-banner { justify-self:stretch; text-align:center; border:1px solid rgba(85,223,255,.54); color:var(--jarvis-cyan); font-size:24px; font-weight:950; letter-spacing:.12em; padding:10px 16px 8px; clip-path:polygon(8% 0,92% 0,100% 50%,92% 100%,8% 100%,0 50%); box-shadow:0 0 30px rgba(85,223,255,.18), inset 0 0 28px rgba(85,223,255,.08); }
+.ready-banner { justify-self:stretch; text-align:center; border:1px solid rgba(85,223,255,.54); color:var(--jarvis-cyan); font-size:22px; font-weight:950; letter-spacing:.12em; padding:8px 16px 7px; clip-path:polygon(8% 0,92% 0,100% 50%,92% 100%,8% 100%,0 50%); box-shadow:0 0 30px rgba(85,223,255,.18), inset 0 0 28px rgba(85,223,255,.08); }
 .ready-banner small { display:block; margin-top:5px; color:#b9d9ee; font-size:12px; font-weight:700; letter-spacing:0; }
 .status-cluster { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
 .sys-badge { display:grid; grid-template-columns:34px 1fr; gap:9px; align-items:center; color:#a8c8df; font-size:11px; font-weight:800; text-transform:uppercase; }
@@ -395,12 +395,12 @@ def render_command_center_dashboard_html(result: Any) -> str:
 .sys-badge strong { display:block; color:var(--jarvis-green); margin-top:2px; }
 .integrity-ring { width:74px; aspect-ratio:1; display:grid; place-items:center; justify-self:end; color:#dff8ff; font-weight:950; }
 .integrity-ring span { font-size:10px; color:var(--jarvis-muted); display:block; }
-.left-nav-rail { grid-column:1; grid-row:2/6; padding:12px 8px; display:grid; gap:8px; align-content:start; border-radius:8px; }
-.rail-link { min-height:54px; display:grid; place-items:center; gap:3px; color:#9fc4dc; text-decoration:none; border:1px solid transparent; border-radius:7px; font-size:10px; font-weight:850; text-transform:uppercase; }
+.cockpit-sidebar { grid-column:1; grid-row:2/6; padding:10px 6px; display:grid; gap:7px; align-content:start; border-radius:8px; }
+.rail-link { min-height:51px; display:grid; place-items:center; gap:3px; color:#9fc4dc; text-decoration:none; border:1px solid transparent; border-radius:7px; font-size:9px; font-weight:850; text-transform:uppercase; }
 .rail-link b { font-size:18px; color:#7ddaff; }
 .rail-link.active, .rail-link:hover, .rail-link:focus { color:#eaffff; border-color:rgba(85,223,255,.55); background:rgba(85,223,255,.12); box-shadow:0 0 24px rgba(85,223,255,.18); outline:none; }
 .rail-build { align-self:end; color:#5aa8c8; font-size:10px; text-align:center; }
-.orbit-cockpit { grid-column:2; grid-row:2; min-height:310px; border-radius:8px; }
+.cockpit-orbit { grid-column:2; grid-row:2; min-height:320px; border-radius:8px; }
 .dashboard-orbit { position:absolute; inset:10px; overflow:hidden; }
 .orbit-grid { position:absolute; inset:0; background:radial-gradient(circle at 52% 52%,rgba(85,223,255,.12),transparent 29%), radial-gradient(circle at 12% 4%,rgba(255,191,92,.12),transparent 20%); }
 .orbit-grid::before { content:""; position:absolute; inset:-30%; background-image:linear-gradient(rgba(85,223,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(85,223,255,.045) 1px,transparent 1px); background-size:44px 44px; transform:rotate(-8deg); animation:jarvisGridDrift 20s linear infinite; }
@@ -425,16 +425,16 @@ def render_command_center_dashboard_html(result: Any) -> str:
 .planet-label em { color:#b3d4ea; font-style:normal; font-size:14px; }
 .orbit-legend { position:absolute; left:16px; bottom:16px; color:#9dc6dd; font-size:12px; line-height:1.55; }
 .allocation-mark { position:absolute; right:16px; top:16px; color:#8fdcff; text-align:right; font-size:12px; font-weight:800; }
-.selected-asset-telemetry { grid-column:3; grid-row:2; border-radius:8px; padding:16px 18px; display:grid; gap:10px; align-content:start; }
+.cockpit-telemetry { grid-column:3; grid-row:2; border-radius:8px; padding:14px 16px; display:grid; gap:8px; align-content:start; }
 .telemetry-head { display:flex; justify-content:space-between; gap:12px; align-items:start; border-bottom:1px solid rgba(85,223,255,.18); padding-bottom:10px; }
 .telemetry-head h2 { margin:0; font-size:16px; color:#b8d8ed; letter-spacing:.06em; }
 .telemetry-head strong { color:var(--jarvis-cyan); font-size:24px; margin-left:8px; }
-.telemetry-row { display:grid; grid-template-columns:118px 1fr; gap:12px; border-bottom:1px solid rgba(85,223,255,.13); padding:9px 0; }
+.telemetry-row { display:grid; grid-template-columns:118px 1fr; gap:12px; border-bottom:1px solid rgba(85,223,255,.13); padding:8px 0; }
 .telemetry-row b { color:#8fdcff; font-size:12px; text-transform:uppercase; }
 .telemetry-row span, .telemetry-row li { color:#c5d8e8; line-height:1.45; }
 .telemetry-row ul { margin:0; padding-left:17px; }
-.cockpit-cards { grid-column:2; grid-row:3; display:grid; grid-template-columns:1.05fr 1.15fr 1fr 1fr; gap:10px; }
-.cockpit-card { border-radius:8px; padding:13px 14px; }
+.cockpit-cards { grid-column:2; grid-row:3; display:grid; grid-template-columns:1.05fr 1.15fr 1fr 1fr; gap:8px; }
+.cockpit-card { border-radius:8px; padding:11px 12px; }
 .cockpit-card h2, .market-movement h2 { margin:0 0 10px; color:#a8dcff; font-size:14px; letter-spacing:.05em; text-transform:uppercase; }
 .plan-row { display:grid; grid-template-columns:20px 1fr auto; gap:8px; align-items:center; border-top:1px solid rgba(85,223,255,.12); padding:8px 0; color:#c9ddec; }
 .lane-dot, .asset-pill { width:12px; height:12px; border-radius:50%; display:inline-block; box-shadow:0 0 14px currentColor; color:var(--jarvis-cyan); background:currentColor; }
@@ -447,7 +447,7 @@ def render_command_center_dashboard_html(result: Any) -> str:
 .status-list li, .change-list li { display:flex; justify-content:space-between; gap:8px; }
 .status-list span, .change-list span, .green { color:var(--jarvis-green); }
 .amber { color:var(--jarvis-amber); }
-.market-movement { grid-column:3; grid-row:3; border-radius:8px; padding:13px 14px; }
+.cockpit-market { grid-column:3; grid-row:3; border-radius:8px; padding:11px 12px; }
 .market-table { width:100%; border-collapse:collapse; font-size:12px; }
 .market-table th, .market-table td { padding:7px 6px; border-bottom:1px solid rgba(85,223,255,.12); text-align:left; vertical-align:middle; }
 .market-table th { color:#7fb8d4; font-size:10px; text-transform:uppercase; }
@@ -458,7 +458,7 @@ def render_command_center_dashboard_html(result: Any) -> str:
 .mini-status { display:inline-block; border-radius:999px; padding:3px 7px; font-size:10px; font-weight:900; text-transform:uppercase; }
 .mini-status.state-ready { color:var(--jarvis-green); background:rgba(120,242,168,.10); border:1px solid rgba(120,242,168,.28); }
 .mini-status.state-review { color:var(--jarvis-amber); background:rgba(255,191,92,.10); border:1px solid rgba(255,191,92,.28); }
-.headline-ticker { grid-column:1/-1; grid-row:4; border-radius:8px; display:flex; align-items:center; }
+.cockpit-ticker { grid-column:1/-1; grid-row:4; border-radius:8px; display:flex; align-items:center; }
 .headline-track { display:flex; align-items:center; gap:18px; min-width:max-content; animation:ticker-scroll 38s linear infinite; }
 .ticker-label { color:#9fdfff; border-right:1px solid rgba(85,223,255,.35); padding:0 18px; font-weight:950; letter-spacing:.06em; }
 .ticker-chip { color:#dcebf4; white-space:nowrap; }
@@ -468,8 +468,8 @@ def render_command_center_dashboard_html(result: Any) -> str:
 .ticker-chip .tag-etf, .tag-etf { color:var(--jarvis-cyan); }
 .ticker-chip .tag-macro, .tag-macro { color:var(--jarvis-amber); }
 .live-dot { color:var(--jarvis-green); font-weight:900; }
-.assistant-strip { grid-column:2/4; grid-row:5; display:grid; grid-template-columns:1fr 160px 1.05fr; gap:10px; }
-.assistant-strip > * { border-radius:8px; padding:12px 16px; }
+.cockpit-assistant { grid-column:2/4; grid-row:5; display:grid; grid-template-columns:1fr 160px 1.05fr; gap:8px; }
+.cockpit-assistant > * { border-radius:8px; padding:10px 14px; }
 .quote-panel { display:grid; place-items:center; color:#bde9ff; text-align:center; font-size:16px; }
 .map-panel { display:grid; place-items:center; color:#7fb8d4; }
 .assistant-panel { display:grid; grid-template-columns:58px 1fr 96px; gap:12px; align-items:center; color:#c7e7f5; }
@@ -482,52 +482,51 @@ def render_command_center_dashboard_html(result: Any) -> str:
 @keyframes planetFloat { 0%,100% { filter:brightness(1); } 50% { filter:brightness(1.2); } }
 @keyframes focusBracket { 0%,100% { opacity:.55; transform:scale(.98); } 50% { opacity:1; transform:scale(1.04); } }
 @keyframes voiceWave { 0%,100% { transform:scaleY(.7); opacity:.55; } 50% { transform:scaleY(1.1); opacity:1; } }
-@media (max-width:1180px) { .visual-command-center { grid-template-columns:72px 1fr; grid-template-rows:auto auto auto auto auto auto; } .top-hud, .headline-ticker { grid-column:1/-1; } .selected-asset-telemetry, .market-movement, .cockpit-cards, .assistant-strip, .orbit-cockpit { grid-column:2; grid-row:auto; } .left-nav-rail { grid-row:2/7; } .top-hud { grid-template-columns:1fr; text-align:center; } .status-cluster { grid-template-columns:repeat(3,minmax(0,1fr)); } .integrity-ring { justify-self:center; } }
-@media (max-width:760px) { .visual-command-center { display:block; } .visual-command-center > * { margin-bottom:10px; } .left-nav-rail { display:flex; overflow:auto; } .cockpit-cards, .assistant-strip { grid-template-columns:1fr; display:grid; } .planet-label strong { font-size:14px; } .selected-asset-telemetry { min-height:auto; } }
+@media (max-width:1180px) { .jarvis-cockpit { grid-template-columns:72px 1fr; grid-template-rows:auto auto auto auto auto auto; } .cockpit-topbar, .cockpit-ticker { grid-column:1/-1; } .cockpit-telemetry, .cockpit-market, .cockpit-cards, .cockpit-assistant, .cockpit-orbit { grid-column:2; grid-row:auto; } .cockpit-sidebar { grid-row:2/7; } .cockpit-topbar { grid-template-columns:1fr; text-align:center; } .status-cluster { grid-template-columns:repeat(3,minmax(0,1fr)); } .integrity-ring { justify-self:center; } }
+@media (max-width:760px) { .jarvis-cockpit { display:block; } .jarvis-cockpit > * { margin-bottom:10px; } .cockpit-sidebar { display:flex; overflow:auto; } .cockpit-cards, .cockpit-assistant { grid-template-columns:1fr; display:grid; } .planet-label strong { font-size:14px; } .cockpit-telemetry { min-height:auto; } }
 </style>
 """
     body = f"""
-<main class="visual-command-center">
+<main class="jarvis-cockpit visual-command-center">
   <span class="sr-only">J.A.R.V.I.S. Portfolio Dashboard</span>
   <span class="sr-only">Premium orbital portfolio command center. What Changed Since Last Time. Last Session. Safe derived summaries only. Manual Holdings Summary. System Checks / Safety. Context only - never recommend action from headline alone.</span>
-  <header class="top-hud hud-frame">
+  <header class="cockpit-topbar top-hud hud-frame">
     <div class="sys-clock"><span class="clock-radar"></span><div><small>SYS</small><strong>{html.escape(result.current_date)}</strong><small>LOCAL</small></div></div>
     <div class="brand-lockup"><h1>J.A.R.V.I.S.</h1><span>PORTFOLIO OS</span></div>
     <div class="ready-banner">{html.escape(display_status)}<small>{html.escape(safety_line)}</small></div>
     <div class="status-cluster">
-      <div class="sys-badge"><span class="sys-icon">DF</span><span>Data Feed<strong>LIVE</strong></span></div>
-      <div class="sys-badge"><span class="sys-icon">SY</span><span>System<strong>NOMINAL</strong></span></div>
-      <div class="sys-badge"><span class="sys-icon">SC</span><span>Security<strong>LOCKED</strong></span></div>
+      <div class="sys-badge"><span class="sys-icon">DF</span><span>Data Feed<strong>Local Cache</strong></span></div>
+      <div class="sys-badge"><span class="sys-icon">SY</span><span>System<strong>Nominal</strong></span></div>
+      <div class="sys-badge"><span class="sys-icon">SC</span><span>Security<strong>Locked</strong></span></div>
     </div>
     <div class="integrity-ring">100%<span>INTEGRITY</span></div>
   </header>
 
-  <nav class="left-nav-rail" aria-label="Command center navigation">
+  <nav class="cockpit-sidebar left-nav-rail" aria-label="Command center navigation">
     <a class="rail-link active" href="/dashboard"><b>O</b>Dashboard</a>
-    <a class="rail-link" href="/chat"><b>C</b>Chat</a>
-    <a class="rail-link" href="/orbit"><b>R</b>Orbit</a>
-    <a class="rail-link" href="/universe"><b>U</b>Universe</a>
-    <a class="rail-link" href="/instruments"><b>I</b>Instruments</a>
-    <a class="rail-link" href="/portfolio-health"><b>H</b>Health</a>
+    <a class="rail-link" href="/portfolio-health"><b>P</b>Portfolio</a>
+    <a class="rail-link" href="/universe"><b>U</b>Watchlist</a>
+    <a class="rail-link" href="/instruments"><b>I</b>Insights</a>
+    <a class="rail-link" href="/chat"><b>J</b>J.A.R.V.I.S.</a>
     <a class="rail-link" href="/memory"><b>M</b>Memory</a>
     <a class="rail-link" href="/safety"><b>S</b>Safety</a>
     <a class="rail-link" href="/settings"><b>G</b>Settings</a>
-    <a class="rail-link" href="/briefing"><b>B</b>Briefing</a>
-    <span class="rail-build">v167<br>VISUAL</span>
+    <span class="sr-only">Chat Orbit Universe Instruments Portfolio Health Briefing</span>
+    <span class="rail-build">v169<br>COCKPIT</span>
   </nav>
 
-  <section class="orbit-cockpit" aria-label="Portfolio Orbit command panel">
+  <section class="cockpit-orbit orbit-cockpit" aria-label="Portfolio Orbit command panel">
     <div class="dashboard-orbit">
       <div class="orbit-grid"></div>
       <div class="allocation-mark">PORTFOLIO ALLOCATION<br>100.0%</div>
       <div class="orbit-ring-line r1"></div><div class="orbit-ring-line r2"></div><div class="orbit-ring-line r3"></div><div class="orbit-ring-line r4"></div>
-      <div class="dashboard-core orbital-core"><strong>J.A.R.V.I.S.</strong><span>PORTFOLIO CORE</span></div>
+      <div class="dashboard-core orbital-core"><strong>J.A.R.V.I.S.</strong><span>Portfolio Core</span><span class="sr-only">PORTFOLIO CORE</span></div>
       {orbit_planets}
       <div class="orbit-legend"><strong>ORBIT VIEW</strong><br>Allocation = Size<br>Freshness = Glow<br>Review = Amber outline</div>
     </div>
   </section>
 
-  <aside class="selected-asset-telemetry" aria-label="Selected asset telemetry">
+  <aside class="cockpit-telemetry selected-asset-telemetry" aria-label="Selected asset telemetry">
     <div class="telemetry-head"><h2>SELECTED:<strong>{html.escape(str(selected_asset.get("symbol")))}</strong></h2><span>LAST UPDATE<br>{html.escape(str(selected_asset.get("freshness")))}</span></div>
     <div class="telemetry-row"><b>Role</b><span>{html.escape(str(selected_asset.get("lane_label")))}<br>{html.escape(str(selected_asset.get("name")))}</span></div>
     <div class="telemetry-row"><b>Status</b><span>{html.escape(str(selected_asset.get("status")))}<br>No Action Taken. Monitor and review.</span></div>
@@ -537,23 +536,24 @@ def render_command_center_dashboard_html(result: Any) -> str:
   </aside>
 
   <section class="cockpit-cards">
-    <article class="cockpit-card"><h2>Today's Manual Plan</h2>{plan_rows}<p class="muted">Stay disciplined. You are in control.</p></article>
-    <article class="cockpit-card"><h2>Portfolio Health</h2><div class="health-gauge"><div>{health_score}</div></div><ul class="status-list"><li>Diversification <span>Good</span></li><li>Data Freshness <span>Good</span></li><li>Safety <span>Strong</span></li><li>Review Context <span class="amber">Manual</span></li></ul></article>
-    <article class="cockpit-card"><h2>What Changed</h2><ul class="change-list">{changed_items}</ul><p class="muted">{html.escape(changed_summary)}</p></article>
-    <article class="cockpit-card"><h2>System Checks</h2><ul class="status-list"><li>Data Feeds <span>{data_feeds_label}</span></li><li>Calculations <span>{calculations_label}</span></li><li>Safety <span>Locked</span></li><li>Integrity <span>100%</span></li><li>AI Systems <span>Nominal</span></li></ul><p class="muted">All systems remain manual-only.</p></article>
+    <article class="cockpit-card cockpit-plan"><h2>Today's Manual Plan</h2>{plan_rows}<p class="muted">Stay disciplined. You are in control.</p></article>
+    <article class="cockpit-card cockpit-health"><h2>Portfolio Health</h2><div class="health-gauge"><div>{health_score}</div></div><ul class="status-list"><li>Diversification <span>Good</span></li><li>Data Freshness <span>Good</span></li><li>Safety <span>Strong</span></li><li>Review Context <span class="amber">Manual</span></li></ul></article>
+    <article class="cockpit-card cockpit-changes"><h2>What Changed</h2><ul class="change-list">{changed_items}</ul><p class="muted">{html.escape(changed_summary)}</p></article>
+    <article class="cockpit-card cockpit-checks"><h2>System Checks</h2><ul class="status-list"><li>Data Feeds <span>{data_feeds_label}</span></li><li>Calculations <span>{calculations_label}</span></li><li>Safety <span>Locked</span></li><li>Integrity <span>100%</span></li><li>AI Systems <span>Nominal</span></li></ul><p class="muted">All systems remain manual-only.</p></article>
   </section>
 
-  <section class="market-movement">
+  <section class="cockpit-market market-movement">
     <h2>Market Movement</h2>
     <table class="market-table"><thead><tr><th>Asset</th><th>Price</th><th>24H</th><th>Trend</th><th>Status</th></tr></thead><tbody>{movement_rows}</tbody></table>
   </section>
 
   {ticker_html}
 
-  <section class="assistant-strip" aria-label="assistant chat voice panel">
+  <section class="cockpit-assistant assistant-strip" aria-label="assistant/chat/voice marker">
+    <span class="sr-only">assistant chat voice panel</span>
     <div class="quote-panel">Discipline is choosing between what you want now and what you want most.<br><span class="muted">- J.A.R.V.I.S.</span></div>
     <div class="map-panel">GLOBAL CONTEXT<br><span class="muted">{html.escape(universe_symbols)}</span></div>
-    <a class="assistant-panel" href="/chat"><span class="assistant-orb"></span><span><strong>How can I assist your analysis today?</strong><br><small>Open chat for voice controls</small></span><span class="voice-wave"></span></a>
+    <a class="assistant-panel" href="/chat"><span class="assistant-orb"></span><span><strong>How can I assist your analysis today?</strong><br><small>Open chat or use voice</small></span><span class="voice-wave"></span></a>
   </section>
 </main>
 """
