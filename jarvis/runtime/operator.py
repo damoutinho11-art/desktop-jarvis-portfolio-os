@@ -56,6 +56,7 @@ from jarvis.runtime.local_app_packaging_polish import main as _local_app_packagi
 from jarvis.runtime.final_safe_jarvis_experience_gate import main as _final_safe_jarvis_experience_gate_main
 from jarvis.runtime.jarvis_experience_parity_gate import main as _jarvis_experience_parity_gate_main
 from jarvis.runtime.finance_database_universe import main as _finance_database_universe_main
+from jarvis.runtime.finance_toolkit_fundamentals import main as _finance_toolkit_fundamentals_main
 
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
@@ -119,6 +120,7 @@ ACTIVE_LOCAL_APP_PACKAGING_POLISH_MODULE = "jarvis.runtime.local_app_packaging_p
 ACTIVE_FINAL_SAFE_JARVIS_EXPERIENCE_GATE_MODULE = "jarvis.runtime.final_safe_jarvis_experience_gate"
 ACTIVE_JARVIS_EXPERIENCE_PARITY_GATE_MODULE = "jarvis.runtime.jarvis_experience_parity_gate"
 ACTIVE_FINANCE_DATABASE_UNIVERSE_MODULE = "jarvis.runtime.finance_database_universe"
+ACTIVE_FINANCE_TOOLKIT_FUNDAMENTALS_MODULE = "jarvis.runtime.finance_toolkit_fundamentals"
 
 
 def get_active_runtime_surface() -> dict[str, str]:
@@ -202,6 +204,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_final_safe_jarvis_experience_gate_module": ACTIVE_FINAL_SAFE_JARVIS_EXPERIENCE_GATE_MODULE,
         "active_jarvis_experience_parity_gate_module": ACTIVE_JARVIS_EXPERIENCE_PARITY_GATE_MODULE,
         "active_finance_database_universe_module": ACTIVE_FINANCE_DATABASE_UNIVERSE_MODULE,
+        "active_finance_toolkit_fundamentals_module": ACTIVE_FINANCE_TOOLKIT_FUNDAMENTALS_MODULE,
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -329,6 +332,9 @@ def main(argv: list[str] | None = None) -> int:
     if "--finance-database-universe" in args:
         return _finance_database_universe_main(args)
 
+    if "--finance-toolkit-fundamentals" in args:
+        return _finance_toolkit_fundamentals_main(args)
+
     if "--user-runbook" in args:
         return _user_runbook_main(args)
 
@@ -438,6 +444,7 @@ __all__ = [
     "ACTIVE_FINAL_SAFE_JARVIS_EXPERIENCE_GATE_MODULE",
     "ACTIVE_JARVIS_EXPERIENCE_PARITY_GATE_MODULE",
     "ACTIVE_FINANCE_DATABASE_UNIVERSE_MODULE",
+    "ACTIVE_FINANCE_TOOLKIT_FUNDAMENTALS_MODULE",
     "ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE",
     "ACTIVE_RUNTIME_MODULE",
     "ACTIVE_SELECTED_INSTRUMENT_RESOLVER_MODULE",
@@ -463,6 +470,7 @@ __all__ = [
     "get_active_runtime_surface",
     "main",
 ]
+
 
 
 
