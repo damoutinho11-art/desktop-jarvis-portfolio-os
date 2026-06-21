@@ -68,6 +68,7 @@ from jarvis.runtime.premium_motion_gate import main as _premium_motion_gate_main
 from jarvis.runtime.premium_visual_parity_pass import main as _premium_visual_parity_pass_main
 from jarvis.runtime.visual_acceptance_gate import main as _visual_acceptance_gate_main
 from jarvis.runtime.cockpit_dashboard_hard_rebuild import main as _cockpit_dashboard_hard_rebuild_main
+from jarvis.runtime.strict_visual_layout_gate import main as _strict_visual_layout_gate_main
 
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
@@ -143,6 +144,7 @@ ACTIVE_PREMIUM_MOTION_GATE_MODULE = "jarvis.runtime.premium_motion_gate"
 ACTIVE_PREMIUM_VISUAL_PARITY_PASS_MODULE = "jarvis.runtime.premium_visual_parity_pass"
 ACTIVE_VISUAL_ACCEPTANCE_GATE_MODULE = "jarvis.runtime.visual_acceptance_gate"
 ACTIVE_COCKPIT_DASHBOARD_HARD_REBUILD_MODULE = "jarvis.runtime.cockpit_dashboard_hard_rebuild"
+ACTIVE_STRICT_VISUAL_LAYOUT_GATE_MODULE = "jarvis.runtime.strict_visual_layout_gate"
 
 
 def get_active_runtime_surface() -> dict[str, str]:
@@ -238,6 +240,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_premium_visual_parity_pass_module": ACTIVE_PREMIUM_VISUAL_PARITY_PASS_MODULE,
         "active_visual_acceptance_gate_module": ACTIVE_VISUAL_ACCEPTANCE_GATE_MODULE,
         "active_cockpit_dashboard_hard_rebuild_module": ACTIVE_COCKPIT_DASHBOARD_HARD_REBUILD_MODULE,
+        "active_strict_visual_layout_gate_module": ACTIVE_STRICT_VISUAL_LAYOUT_GATE_MODULE,
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -401,6 +404,9 @@ def main(argv: list[str] | None = None) -> int:
     if "--cockpit-dashboard-hard-rebuild" in args:
         return _cockpit_dashboard_hard_rebuild_main(args)
 
+    if "--strict-visual-layout-gate" in args:
+        return _strict_visual_layout_gate_main(args)
+
     if "--user-runbook" in args:
         return _user_runbook_main(args)
 
@@ -522,6 +528,7 @@ __all__ = [
     "ACTIVE_PREMIUM_VISUAL_PARITY_PASS_MODULE",
     "ACTIVE_VISUAL_ACCEPTANCE_GATE_MODULE",
     "ACTIVE_COCKPIT_DASHBOARD_HARD_REBUILD_MODULE",
+    "ACTIVE_STRICT_VISUAL_LAYOUT_GATE_MODULE",
     "ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE",
     "ACTIVE_RUNTIME_MODULE",
     "ACTIVE_SELECTED_INSTRUMENT_RESOLVER_MODULE",
