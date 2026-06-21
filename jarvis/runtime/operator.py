@@ -60,6 +60,7 @@ from jarvis.runtime.finance_toolkit_fundamentals import main as _finance_toolkit
 from jarvis.runtime.universe_explorer import main as _universe_explorer_main
 from jarvis.runtime.portfolio_health_report_card import main as _portfolio_health_report_card_main
 from jarvis.runtime.premium_orbital_design_system import main as _premium_orbital_design_system_main
+from jarvis.runtime.premium_command_center_dashboard import main as _premium_command_center_dashboard_main
 
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
@@ -127,6 +128,7 @@ ACTIVE_FINANCE_TOOLKIT_FUNDAMENTALS_MODULE = "jarvis.runtime.finance_toolkit_fun
 ACTIVE_UNIVERSE_EXPLORER_MODULE = "jarvis.runtime.universe_explorer"
 ACTIVE_PORTFOLIO_HEALTH_REPORT_CARD_MODULE = "jarvis.runtime.portfolio_health_report_card"
 ACTIVE_PREMIUM_ORBITAL_DESIGN_SYSTEM_MODULE = "jarvis.runtime.premium_orbital_design_system"
+ACTIVE_PREMIUM_COMMAND_CENTER_DASHBOARD_MODULE = "jarvis.runtime.premium_command_center_dashboard"
 
 
 def get_active_runtime_surface() -> dict[str, str]:
@@ -214,6 +216,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_universe_explorer_module": ACTIVE_UNIVERSE_EXPLORER_MODULE,
         "active_portfolio_health_report_card_module": ACTIVE_PORTFOLIO_HEALTH_REPORT_CARD_MODULE,
         "active_premium_orbital_design_system_module": ACTIVE_PREMIUM_ORBITAL_DESIGN_SYSTEM_MODULE,
+        "active_premium_command_center_dashboard_module": ACTIVE_PREMIUM_COMMAND_CENTER_DASHBOARD_MODULE,
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -353,6 +356,9 @@ def main(argv: list[str] | None = None) -> int:
     if "--premium-orbital-design-system" in args:
         return _premium_orbital_design_system_main(args)
 
+    if "--command-center-dashboard" in args:
+        return _premium_command_center_dashboard_main(args)
+
     if "--user-runbook" in args:
         return _user_runbook_main(args)
 
@@ -466,6 +472,7 @@ __all__ = [
     "ACTIVE_UNIVERSE_EXPLORER_MODULE",
     "ACTIVE_PORTFOLIO_HEALTH_REPORT_CARD_MODULE",
     "ACTIVE_PREMIUM_ORBITAL_DESIGN_SYSTEM_MODULE",
+    "ACTIVE_PREMIUM_COMMAND_CENTER_DASHBOARD_MODULE",
     "ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE",
     "ACTIVE_RUNTIME_MODULE",
     "ACTIVE_SELECTED_INSTRUMENT_RESOLVER_MODULE",

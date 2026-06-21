@@ -281,7 +281,7 @@ def _calm_dashboard_notes(result: DashboardContractResult, holdings: Mapping[str
     return _dedupe(notes)[:4]
 
 
-def render_dashboard_html(result: DashboardContractResult) -> str:
+def _render_legacy_dashboard_html(result: DashboardContractResult) -> str:
     sections = result.sections
     status = sections["status"]
     week = sections["week_plan"]
@@ -598,6 +598,13 @@ def render_dashboard_html(result: DashboardContractResult) -> str:
 </body>
 </html>
 """
+
+
+def render_dashboard_html(result: DashboardContractResult) -> str:
+    from jarvis.runtime.premium_command_center_dashboard import render_command_center_dashboard_html
+
+    return render_command_center_dashboard_html(result)
+
 
 def build_dashboard_contract_result(
     *,
