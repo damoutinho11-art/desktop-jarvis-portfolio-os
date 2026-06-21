@@ -65,6 +65,7 @@ from jarvis.runtime.portfolio_orbit_view import main as _portfolio_orbit_view_ma
 from jarvis.runtime.orbital_instrument_detail_panel import main as _orbital_instrument_detail_panel_main
 from jarvis.runtime.premium_chat_voice_hud import main as _premium_chat_voice_hud_main
 from jarvis.runtime.premium_motion_gate import main as _premium_motion_gate_main
+from jarvis.runtime.premium_visual_parity_pass import main as _premium_visual_parity_pass_main
 
 from jarvis.jarvis_v45_0_free_research_cache_evidence_pack_bridge import (
     DEFAULT_EVIDENCE_PACK_PATH,
@@ -137,6 +138,7 @@ ACTIVE_PORTFOLIO_ORBIT_VIEW_MODULE = "jarvis.runtime.portfolio_orbit_view"
 ACTIVE_ORBITAL_INSTRUMENT_DETAIL_PANEL_MODULE = "jarvis.runtime.orbital_instrument_detail_panel"
 ACTIVE_PREMIUM_CHAT_VOICE_HUD_MODULE = "jarvis.runtime.premium_chat_voice_hud"
 ACTIVE_PREMIUM_MOTION_GATE_MODULE = "jarvis.runtime.premium_motion_gate"
+ACTIVE_PREMIUM_VISUAL_PARITY_PASS_MODULE = "jarvis.runtime.premium_visual_parity_pass"
 
 
 def get_active_runtime_surface() -> dict[str, str]:
@@ -229,6 +231,7 @@ def get_active_runtime_surface() -> dict[str, str]:
         "active_orbital_instrument_detail_panel_module": ACTIVE_ORBITAL_INSTRUMENT_DETAIL_PANEL_MODULE,
         "active_premium_chat_voice_hud_module": ACTIVE_PREMIUM_CHAT_VOICE_HUD_MODULE,
         "active_premium_motion_gate_module": ACTIVE_PREMIUM_MOTION_GATE_MODULE,
+        "active_premium_visual_parity_pass_module": ACTIVE_PREMIUM_VISUAL_PARITY_PASS_MODULE,
         "execution_forbidden": True,
         "manual_approval_required": True,
         "current_operator_surface": CURRENT_OPERATOR_SURFACE,
@@ -383,6 +386,9 @@ def main(argv: list[str] | None = None) -> int:
     if "--premium-motion-gate" in args:
         return _premium_motion_gate_main(args)
 
+    if "--premium-visual-parity-pass" in args:
+        return _premium_visual_parity_pass_main(args)
+
     if "--user-runbook" in args:
         return _user_runbook_main(args)
 
@@ -501,6 +507,7 @@ __all__ = [
     "ACTIVE_ORBITAL_INSTRUMENT_DETAIL_PANEL_MODULE",
     "ACTIVE_PREMIUM_CHAT_VOICE_HUD_MODULE",
     "ACTIVE_PREMIUM_MOTION_GATE_MODULE",
+    "ACTIVE_PREMIUM_VISUAL_PARITY_PASS_MODULE",
     "ACTIVE_PLATFORM_DATA_COMPLETENESS_GATE_MODULE",
     "ACTIVE_RUNTIME_MODULE",
     "ACTIVE_SELECTED_INSTRUMENT_RESOLVER_MODULE",
