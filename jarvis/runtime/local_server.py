@@ -21,6 +21,7 @@ from jarvis.runtime.chat_interface_contract import (
 from jarvis.runtime.assistant_router import build_assistant_router_result
 from jarvis.runtime.dashboard_contract import build_dashboard_contract_result, render_dashboard_html
 from jarvis.runtime.finance_intelligence_core import build_finance_intelligence_core_result
+from jarvis.runtime.portfolio_orbit_view import build_portfolio_orbit_view_result, render_portfolio_orbit_view
 from jarvis.runtime.product_api import build_product_api_result
 from jarvis.runtime.jarvis_session_memory import build_jarvis_session_memory_result
 from jarvis.runtime.safety import build_safety_check_console_output
@@ -36,6 +37,7 @@ ROUTES = {
     "GET /health": "local server health and safety metadata",
     "GET /dashboard": "generated local static dashboard HTML artifact",
     "GET /chat": "local browser chat page backed by POST /api/chat",
+    "GET /orbit": "premium read-only orbital portfolio visualization",
     "GET /briefing": "local voice briefing text page",
     "GET /memory": "local safe session memory summary page",
     "GET /safety": "local manual-only safety summary page",
@@ -156,9 +158,15 @@ def _dashboard_html(*, current_date: str) -> str:
     return render_dashboard_html(result)
 
 
+def render_orbit_page(*, current_date: str) -> str:
+    result = build_portfolio_orbit_view_result(current_date=current_date)
+    return render_portfolio_orbit_view(result)
+
+
 APP_NAV_ITEMS = (
     ("Dashboard", "/dashboard", "dashboard"),
     ("Chat", "/chat", "chat"),
+    ("Orbit", "/orbit", "orbit"),
     ("Briefing", "/briefing", "briefing"),
     ("Memory", "/memory", "memory"),
     ("Safety", "/safety", "safety"),
@@ -595,6 +603,10 @@ def make_handler(*, host: str, port: int, current_date: str) -> type[BaseHTTPReq
                 _html_response(self, _dashboard_html(current_date=current_date))
                 return
 
+            if path == "/orbit":
+                _html_response(self, render_orbit_page(current_date=current_date))
+                return
+
             if path == "/briefing":
                 _html_response(self, render_briefing_page(current_date=current_date))
                 return
@@ -798,6 +810,7 @@ __all__ = [
     "build_local_server_smoke_result",
     "format_local_server_smoke",
     "render_chat_page",
+    "render_orbit_page",
     "render_briefing_page",
     "render_memory_page",
     "render_safety_page",
